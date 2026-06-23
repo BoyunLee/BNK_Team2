@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# VSCode
+.vscode/
+
+# Node
+node_modules/
+dist/
+
+# Environment
+.env
+.env.local
