@@ -21,9 +21,6 @@
   cursor: pointer;
   font-family: inherit;
 }
-.cta__btn--ghost {
-  background: var(--bnk-red-soft);
-}
 .cta__btn--main {
   background: var(--bnk-red);
 }

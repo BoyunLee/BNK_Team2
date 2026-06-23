@@ -32,10 +32,7 @@ export function ProductDetailPage({ product }: { product: Product }) {
         {tab === 'terms' && <DocumentList documents={product.documents} />}
       </main>
 
-      <ActionBar
-        onApply={() => alert('대출신청 플로우 연결 예정')}
-        onRefinance={() => alert('상생대환 플로우 연결 예정')}
-      />
+      <ActionBar onApply={() => alert('대출신청 플로우 연결 예정')} />
     </div>
   );
 }

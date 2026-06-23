@@ -68,7 +68,7 @@ export function ProductListPage() {
           <span>부산은행</span>
         </div>
         <h1 className="list-head__title">여신상품몰</h1>
-        <p className="list-head__sub">AI로 찾는 맞춤 대출 상품</p>
+        <p className="list-head__sub">부산은행 대출상품을 한눈에</p>
       </header>
 
       <div className="search">
