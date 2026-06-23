@@ -1,0 +1,192 @@
+[
+  {
+    "name": "모바일 전월세보증금 대출",
+    "category": "담보대출",
+    "mkpd_cd": "0300000140",
+    "fpcd": "0010400156",
+    "lrg_clacd": "04",
+    "catchphrase": "전월세보증금 대출도 모바일에서 간편하게",
+    "rateMin": "4.3",
+    "rateMax": "4.9"
+  },
+  {
+    "name": "BNK신탁자산(주택청약저축)담보대출",
+    "category": "담보대출",
+    "mkpd_cd": "0300000822",
+    "fpcd": "0010400036",
+    "lrg_clacd": "02",
+    "catchphrase": "급하게 여유자금이 필요할 때 신탁자산 해지 없이",
+    "rateMin": "4.16",
+    "rateMax": "5.16"
+  },
+  {
+    "name": "BNK인터넷예적금담보대출",
+    "category": "담보대출",
+    "mkpd_cd": "0300000382",
+    "fpcd": "0010400037",
+    "lrg_clacd": "02",
+    "catchphrase": "긴급자금이 필요할 때 적립식/거치식 예금 해지없이",
+    "rateMin": "수신금리+1.30",
+    "rateMax": null
+  },
+  {
+    "name": "BNK인터넷펀드담보대출",
+    "category": "담보대출",
+    "mkpd_cd": "0300000831",
+    "fpcd": "0010400038",
+    "lrg_clacd": "02",
+    "catchphrase": "급하게 여유자금이 필요할 때 펀드 해지 없이",
+    "rateMin": "5.8",
+    "rateMax": "6.5"
+  },
+  {
+    "name": "ONE주택담보대출",
+    "category": "담보대출",
+    "mkpd_cd": "0300010400",
+    "fpcd": "0010400238",
+    "lrg_clacd": "03",
+    "catchphrase": "내가 주도하는 금융 생활 고정금리기간 자율적으로 선택 가능한 주택담보대출",
+    "rateMin": "3.11",
+    "rateMax": "5.78"
+  },
+  {
+    "name": "부산시 소상공인 3無 희망잇기 마이너스대출",
+    "category": "보증서대출",
+    "mkpd_cd": "0300010832",
+    "fpcd": "0010400232",
+    "lrg_clacd": "06",
+    "catchphrase": "부산시 소상공인께 마이너스대출 한도를 드리는",
+    "rateMin": "4.7",
+    "rateMax": "4.7"
+  },
+  {
+    "name": "새희망홀씨Ⅱ",
+    "category": "서민금융",
+    "mkpd_cd": "0300000161",
+    "fpcd": "0010400190",
+    "lrg_clacd": "01",
+    "catchphrase": "새로운 희망을 드리는 착한금융상품",
+    "rateMin": "3.7",
+    "rateMax": "10.5"
+  },
+  {
+    "name": "햇살론 특례보증",
+    "category": "서민금융",
+    "mkpd_cd": "0300013809",
+    "fpcd": "0010400241",
+    "lrg_clacd": "01",
+    "catchphrase": "저신용자를 위한 포용금융 서민금융진흥원 보증서 대출상품",
+    "rateMin": "6",
+    "rateMax": "6"
+  },
+  {
+    "name": "BNK 사잇돌 중금리대출",
+    "category": "서민금융",
+    "mkpd_cd": "0300000129",
+    "fpcd": "0010400144",
+    "lrg_clacd": "01",
+    "catchphrase": "급여소득자, 개인사업자를 위한 SGI보증서 대출",
+    "rateMin": "5.8",
+    "rateMax": "9.5"
+  },
+  {
+    "name": "BNK 징검다리론",
+    "category": "서민금융",
+    "mkpd_cd": "0300018407",
+    "fpcd": "",
+    "lrg_clacd": "01",
+    "catchphrase": "정책서민금융상품 성실상환자 맞춤대출",
+    "rateMin": "6.2",
+    "rateMax": "9"
+  },
+  {
+    "name": "돌아와요 부산항에 청년 신용대출",
+    "category": "신용대출",
+    "mkpd_cd": "0300013204",
+    "fpcd": "0010400239",
+    "lrg_clacd": "01",
+    "catchphrase": "수도권에서 부산·울산·경남으로 전입 &취업한 청년급여소득자 전용신용대출",
+    "rateMin": "2.65",
+    "rateMax": "2.65"
+  },
+  {
+    "name": "비상금 동백론",
+    "category": "신용대출",
+    "mkpd_cd": "0300000744",
+    "fpcd": "0010400227",
+    "lrg_clacd": "01",
+    "catchphrase": "동백전 이용 고객을 위한 비상금 대출",
+    "rateMin": "4.9",
+    "rateMax": "9.8"
+  },
+  {
+    "name": "BNK Welcome Global 대출",
+    "category": "신용대출",
+    "mkpd_cd": "0300000184",
+    "fpcd": "0010400226",
+    "lrg_clacd": "01",
+    "catchphrase": "외국인 근로자 전용 신용대출",
+    "rateMin": "7.9",
+    "rateMax": "15"
+  },
+  {
+    "name": "BNK공무원가계자금대출",
+    "category": "신용대출",
+    "mkpd_cd": "0300000359",
+    "fpcd": "0010400027",
+    "lrg_clacd": "01",
+    "catchphrase": "공무원연금관리공단 협약대출상품",
+    "rateMin": "3.5",
+    "rateMax": "5"
+  },
+  {
+    "name": "BNK공무원연금수급권자신용대출",
+    "category": "신용대출",
+    "mkpd_cd": "0300000020",
+    "fpcd": "0010400028",
+    "lrg_clacd": "01",
+    "catchphrase": "공무원연금관리공단 협약대출상품",
+    "rateMin": "5",
+    "rateMax": "7.8"
+  },
+  {
+    "name": "BNK와 함께하는 미래설계대출",
+    "category": "신용대출",
+    "mkpd_cd": "0300017001",
+    "fpcd": "",
+    "lrg_clacd": "01",
+    "catchphrase": "부산 거주 청년 직장인을 위한 BNK와 함께 만드는 맞춤 금융",
+    "rateMin": "0.1",
+    "rateMax": "6"
+  },
+  {
+    "name": "ONE스피드론",
+    "category": "신용대출",
+    "mkpd_cd": "0300000299",
+    "fpcd": "0010400222",
+    "lrg_clacd": "01",
+    "catchphrase": "소득 및 거래실적을 반영한 초간편 사전승인 대출",
+    "rateMin": "5.5",
+    "rateMax": "9.8"
+  },
+  {
+    "name": "ONE장기근속 직장인 우대대출",
+    "category": "신용대출",
+    "mkpd_cd": "0300000306",
+    "fpcd": "0010400224",
+    "lrg_clacd": "01",
+    "catchphrase": "장기근속직장인을 위한 특별대출",
+    "rateMin": "3.8",
+    "rateMax": "12.5"
+  },
+  {
+    "name": "ONE퍼스트 금융인대출",
+    "category": "신용대출",
+    "mkpd_cd": "0300000183",
+    "fpcd": "0010400225",
+    "lrg_clacd": "01",
+    "catchphrase": "금융인을 위한 특별대출!",
+    "rateMin": "3.62",
+    "rateMax": "6.82"
+  }
+]

@@ -1,0 +1,2577 @@
+<script type="text/javascript">
+            
+            BASE_MENU_ID = "FPMLON092100000";
+            BASE_WIDGET_ID = "FPMPDT092INQV1CM";
+            START_WIDGET_ID = "FPMPDT092INQV1BM";
+            BASE_MENU_NAME = "전체상품";
+            SITE_NAME = "금융상품";
+
+            
+            var SITE_MAIN_MENU_ID = "FPM00001";
+            var LOGIN_MENU_ID = "/ib20/mnu/BHPLIN0010001";
+            //엑셀다운로드 기능을 위해 초기값세팅
+            if(EXCEL_INFO == undefined)
+                var EXCEL_INFO  = "";
+
+			
+            reqType = "WIDGET";
+            
+        </script>
+
+
+            
+            
+            
+            
+            
+
+<script type="text/javascript">
+       CURRENT_WIDGET_NAME="대출상세보기>전체상품>대출상품>대출>금융상품 | 부산은행(BHP0501)"
+</script>
+
+
+ 
+
+
+
+
+
+
+
+
+<script type="text/javascript" src="/resource/js/web/ui.js?"></script>
+<script type="text/javascript" src="/resource/js/web/ui_atm.js?"></script>
+<script type="text/javascript" src="/resource/js/web/echarts.min.js?"></script>
+<script type="text/javascript" src="/fpm/js/cmn/FPMcommon.js"></script>
+
+
+
+
+
+
+
+
+
+<!-- [2025.09.05 조정우 주석추가 ]js 명시적 임포트하지않고 loadScript로 처리하게된 히스토리 내역  
+■■ssp상품안내장 관련 소스 구조도■■
+(1). 업무별 상품상세 뷰파일( ex.MWPFPM610000V00M.jsp ) : ssp-pdt-js.tag (import)   
+
+(2). ssp-pdt-js.tag (현재파일) : 테이블 조회해서 받아온 SSP JS들을 'sspTmpltInfo' 변수로 받아옴 (import)  / ct_product_digital_nib.js (import) / hammer.min.js (import)
+- 함수선언 ( gfn_initSSpPdtCntn )
+
+(3). 테이블 조회 JS 
+- 함수선언 ( bindingData, loadDigitalLtiv, loadDigitalPanc )
+
+(4). ct_product_digital_nib.js
+- 함수선언 ( setTransCntn, appDigital )
+
+(5). hammer.min.js
+- 함수선언 ( hammer) 
+
+
+* 함수호출 케이스 V1. :  (1)에서 시작 >> gfn_initSSpPdtCntn(2) >> bindingData(3) >> loadDigitalLtiv(3) >> setTransCntn(4)
+setTransCntn 호출할때 undefined 오류가났음 >> 호출하기전에 onload 로  ct_product_digital_nib.js(4) load됨을 확인하여 콜백으로 처리 ==> 25.09.04 프로그램 배포완료
+
+* 함수호출 케이스 V2. :  (1)에서 시작 >> gfn_initSSpPdtCntn(2) >> bindingData(3) >> loadDigitalLtiv(3) >> setTransCntn(4) >> appDigital(4) >> new Hammer(5) 
+appDigital 에서 hammer 생성자 호출할때 undefined 오류발생 >> ... (현재진행형) ... >> 현재파일에서 import 하는 모든 js들의 onload를 확인받고(CNT로 체크) 콜백으로처리하는것으로 결정 (25.09.05) 
+
+-->
+
+
+
+<!-- [현재파일에서 import 하는 js 목록] 
+1. /cmn/js/include/jquery-ui-1.10.3.custom.min.js
+2. /resource/Common_dssp3/js/lib/hammer-2.0.8/hammer.min.js?
+3. /resource/Common_dssp3/js/ct_product_digital_nib.js
+4. /resource/Common_dssp3/js/lib/swiper.min.js	==> 채널이 IB일때만 import
+-->
+<link rel="stylesheet" href="/resource/Common_dssp3/css/ct_product_digital.css?v=20260616000001">
+
+<script type="text/javascript">
+function gfn_initSSpPdtCntn(dom, pCallback, pFundno) {
+    var SCRIPT_CHK_CNT = 0;
+    var lStrCurrMkpdCd = "0300000382";
+    var lStrCurrMkpdKnm = "BNK인터넷예적금담보대출";
+    var ifn_errorLogAction = function(pSuccFlag, pMessage) {
+        try {
+            // [2025.08.18 OU15127] SSP 오류 메시지 수정.
+            var logParamData = {"CMD": "SSP_ERROR_LOG", "MKPD_CD": lStrCurrMkpdCd, "MKPD_KNM": lStrCurrMkpdKnm, "SSP_MENU_ID": BASE_MENU_ID, "ib20_cur_mnu": BASE_MENU_ID, "SSP_LOG_MSG":pMessage };
+            $.ajax({
+                "type": "POST"
+                , "url": "/ib20/act/CMNCMNSSP001A00M"
+                , "cache": false
+                , "data": logParamData
+                , "async": "async"
+                , "contentType": "application/x-www-form-urlencoded;charset=utf-8"
+                , "dataType": "json"
+            });
+        } catch(ex) {
+        }
+    };
+    
+    var loadScript = function(filePath, callback) {
+      try{
+          const script = document.createElement('script');  
+          script.src = filePath;
+          script.onload = callback;
+          
+          document.head.appendChild(script);
+          
+      } catch(e){          
+          ifn_errorLogAction(false, "script loading error");
+      }
+    };
+    
+    try {
+        var lStrSSP_CHNL_DVCD = "IB";
+        var jqDom = $(dom);
+        var currObj = jqDom.find(".SSP-PDT-CNTN.INIT-SSP-PDT-CNTN:first");
+        var lObjSspMappRsltData = JSON.parse(decodeURIComponent($.trim(currObj.find("input.SSP_TMPLT_JSON_TEXT").val())));
+        var bindingDataCallback = null;
+        if(lStrSSP_CHNL_DVCD == "IB") {
+            // [2025.08.18 OU15127] SSP 오류 메시지 수정. 
+            bindingDataCallback = function(pSuccFlag, pMessage) {
+                currObj.find(".gcss_ssp_PdtPrv .link").off("click").on("click", function(pEvt) {
+                    var thisObj = $(this);
+                    var prvIndex = thisObj.data("index");
+                    if(prvIndex == null) {
+                        prvIndex = thisObj.index(".link");
+                    }
+                    var prvName = $.trim(thisObj.text());
+                    var pPrvData = thisObj.data();
+                    if(pPrvData && $.isPlainObject(pPrvData.prv_item)) {
+                        var prvItem = pPrvData.prv_item;
+                        var path = $.trim(prvItem.SSP_DOC_PATH_VAL);
+                        var fileName = $.trim(prvItem.CTS_FILE_NM);
+                        if(path != "" && fileName != "") {
+                            var fileDir = path + "/" + fileName;
+                            var formDown = JUtilForm.createForm("downloadForm");
+                            formDown.action = fileDir;
+                            formDown.target = "_blank";
+                            formDown.submit();
+                        }
+                    }
+                });
+                if(pCallback) {
+                    pCallback(pSuccFlag, pMessage);
+                }
+            };
+        } else if(lStrSSP_CHNL_DVCD == "CB") {
+            // [2025.08.18 OU15127] SSP 오류 메시지 수정. START
+            bindingDataCallback = function(pSuccFlag, pMessage) {
+                if(pCallback) {                 
+                    pCallback(pSuccFlag, pMessage);
+                }
+            };
+            // [2025.08.18 OU15127] SSP 오류 메시지 수정. END
+        } else {
+          // [2025.08.18 OU15127] SSP 오류 메시지 수정.
+            bindingDataCallback = function(pSuccFlag, pMessage) {
+                //개별약관 보기 클릭
+                currObj.off("click", ".gcss_ssp_PdtPrv .link").on("click", ".gcss_ssp_PdtPrv .link", function(pEvt) {
+                    var thisObj = $(this);
+                    var prvIndex = thisObj.data("index");
+                    if(prvIndex == null) {
+                        prvIndex = thisObj.index(".link");
+                    }
+                    //var prvIndex = thisObj.index(".link");
+                    var prvName = $.trim(thisObj.text());
+                    gfn_openSspDlPrvPopup(dom, lStrSSP_CHNL_DVCD, lStrCurrMkpdCd, prvIndex, prvName, function(pAgreeData) {
+                    }, thisObj);
+                });
+                currObj.removeClass("INIT-SSP-PDT-CNTN");
+                if(pCallback) {
+                    // [2025.08.18 OU15127] SSP 오류 메시지 수정.
+                    pCallback(pSuccFlag, pMessage);
+                }
+            }
+        }
+        
+        var sspBindCallFunc = function(){
+            var checkYn = false;
+            
+            SCRIPT_CHK_CNT++;            
+            
+            if("IB" == "IB"){
+                if(SCRIPT_CHK_CNT == 4){
+                    checkYn = true;
+                }            
+            }else{
+                if(SCRIPT_CHK_CNT == 3){
+                    checkYn = true;
+                }    
+            }
+            
+            if(checkYn){
+                bindingData(lObjSspMappRsltData, dom, function(pSuccFlag, pMessage) {
+                    if(!pSuccFlag) {
+                        // [2025.08.18 OU15127] SSP 오류 메시지 수정.
+                        ifn_errorLogAction(pSuccFlag, pMessage);           
+                        
+                        // [2025.09.09 OU15127] SSP 오류 시, 메시지 띄우고, Home 으로 이동 처리 추가.
+                        var dialogMsg = "상품정보를 불러오는 중입니다.<br/>잠시 후 진행 부탁드립니다.";
+                        setErrorMessageFunc(dialogMsg);
+                    }
+                    
+                    if(bindingDataCallback) {
+                        // [2025.08.18 OU15127] SSP 오류 메시지 수정.
+                        bindingDataCallback(pSuccFlag, pMessage);
+                    }
+                }, lStrSSP_CHNL_DVCD, pFundno == null ? "" : pFundno);
+            }
+        }        
+        
+        
+        
+        loadScript("/cmn/js/include/jquery-ui-1.10.3.custom.min.js?v=20260616000001",function(){
+            sspBindCallFunc();
+        });
+        
+        if("IB" == "IB"){
+            loadScript("/resource/Common_dssp3/js/lib/swiper.min.js",function(){            
+                sspBindCallFunc();
+            });    
+        }
+        
+        loadScript("/resource/Common_dssp3/js/lib/hammer-2.0.8/hammer.min.js?v=20260616000001",function(){            
+            sspBindCallFunc();
+        });
+        
+        loadScript("/resource/Common_dssp3/js/ct_product_digital_nib.js?v=20260616000001",function(){            
+            sspBindCallFunc();
+        });
+        
+    } catch(ex) {
+        try {
+            if(window["ConsoleLog"]) {
+                ConsoleLog(ex);
+            } else {
+                console.log(ex);
+            }
+        } catch(ex2) {
+            
+        }
+        ifn_errorLogAction();
+        if(pCallback) {
+            pCallback(false);
+        }
+    }
+}
+
+
+
+</script>
+
+    
+    
+    
+<script type="text/javascript"> 
+    window["ExtBridgeUtils"] = {
+        BRIDGE_CHNL_ID: "IB"
+        , alert: function(pMessage, pOptions) {
+            var lObjParamData = {"content": pMessage};
+            if($.isFunction(pOptions)) {
+                lObjParamData.callback = pOptions;
+            } else if($.isPlainObject(pOptions)) {
+                $.extend(true, lObjParamData, pOptions);
+            }
+            Message.alert(pMessage, "", lObjParamData.callback);
+        }
+    };
+</script>
+    
+
+
+
+<script type="text/javascript">
+//약관뷰어 팝업 호출 02:마케팅상품코드, 04:서비스코드
+//컨텐츠배포채널구분코드 (IB:개인인터넷뱅킹, SB:개인모바일뱅킹, CB:기업인터넷뱅킹, MB:기업모바일뱅킹, DL:디지털안내장)*/
+function gfn_openSspDlPrvPopup(pDom, pChnlDvcd, pMkpdCd, pPrvNo, prvName, pCallback, pLinkObj) {
+    var linkObj =$(pLinkObj);
+    var pCtsMngmId = pMkpdCd;
+    var prvItem = linkObj.data("prv_item");
+    if(prvItem && prvItem.CTS_MNGM_ID) {
+        pCtsMngmId = prvItem.CTS_MNGM_ID;
+    }
+    var sspList = [{CTS_MNGM_CLACD : "02", CTS_MNGM_ID: pCtsMngmId, CTS_GNO: 1}];
+    if(pChnlDvcd == "IB") {
+        
+    } else if(pChnlDvcd == "SB") {
+        var agreeParam = {
+            WO_NDV_DV_CD: "N",     // 전체(Y) or 개별(N)
+            PRV_INQ_SNO: pPrvNo  ,     // 표시하고자 하는 약관순번x(0베이스)
+            VIEW_ONLY: "Y",     // 약관보기모드(Y or N)
+            TERM_TITLE: prvName, // 약관제목(약관명등 설정)
+        };
+        agreeParam.SSP_PRV_LIST = JSON.stringify(sspList);
+        agreeParam.FPCD = "";
+        var popupLayer = showPopup("MWPCMNK00000V00P", agreeParam);
+        /*
+        var lObjReqData = {"CTS_MNGM_CLACD": "02", "CTS_MNGM_ID": pCtsMngmId, "CTS_DPLY_CHNL_DVCD": "DL", "WO_NDV_DV_CD": "N", "PRV_INQ_SNO": pPrvNo, "PRV_AG_MTD": "C"};
+        var popupLayer = showPopup("MWPSSPDMO001V00P", lObjReqData); // MWPCMNK00000V00P
+        popupLayer.onClose(function(pLayerPopupResp) {
+            var lObjActResp = pLayerPopupResp.data || {};
+            if($.isFunction(pCallback)) {
+                pCallback(lObjActResp);
+            }
+        });
+        */
+    } else if(pChnlDvcd == "MB") {
+        var agreeParam = {WO_NDV_DV_CD: "N", PRV_INQ_SNO: pPrvNo, VIEW_ONLY: "Y", TERM_TITLE: prvName, SSP_PRV_LIST: JSON.stringify(sspList)};
+        BizUtil.cmn.showPDF.open(pDom, agreeParam, function(agdData) {});
+    }
+    return false;
+}
+
+//[2025.0909. OU15127] SSP 오류 발생 시, 메시지 보여준 뒤 홈으로 이동처리.
+function setErrorMessageFunc(dialogMsg){
+    if("IB" == "IB"){
+        Message.alert(dialogMsg, "", function(){         
+            goMenu("BHP00001");
+        });    
+    }else{
+        // [2025.08.18 OU15127] SSP 오류 메시지 수정.
+        var lObjParamData = {"content": dialogMsg};
+        
+        var callbackFunc = function(){                                    
+            goHome();
+        };
+
+        lObjParamData.callback = callbackFunc;
+        MessageDialog.alert(lObjParamData);
+    }
+}
+</script>
+<script>
+    /* Data 처리 (타시스템 호출용) */
+    function bindingData(data, bDom, callback, chnl) {
+        var isSuccess = true;
+
+        /* 2025.11.20 | OU15130 | bindingData state Object추가하여 예외처리 프로세스 수정. */
+        var errMessage;
+        var state = {
+            'isSuccess': isSuccess,
+            'errMessage': errMessage
+        };
+
+        if (typeof data == "string") {
+            data = JSON.parse(data);
+        }
+
+        var doc;
+        if (!!bDom) {
+            doc =jQuery(bDom);
+        } else {
+            doc =jQuery(document);
+        }
+
+        try {
+
+            /* 디지털안내장 */
+            loadDigitalInfo(data.dtb_Digit, chnl, doc, state);
+
+            /* 상품정보 */
+            loadDigitalPdtData(data.dtb_Data, chnl, doc, state);
+
+            /* 상품안내정보 */
+            loadDigitalLtiv(data.dtb_Ltiv, chnl, doc, true, state);
+
+            /* 금리안내 */
+            if (data.hasOwnProperty("dtb_Inrst") && data.hasOwnProperty("dtb_Ntrt")) {
+                loadDigitalNtrt(data.dtb_Inrst, data.dtb_Ntrt, chnl, doc, true, state);
+            }
+
+            /* 상품약관 */
+            doc.find(".digital-guide-container ul.tabs-menu li:last()").hide();
+            if (chnl != 'TBL') {
+                doc.find(".digital-guide-container ul.tabs-menu li:last()").show();
+                /* 목록 */
+                loadDigitalPdtPrv(data.dtb_Prv, chnl, doc, state);
+            }
+
+            /**/
+            //isSuccess = true;
+        } catch (error) {
+            //isSuccess = false;
+            state.isSuccess = false;
+            state.errMessage = "[SSP13_0110] bindingData catch Error : " + error.message;
+        } finally {            
+            if (typeof callback == 'function') callback(state.isSuccess, state.errMessage);
+        }
+    }
+    
+    /**/
+    function getTransCntn(cntn, adnCntn) {
+        var regExp = new RegExp("\\(([^)]+)\\)+$", "g");
+
+        var addEpl = "";
+        if (!!adnCntn) {
+            addEpl = "(" + adnCntn + ")";
+        } else {
+            var matched = cntn.match(regExp);
+            
+            if (!!matched && matched.length > 0) {
+                addEpl = matched[matched.length - 1];
+            }
+        }
+        
+        if (!!addEpl) {
+            cntn = cntn.replace(new RegExp("\\(" + addEpl + "\\)", "g"), "");
+            cntn = cntn + "<span class='vis-s-info-txt'>" + addEpl + "</span>";
+        }
+
+        return cntn;
+
+    }
+
+    /**/
+    function getNowDate(delimiter) {
+        var del = delimiter ? delimiter : ''; // 구분자
+
+        var today = new Date();
+        var year = today.getFullYear(); // 2024
+        var month = (today.getMonth() + 1);
+        if (month < 10) month = "0" + month;
+        var day = today.getDate();
+        if (day < 10) day = "0" + day;
+
+        return year + del + month + del + day; // 2024-06-18 혹은 2024.06.18 (구분자에 따라 날짜 포맷이 달라짐)
+    }
+
+    /* 디지털안내장 */
+    function loadDigitalInfo(digitData, chnl, doc, state) {
+        try {
+            if (!doc) doc =jQuery(document);
+
+            doc.find(".digital-guide-container img#mark_img").on("error", function () {
+                doc.find(".digital-guide-container img#mark_img").hide();
+                return false;
+            }).on("load", function () {
+                if (doc.find(".digital-guide-container img#mark_img")[0].complete) {
+                    doc.find(".digital-guide-container img#mark_img").show();
+                }
+                return true;
+            });
+
+            if (digitData.length > 0) {
+                doc.find(".digital-guide-container img#mark_img").attr({
+                    "src": digitData[0].DGTL_LTIV_IMG_URL,
+                    "alt": digitData[0].DGTL_LTIV_IMG_NM
+                });
+            }
+        } catch (error) {
+            if (state && state != null && (typeof state).toUpperCase() == 'OBJECT') {
+                if ('isSuccess' in state && state.isSuccess) {
+                    state.isSuccess = false;
+                    state.errMessage = "[SSP13_0110] loadDigitalInfo catch Error : " + error.message;
+                }
+            }
+        }
+    }
+
+    /* 상품정보 */
+    function loadDigitalPdtData(defData, chnl, doc, state) {
+        try {
+            if (!doc) doc =jQuery(document);
+
+            if (defData.length > 0) {
+                var mkpdKnm = defData[0].hasOwnProperty("MKPD_KNM") ? defData[0].MKPD_KNM : defData[0].MKPDKNM;
+                doc.find(".digital-guide-container #Mirroring_Caption").eq(0).text(mkpdKnm);
+            }
+        } catch (error) {
+            if (state && state != null && (typeof state).toUpperCase() == 'OBJECT') {
+                if ('isSuccess' in state && state.isSuccess) {
+                    state.isSuccess = false;
+                    state.errMessage = "[SSP13_0110] loadDigitalPdtData catch Error : " + error.message;
+                }
+            }
+        } finally {
+
+            /* 기준일자 추가*/
+            doc.find(".digital-guide-container .years-info-box").find(".vis-s-txt").append(getNowDate("-"));
+
+            /* 웹접근성 수정 */
+            doc.find('.digital-guide-container .guide-details').find('.tabs-menu').find('li').attr('role', 'none');
+            if (chnl == "MB" || chnl == "SB") doc.find(".digital-guide-container .guide-details").find(".tabs-contents").find(".tabs-con").removeAttr("tabindex");
+        }
+    }
+
+    /* 탭1: 상품안내 */
+    function loadDigitalLtiv(ltivData, chnl, doc, is_rtm, state) {
+        try {
+            if (!doc) doc =jQuery(document);
+            
+            var dtb_Panc = [];
+
+            var tag_contains = new RegExp("<[^>]*>", "g");
+            var is_Inrst = false;
+
+            for (var i = 0; i < ltivData.length; i++) {
+                var itemDvcd = ltivData[i].MKPD_LTIV_ITEM_DVCD;
+                var itemNm = ltivData[i].MKPD_LTIV_ITEM_NM;
+                var itemSeq = ltivData[i].ITMZ_SEQ;
+
+                var itemCntn = ltivData[i].MKPD_LTIV_ITEM_CNTN;
+                itemCntn = setTransCntn(itemCntn);
+                var itemAdnCntn = ltivData[i].MKPD_LTIV_ITEM_ADN_CNTN;
+
+                if (!!itemCntn) {
+                    if (itemDvcd == "01") {
+                        if (doc.find(".digital-guide-container div.dl-list [data-itemno" + itemSeq + "=" + itemSeq + "]").length > 0) {
+                            var cntnhtml = getTransCntn(itemCntn, itemAdnCntn);
+                            doc.find(".digital-guide-container [data-itemno" + itemSeq + "=" + itemSeq + "]").html(cntnhtml);
+                        } else {
+                            if (doc.find(".digital-guide-container [data-itemno" + itemSeq + "=" + itemSeq + "][data-limit]").length > 0) {
+                                if (is_rtm === false) doc.find(".digital-guide-container [data-itemno" + itemSeq + "=" + itemSeq + "]").html(itemCntn);
+                            } else {
+                                doc.find(".digital-guide-container [data-itemno" + itemSeq + "=" + itemSeq + "]").html(itemCntn);
+                            }
+                        }
+
+                        if (itemSeq == "42") {   // 금리표시여부
+                            doc.find(".digital-guide-container #mkpd_inrst_yn").eq(0).val(itemCntn); 
+                            if (itemCntn == "1") is_Inrst = true;
+                        }
+                    } else if (itemDvcd == "02") {
+
+                        if (i > 0 && itemSeq == ltivData[i - 1].ITMZ_SEQ) continue;
+
+                        var item_div =jQuery("<div>").addClass("info-box");
+                        var item_strong =jQuery("<strong>").addClass("info-title").text(itemNm);
+                        item_div.append(item_strong);
+
+                        if (tag_contains.test(itemCntn)) item_div.append(itemCntn);
+                        else item_div.append(jQuery("<p>").append(itemCntn));
+                        
+                        doc.find(".digital-guide-container div.tabs-con:eq(0)").append(item_div);
+
+                    } else if (itemDvcd == "03") {
+                        dtb_Panc.push(ltivData[i]);
+                    }
+                }
+            }
+            
+            /* 금리표시여부 */
+            if (!is_Inrst) {
+                doc.find(".digital-guide-container div.years-info-box > span").hide();
+            }
+
+            /* 공시 */
+            loadDigitalPanc(dtb_Panc, chnl, doc, state);
+
+        } catch (error) {
+            if (state && state != null && (typeof state).toUpperCase() == 'OBJECT') {
+                if ('isSuccess' in state && state.isSuccess) {
+                    state.isSuccess = false;
+                    state.errMessage = "[SSP13_0110] loadDigitalLtiv catch Error : " + error.message;
+                }
+            }
+        }
+    }
+
+    /* 탭2: 금리안내 */
+    function loadDigitalNtrt(inrstData, ntrtData, chnl, doc, is_rtm, state) {
+        try {
+            if (!doc) doc =jQuery(document);
+
+            var last_lowntrt = 0.00;
+            var last_basntrt = 0.00;
+            var last_hintrt = 0.00;
+            var criInrstli = "";   /* 기준금리html */
+
+            doc.find(".digital-guide-container #tr_blCri1").hide();
+
+            var show_cnt = 0;
+            var mkpdInrstDvcd = "";
+
+            if (inrstData.length > 0) {
+                mkpdInrstDvcd = inrstData[0].MKPD_INRST_DVCD;
+                mkpdInrstDvcd = mkpdInrstDvcd.trim();
+                var now_date = inrstData[0].INQ_DATE;
+                /*var last_lowntrt = 0.00;*/
+
+                if (!!mkpdInrstDvcd) {
+                    show_cnt++;
+                    doc.find(".digital-guide-container #tr_blCri1").show();
+                }
+
+
+                if (!!inrstData[0]["PDT_LWST_INRST"]) {
+                    last_lowntrt = parseFloat(inrstData[0]["PDT_LWST_INRST"]);
+                }
+                if (!!inrstData[0]["PDT_HI_INRST"]) {
+                    last_hintrt = parseFloat(inrstData[0]["PDT_HI_INRST"]);
+                }
+
+                if (mkpdInrstDvcd == "01") {    /* 고정 */
+                    doc.find(".digital-guide-container #criInrstNm").html("고정");
+
+                    last_basntrt = parseFloat(inrstData[0].MKPD_INRST_VAL1);
+                    doc.find(".digital-guide-container #criInrstItem").html(last_basntrt.toFixed(2) + "%");
+                } else if (mkpdInrstDvcd == "02") { /* 변동 */
+                    doc.find(".digital-guide-container #criInrstNm").html("변동");
+
+                    var inrstcd1 = (inrstData[0].INRST_CD1).trim();
+                    var inrstcd2 = (inrstData[0].INRST_CD2).trim();
+                    
+                    if (!!inrstcd1) {
+                        var basInrst1 = inrstData[0].BAS_INRST;
+                        var spread1 = inrstData[0].MKPD_INRST_VAL1;
+
+                        last_basntrt = parseFloat(basInrst1) + parseFloat(spread1);
+                        criInrstli += "<li>" + inrstData[0].LO_CRI_INRST_CLSF_CNTN + " : " + parseFloat(basInrst1).toFixed(2) + "%(" + now_date + "현재)</li>";
+                    }
+                    if (!!inrstcd2 && inrstcd1 != inrstcd2) {
+                        var basInrst2 = inrstData[1].BAS_INRST;
+                        var spread2 = inrstData[1].MKPD_INRST_VAL2;
+
+                        last_basntrt = parseFloat(basInrst2) + parseFloat(spread2);
+                        criInrstli += "<li>" + inrstData[1].LO_CRI_INRST_CLSF_CNTN + " : " + parseFloat(basInrst2).toFixed(2) + "%(" + now_date + "현재)</li>";
+                    }
+
+                    /* 기준금리 */
+                    if (!!criInrstli) {
+                        criInrstItem = '<ul class="info-list type-li-dot">' + criInrstli + "</ul>";
+                        doc.find(".digital-guide-container #criInrstItem").html(criInrstItem);
+                    }
+                }
+            }
+
+            //
+            doc.find(".digital-guide-container #tr_blCri2").hide();
+            doc.find(".digital-guide-container #tr_basNtrt").hide();
+            doc.find(".digital-guide-container #tr_adNtrt").hide();
+            doc.find(".digital-guide-container #tr_primNtrt").hide();
+            doc.find(".digital-guide-container #tr_lastNtrt").hide();
+            doc.find(".digital-guide-container #tr_AdlastNtrt").hide();
+            
+            if (ntrtData.length > 0) {
+                var mkpdBlcriCntn = ntrtData[0].MKPD_BLCRI_CNTN;            /* 상품잔액기준내용 */
+                var mkpdBasInrstCntn = ntrtData[0].MKPD_BAS_INRST_CNTN;     /* 상품기본금리내용 */
+                var mkpdAdinsCntn = ntrtData[0].MKPD_ADINS_CNTN;            /* 상품가산금리내용 */
+                var mkpdPrimInrstCntn = ntrtData[0].MKPD_PRIM_INRST_CNTN;   /* 우대금리내용 */
+                var mkpdLtInrstCntn = ntrtData[0].MKPD_LT_INRST_CNTN;       /* 최종금리내용 */
+                var mkpdPrimInrstVal = ntrtData[0].MKPD_PRIM_INRST_VAL;     /* 우대금리값 */
+                
+                /* 상품잔액기준내용 */
+                mkpdBlcriCntn = mkpdBlcriCntn.trim();
+                if (!!mkpdBlcriCntn) {
+                    mkpdBlcriCntn = setTransCntn(mkpdBlcriCntn);
+                    doc.find(".digital-guide-container #tr_blCri2").show();
+                    doc.find(".digital-guide-container #blcriCntn").html(mkpdBlcriCntn);
+                    show_cnt++;
+                    
+                    doc.find(".digital-guide-container #tr_blCri1").show();
+                    if ($(".digital-guide-container #tr_blCri1").find("th:eq(1)").text() == "") {
+                        doc.find(".digital-guide-container #tr_blCri1").find("th:eq(1)").hide();
+                        doc.find(".digital-guide-container #tr_blCri1").find("td").hide();
+                    }
+                } else {
+                    doc.find(".digital-guide-container #tr_blCri2").hide();
+                    doc.find(".digital-guide-container #tr_blCri1 > th").removeAttr("rowspan");
+                }
+
+                /* 상품기본금리내용 */
+                mkpdBasInrstCntn = mkpdBasInrstCntn.trim();
+                if (!!mkpdBasInrstCntn) {
+                    mkpdBasInrstCntn = setTransCntn(mkpdBasInrstCntn);
+                    doc.find(".digital-guide-container #tr_basNtrt").show();
+                    doc.find(".digital-guide-container #basInrstCntn").html(mkpdBasInrstCntn);
+                    show_cnt++;
+                } else {
+                    doc.find(".digital-guide-container #tr_basNtrt").hide();
+                }
+
+                /* 상품가산금리내용 */
+                mkpdAdinsCntn = mkpdAdinsCntn.trim();
+                if (!!mkpdAdinsCntn) {
+                    mkpdAdinsCntn = setTransCntn(mkpdAdinsCntn);
+                    doc.find(".digital-guide-container #tr_adNtrt").show();
+                    doc.find(".digital-guide-container #adinsCntn").html(mkpdAdinsCntn);
+                    show_cnt++;
+                } else {
+                    doc.find(".digital-guide-container #tr_adNtrt").hide();
+                }
+
+                /* 우대금리내용 */
+                mkpdPrimInrstCntn = mkpdPrimInrstCntn.trim();
+                if (!!mkpdPrimInrstCntn) {
+                    mkpdPrimInrstCntn = setTransCntn(mkpdPrimInrstCntn);
+                    doc.find(".digital-guide-container #tr_primNtrt").show();
+                    doc.find(".digital-guide-container #primInrstCntn").html(mkpdPrimInrstCntn);
+                    show_cnt++;
+                } else {
+                    doc.find(".digital-guide-container #tr_primNtrt").hide();
+                }
+                if (!!mkpdPrimInrstVal) {
+                    doc.find(".digital-guide-container #primInrstCntn").siblings('th').append("<br>(최대" + parseFloat(mkpdPrimInrstVal).toFixed(2) + "%)")
+                }
+
+                var mkpdInrstYn = doc.find(".digital-guide-container #mkpd_inrst_yn").eq(0).val();
+
+                /* 최종 최저금리 */
+                if (inrstData.length > 0 && inrstData[0].MKPD_INRST_DVCD != "03" && mkpdInrstYn == "1") {
+                    doc.find(".digital-guide-container #tr_lastNtrt").show();
+                    doc.find(".digital-guide-container #lastNtrt").html("최저 " + last_lowntrt.toFixed(2) + "%, 최고 " + last_hintrt.toFixed(2) + "% (" + now_date + "현재)");
+                    show_cnt++;
+                } else {
+                    doc.find(".digital-guide-container #tr_lastNtrt").hide();
+
+                    if (!!mkpdLtInrstCntn.trim()) {
+                        doc.find(".digital-guide-container #tr_lastNtrt").show();
+                        doc.find(".digital-guide-container #tr_lastNtrt > td").hide();
+                    }
+                }
+
+                /* 최종금리내용 */
+                mkpdLtInrstCntn = mkpdLtInrstCntn.trim();
+                if (!!mkpdLtInrstCntn) {
+                    mkpdLtInrstCntn = setTransCntn(mkpdLtInrstCntn);
+                    doc.find(".digital-guide-container #tr_AdlastNtrt").show();
+                    doc.find(".digital-guide-container #ltInrstCntn").html(mkpdLtInrstCntn);
+                    show_cnt++;
+                } else {
+                    doc.find(".digital-guide-container #tr_AdlastNtrt").hide();
+                }
+            }
+
+            if (show_cnt == 0) doc.find(".digital-guide-container ul.tabs-menu li:eq(1)").hide();
+                
+            if (is_rtm != false) {
+                /* 상단: 최저금리 */
+                doc.find(".digital-guide-container span.counting").eq(0).html(last_lowntrt.toFixed(2));
+                /* 상단: 최고금리 */
+                doc.find(".digital-guide-container span.counting").eq(1).html(last_hintrt.toFixed(2));
+            }
+        } catch (error) {
+            if (state && state != null && (typeof state).toUpperCase() == 'OBJECT') {
+                if ('isSuccess' in state && state.isSuccess) {
+                    state.isSuccess = false;
+                    state.errMessage = "[SSP13_0110] loadDigitalNtrt catch Error : " + error.message;
+                }
+            }
+        } finally {
+            /* 초기실행 */
+            appDigital.initial();
+        }
+    }
+
+    /* 탭3: 상품약관 */
+    function loadDigitalPdtPrv(pdtPrvData, chnl, doc, state) {
+        try {
+            if (!doc) doc =jQuery(document);
+
+            if (pdtPrvData.length > 0) {
+                for (var i = 0; i < pdtPrvData.length; i++) {
+                    var prv_item_li =jQuery("<li>");
+
+                    var prv_item_a =jQuery("<a>").attr({
+                        "href": "javascript:void(0);",
+                        "data-id": pdtPrvData[i].ATFILE_GUID_ID,
+                        "data-value": pdtPrvData[i].ATFILE_DTL_GUID_ID,
+                        "data-prv_item": JSON.stringify(pdtPrvData[i])
+                    }).addClass("link");
+                    if (chnl != 'SB') prv_item_a.attr("title", "새 창 열림");   /*웹접근성 수정*/
+                    prv_item_a.text(pdtPrvData[i].MKCTS_NM);
+
+                    prv_item_li.append(prv_item_a);
+
+                    doc.find(".digital-guide-container div.tabs-con:last() ul.terms-list").append(prv_item_li);
+                }
+
+                if (typeof gfn_ssp_PdtPrv == 'function') {
+                    doc.find(".digital-guide-container ul.terms-list").find(".link").on("click", function (event) {
+                        event.preventDefault();
+                        gfn_ssp_PdtPrv(event);
+                    });
+                }
+            }
+        } catch (error) {
+            if (state && state != null && (typeof state).toUpperCase() == 'OBJECT') {
+                if ('isSuccess' in state && state.isSuccess) {
+                    state.isSuccess = false;
+                    state.errMessage = "[SSP13_0110] loadDigitalPdtPrv catch Error : " + error.message;
+                }
+            }
+        }
+    }
+
+    /* 하단: 공시정보 */
+    function loadDigitalPanc(pancData, chnl, doc, state) {
+        try {
+            if (!doc) doc =jQuery(document);
+
+            var tag_contains = new RegExp("<[^>]*>", "g");
+            
+            if (pancData.length > 0) {
+                for (var i = 0; i < pancData.length; i++) {
+                    var panc_cntn = pancData[i].MKPD_LTIV_ITEM_CNTN;
+                    var cntns = panc_cntn.split("&&");
+
+                    for (var j = 0; j < cntns.length; j++) {
+                        var view_panc = cntns[j].trim();
+                        view_panc = setTransCntn(view_panc);
+
+                        if (tag_contains.test(view_panc)) doc.find(".digital-guide-container .guide-footer").append(view_panc);
+                        else doc.find(".digital-guide-container .guide-footer").append(jQuery("<p>").append(view_panc));
+                    }
+                }
+
+                doc.find(".digital-guide-container .guide-footer").show();
+            }
+            else if (typeof gfn_ssp_panc == 'function') {
+                    gfn_ssp_panc();
+            }
+        } catch (error) {
+            if (state && state != null && (typeof state).toUpperCase() == 'OBJECT') {
+                if ('isSuccess' in state && state.isSuccess) {
+                    state.isSuccess = false;
+                    state.errMessage = "[SSP13_0110] loadDigitalPanc catch Error : " + error.message;
+                }
+            }
+        }
+    }
+    
+    /* 미러링 */
+    var ComSSP13 = {
+        initial: function () {
+            /*appDigital.initial();*/
+
+            var doc =jQuery(document);
+
+            var tab_idx = doc.find(".digital-guide-container ul.tabs-menu li.active").index();
+            doc.find(".digital-guide-container div.tabs-con:not(:eq(" + tab_idx + "))").removeClass('active');
+        }
+    }
+</script>
+
+
+
+
+<script type="text/javascript">
+
+function gfn_ssp_PdtPrv(a, b, c, d, e) {
+    console.log(a);
+}
+
+//<![CDATA[ 
+var pdtVltnSc = ""; //별점
+var prtntCnt  = "";
+var MaxValueWon   = 100000000;    //max금액
+var MaxValuePrid  = 12;           //max기간
+var MaxValueInrst = 20;           //max금리
+    
+    documentReady("contentForm1", function (form) {
+        formMnu = form;
+    });
+
+    documentReady("contentForm2", function (form) {
+        formMnu4 = form;
+    });
+    
+    documentReady("contentForm3", function (form) {
+        formMnu6 = form;
+    });
+    
+    documentReady("contentForm4", function (form) {
+        formMnu7 = form;
+       
+    });
+    documentReady("form4", function (form) {
+        formMnu5 = form;
+    });
+    
+    documentReady("form7", function (form) {
+        formMnu2 = form;
+    });
+    
+    documentReady("form6", function (form) {
+        formMnu3 = form;
+    });
+    
+    documentReady("form1", function (form) {
+        
+        var $form = $(form);
+        
+        
+        try{
+            gfn_initSSpPdtCntn(form, function(pSuccFlag) {
+                $form.find(".gcss_ssp_PdtPrv .link").off("click").on("click", function(pEvt) {
+                    var thisObj = $(this);
+                    var prvIndex = thisObj.index(".link");
+                    var prvName = $.trim(thisObj.text());
+                    fn_getPdtPrvItemDownload(prvIndex, prvName, thisObj.data());
+                }); 
+            });
+            
+            function fn_getPdtPrvItemDownload(prvIndex, prvName, pPrvData) {
+                if(pPrvData && $.isPlainObject(pPrvData.prv_item)) {
+                    var prvItem = pPrvData.prv_item;
+                    var path = $.trim(prvItem.SSP_DOC_PATH_VAL);
+                    var fileName = $.trim(prvItem.CTS_FILE_NM);
+                    if(path != "" && fileName != "") {
+                        var fileDir = path + "/" + fileName;
+                        var formDown = JUtilForm.createForm("downloadForm");
+                        formDown.action = fileDir;
+                        formDown.target = "_blank";
+                        formDown.submit();
+                    }
+                }
+            }
+        }catch(e){}
+        
+        
+        if( "FPMLON092100002" == "FPMSVC002001100" ) {
+        } else {
+            var menuList=FPMUtils.getMenuList();
+            var MdClacdNm = "담보대출";
+            var menuID= menuList[MdClacdNm];
+            JBizUtilMenu.changeLnb(menuID);
+        }
+        
+        /*전세자금대출인경우에는 전세에방가이드(팝업) 호출 */
+        if( "001040102" == "001040110") {
+            //레이어팝업 호출 //2024 웹접근성 수정 : 팝업아이디 중복으로 변경
+            bsUI.layerPop('#layerPopInfo01', 700);
+            $('#layerPopInfo01').show();
+            // active 아코디언 arrow
+            $(".js-accordion-header").bind('click', function(){
+                if($(this).next().is(':visible')){
+                    $(this).addClass("active");
+                    $(this).closest("li").siblings().find(".js-accordion-header").removeClass("active");
+                } else {
+                    $(this).removeClass("active");
+                }
+                
+            });
+        }
+        
+        /*파일다운로드*/
+        $(form).find(".btn-download").bind("click", function() {
+            $(form).find('#downloadFileName').val($(this).attr("FileName"));
+            doDownload(form, 'BHPFD00000000001', $(form).find('#downloadFileName').val(), 'FPMLON092100000');
+        });
+        
+        // 차트의 area에 alt값
+        $(form).find(".s-graph area").each(function() {
+            $(this).attr("alt", $(this).attr("title"));
+        });
+        
+        /*탭별 상품내용*/
+        $(form).find("#tab01,#tab02").bind('click', function(event) {
+            var strid =$(this).attr("id");
+             
+             if(strid=="tab01"){
+                $("#tab01_01").attr("class","on");
+                $("#tab01_02").attr("class","last");
+                $('#conA1').show("fast"); 
+                $('#conA2').hide("fast"); 
+             }
+             else if(strid=="tab02"){
+                $("#tab01_01").attr("class","");
+                $("#tab01_02").attr("class","last on");
+                $('#conA1').hide("fast"); 
+                $('#conA2').show("fast"); 
+             }
+        });
+        
+        /*목록보기*/
+        $(form).find("#PDT_LIST").bind('click', function(event) {
+            if("1" == "9"){
+                appendHidden(formMnu5 , 'ibs_current_page', $("#ibs_current_page").val());
+                appendHidden(formMnu5 , 'QTY_CHO', ''); //페이지당상품보여지는갯수
+                appendHidden(formMnu5 , 'PDT_LNUP_CD', '00'); //정렬순서
+                appendHidden(formMnu5 , 'LIST_DVCD', 'L'); //보기코드
+                appendHidden(formMnu5 , 'IS_HIDE', 'Y'); //상세조회탭열림여부
+                appendHidden(formMnu5 , 'INQ_CNTN', ''); //검색어
+                appendHidden(formMnu5 , 'FP_HLV_DVCD', ""); //추천상품 탭구분코드
+            }
+            callMenu(formMnu5);
+        });
+        
+         /*스마트폰즉시가입버튼클릭*/ 
+         $form.find('#smp').click( function(){     
+         
+             var FPCD     = $(this).attr("FPCD");
+            
+             var paramForm = JUtilForm.createForm("paramForm");
+
+             
+             appendHidden(paramForm, 'FP_NM',   "BNK인터넷예적금담보대출");
+             appendHidden(paramForm, 'FPCD',   "0010400037");
+             appendHidden(paramForm, 'FP_HLV_DVCD',       "00104");
+             appendHidden(paramForm, 'FP_LRG_CLACD',      "001040102");
+             appendHidden(paramForm, 'FP_MD_CLACD',       "");
+             appendHidden(paramForm, 'TIT_NM',            "전체상품");
+             appendHidden(paramForm, 'SYS_TPCD',          "");
+             appendHidden(paramForm, 'NEXT_PAGE',         "FPMLON092001002");
+
+             
+             appendHidden(paramForm, 'SMPH_QR_CD_CNTN',       "");
+             appendHidden(paramForm, 'SMPH_QR_CD_IMG_ADDR',   "");
+             ExtLayerPop.load(
+                     paramForm,
+                      'FPMLON092100000', 
+                     'FPMCMN360INQV1AP', 
+                     function() {}
+             );
+              return;
+         });
+         
+         $form.find('#smp_01').click( function(){
+             $form.find('#smp').click();
+         });
+   
+         /*인터넷가입버튼클릭*/ 
+         $form.find("#btnIntRegTop").click( function(){   
+             
+             var form5 =  $("#form5");
+             var FPCD     = ($(this).attr("FPCD"));                  // 상품코드
+             
+             var koDataChkForm = JUtilForm.createForm("koDataChkForm");
+             appendHidden(koDataChkForm, "API_CODE", "KO_DATA_CHECK");
+             appendHidden(koDataChkForm, "FPCD", "0010400037");
+             callAjax(koDataChkForm, "MWPFPMONE000A01M", function(data) {
+                
+                 
+                 if ('1' == '0') {
+                     Message.alert("특정금융거래보고 및 이용에 관한 법률에 의거 고객확인의무 이행이<br> 필요하오니, 고객님께서는 신분증을 지참하여 가까운 부산은행 영업점을<br>방문하여 주시기 바랍니다.<br><br>-가까운 영업점 검색 : [홈페이지 &gt; 전체서비스 &gt; 영업점안내]<br>-고객확인의무 등록 : [모바일뱅킹 &gt; 전체메뉴 &gt; 관리하기 &gt; 고객확인제도]<br>-고객센터:1588-6200/1544-6200");
+                     return;
+                 }
+                 
+                 
+                 if(FPCD == "0010400155"){
+                    window.open("https://bank.hf.go.kr:7444/openbank.jsp?screenId=BM101M01&prod_grp_cd=TH","pop","width=1024,height=600","width=1280,height=1024,scrollbars=yes,menubar=yes,toolbar=yes,location=no,directories=no,status=no,resizable=yes");
+                    return;
+                 }
+                 
+                 if(FPCD == "0010400135"){      // 블루칩 직장인 대출 판매중단
+                     alert("판매중단된 상품입니다.");
+                     return;
+                 }
+                 
+                 callAction(form5, function(data) {
+                     var loginYn = data.LOGIN_YN;
+                     /* 공무원 우대대출일 경우 원상품 메세지 처리*/
+                     if(FPCD == "0010400129"){
+                         Message.alert("3월 19일부터 해당상품 판매가 종료됩니다.", "향후 부산은행 대출상품가입은 부산은행 모바일뱅킹 이용 부탁드립니다.", function(){
+                             if(loginYn == 'N') {
+                                 Message.confirm("인터넷가입을 위해서는 로그인을 하셔야 합니다.", "계속 진행하시겠습니까?", function(result){
+                                     if(result) {
+                                         var form9 =  $("#form9");
+                                         appendHidden(form9,"FPCD","0010400037");
+                                         callAction(form9, function(data) {
+                                             var param = "ITN_JN_OK="+"OK"
+                                             +"&FPCD="+"0010400037"
+                                             +"&FPCD_ID="+"0010400037"
+                                             +"&FP_HLV_DVCD="+"00104"
+                                             +"&FP_LRG_CLACD="+"001040102"
+                                             +"&SYS_TPCD="+""
+                                             +"&TIT_NM="+"전체상품"
+                                             +"&LIST_TITLE="+"담보대출"
+                                             +"&MENU_ID="+"FPMLON092100002";
+                
+                                             appendHidden(formMnu , 'NEXT_PARAMETER',param);
+                                             /* if("0010400037" == '0010400129') {  //인터넷공무원우대대출
+                                                 appendHidden(formMnu , 'NEXT_PAGE','FPMFND052001005');
+                                             } else {
+                                                 appendHidden(formMnu , 'NEXT_PAGE','FPMFND052001004');
+                                             } */
+                                             appendHidden(formMnu , 'NEXT_PAGE','FPMFND052001004');
+                                             appendHidden(formMnu , 'PRODUCT_JOIN_TYPE',data.FP_ITEM_DTLCD);
+                                             appendHidden(formMnu , 'PRODUCT_IGNORE_PRC',"1");
+                                             appendHidden(formMnu , 'PRODUCT_ERROR_PAGE',"FPMLON092001002");
+                                             
+                                             
+                                             var logoutForm = JUtilForm.createForm('logoutForm');
+                                             appendHidden(logoutForm, "autoLogout", "5");
+                                             callAjax(logoutForm, "FIL0000000000119", function(data) {
+                                                 callMenu(formMnu);
+                                             });
+                                         });
+                                     }
+                                 });
+                                 
+                             } else if(loginYn == 'Y') {
+                                 if(typeof MINOR_YN != "undefined" && MINOR_YN == "Y"){  // 미성년자인 경우 거래 차단
+                                     Message.alert("만 19세 이상 신청 가능합니다.");
+                                     return;
+                                 }
+                                 
+                                 var form9 =  $("#form9");
+                                 appendHidden(form9,"FPCD","0010400037");
+                                 callAction(form9, function(data) {
+                                     appendHidden(formMnu3 , 'FPCD_ID',FPCD);
+                                     appendHidden(formMnu3 , 'TIT_NM',"전체상품");
+                                     
+                                     if("" == "01") { //개인으로 공인인증서 로그인 시
+                                         if(data.FP_ITEM_DTLCD == "1" || data.FP_ITEM_DTLCD == "3") {
+                                             /* if(FPCD == '0010400129' ) {  //인터넷공무원우대대출 
+                                                 var paramForm =  $("#form11");
+                                                 appendHidden(paramForm, 'FPCD_ID', FPCD);
+                                                 callWidget(paramForm);
+                                             } else {
+                                                 callWidget(formMnu3);
+                                             } */
+                                             callWidget(formMnu3);
+                                         } else {
+                                             Message.alert("이 상품은 로그인하신 인증서로 가입할 수 없는 상품입니다.");
+                                             return;
+                                         }
+                                     } else if("" == "02") { //기업으로 공인인증서 로그인 시
+                                         if(data.FP_ITEM_DTLCD == "2" || data.FP_ITEM_DTLCD == "3") {
+                                             /* if(FPCD == '0010400129') {  //인터넷공무원우대대출
+                                                 var paramForm =  $("#form11");
+                                                 appendHidden(paramForm, 'FPCD_ID', FPCD);
+                                                 callWidget(paramForm);
+                                             } else {
+                                                 callWidget(formMnu3);
+                                             } */
+                                             callWidget(formMnu3);
+                                         } else {
+                                             Message.alert("이 상품은 로그인하신 인증서로 가입할 수 없는 상품입니다.");
+                                             return;
+                                         }    
+                                     }
+                                 });
+                             }
+                         });
+                     }else{
+                         if(loginYn == 'N') {
+                             Message.confirm("인터넷가입을 위해서는 로그인을 하셔야 합니다.", "계속 진행하시겠습니까?", function(result){
+                                 if(result) {
+                                     var form9 =  $("#form9");
+                                     appendHidden(form9,"FPCD","0010400037");
+                                     callAction(form9, function(data) {
+                                         var param = "ITN_JN_OK="+"OK"
+                                         +"&FPCD="+"0010400037"
+                                         +"&FPCD_ID="+"0010400037"
+                                         +"&FP_HLV_DVCD="+"00104"
+                                         +"&FP_LRG_CLACD="+"001040102"
+                                         +"&SYS_TPCD="+""
+                                         +"&TIT_NM="+"전체상품"
+                                         +"&LIST_TITLE="+"담보대출"
+                                         +"&MENU_ID="+"FPMLON092100002";
+            
+                                         appendHidden(formMnu , 'NEXT_PARAMETER',param);
+                                         /* if("0010400037" == '0010400129') {  //인터넷공무원우대대출
+                                             appendHidden(formMnu , 'NEXT_PAGE','FPMFND052001005');
+                                         } else {
+                                             appendHidden(formMnu , 'NEXT_PAGE','FPMFND052001004');
+                                         } */
+                                         appendHidden(formMnu , 'NEXT_PAGE','FPMFND052001004');
+                                         appendHidden(formMnu , 'PRODUCT_JOIN_TYPE',data.FP_ITEM_DTLCD);
+                                         appendHidden(formMnu , 'PRODUCT_IGNORE_PRC',"1");
+                                         appendHidden(formMnu , 'PRODUCT_ERROR_PAGE',"FPMLON092001002");
+                                         
+                                         
+                                         var logoutForm = JUtilForm.createForm('logoutForm');
+                                         appendHidden(logoutForm, "autoLogout", "5");
+                                         callAjax(logoutForm, "FIL0000000000119", function(data) {
+                                             callMenu(formMnu);
+                                         });
+                                     });
+                                 }
+                             });
+                             
+                         } else if(loginYn == 'Y') {
+                             if(typeof MINOR_YN != "undefined" && MINOR_YN == "Y"){  // 미성년자인 경우 거래 차단
+                                 Message.alert("만 19세 이상 신청 가능합니다.");
+                                 return;
+                             }
+                             
+                             var form9 =  $("#form9");
+                             appendHidden(form9,"FPCD","0010400037");
+                             callAction(form9, function(data) {
+                                 appendHidden(formMnu3 , 'FPCD_ID',FPCD);
+                                 appendHidden(formMnu3 , 'TIT_NM',"전체상품");
+                                 
+                                 if("" == "01") { //개인으로 공인인증서 로그인 시
+                                     if(data.FP_ITEM_DTLCD == "1" || data.FP_ITEM_DTLCD == "3") {
+                                         /* if(FPCD == '0010400129' ) {  //인터넷공무원우대대출 
+                                             var paramForm =  $("#form11");
+                                             appendHidden(paramForm, 'FPCD_ID', FPCD);
+                                             callWidget(paramForm);
+                                         } else {
+                                             callWidget(formMnu3);
+                                         } */
+                                         callWidget(formMnu3);
+                                     } else {
+                                         Message.alert("이 상품은 로그인하신 인증서로 가입할 수 없는 상품입니다.");
+                                         return;
+                                     }
+                                 } else if("" == "02") { //기업으로 공인인증서 로그인 시
+                                     if(data.FP_ITEM_DTLCD == "2" || data.FP_ITEM_DTLCD == "3") {
+                                         /* if(FPCD == '0010400129') {  //인터넷공무원우대대출
+                                             var paramForm =  $("#form11");
+                                             appendHidden(paramForm, 'FPCD_ID', FPCD);
+                                             callWidget(paramForm);
+                                         } else {
+                                             callWidget(formMnu3);
+                                         } */
+                                         callWidget(formMnu3);
+                                     } else {
+                                         Message.alert("이 상품은 로그인하신 인증서로 가입할 수 없는 상품입니다.");
+                                         return;
+                                     }    
+                                 }
+                             });
+                         }
+                     }
+                 });
+             });
+         });
+        
+         /*인터넷가입버튼클릭*/ 
+         $form.find("#btnIntRegDown").click( function(){   
+         
+             $form.find('#btnIntRegTop').click();
+         });
+         
+         /*상담신청*/
+         $form.find("#btnConsult").bind("click", function() {
+             var paramForm = JUtilForm.createForm("paramForm");
+             ExtLayerPop.load(
+                     paramForm,
+                      'FPMLON092100000', 
+                     'FPMCMN360INQV1GP', 
+                     function() {}
+             );
+             return;
+         });
+       
+         //상품추천 문자전송
+         $(form).find("#rcmdSns").bind("click", function() {
+
+             var paramForm = JUtilForm.createForm("paramForm");
+             appendHidden(paramForm, 'FP_NM',   "BNK인터넷예적금담보대출");
+             appendHidden(paramForm, 'FPCD',   "0010400037");
+             ExtLayerPop.load(
+                     paramForm,
+                      'FPMLON092100000', 
+                     'FPMCMN360INQV1MP', 
+                     function() {}
+             );
+             return;
+       
+      
+          }); 
+       
+         /*대출가능금액조회 처리*/
+         $form.find("#btnLoImpAmtScrh").bind("click", function() {
+             callMenu(formMnu6);
+         });
+         
+         //관심상품등록 버튼을 클릭했을 처리.  
+         $form.find("#CNRT_PDT").click( function(){       
+             
+             var form8 =  $("#form8");
+             var FPCD  = $("#FPCD").val();                  // 상품코드
+            
+             appendHidden(form8 , 'FPCD',      FPCD);    // 금융상품코드
+            
+             
+             callAction(form8, function(data) {
+                 var RSP_RSLT_DVCD = data.RSP_RSLT_DVCD; 
+                 if(RSP_RSLT_DVCD == '3') {
+                     Message.confirm("관심상품을 등록하기 위해서 로그인을 하셔야 합니다.", "관심상품을 등록하시겠습니까?", function(result){
+                         if(result) { 
+                             var param = "FPCD="+"0010400037"
+                             +"&FP_HLV_DVCD="+"00104"
+                             +"&FP_LRG_CLACD="+"001040102"
+                             +"&SYS_TPCD="+""
+                             +"&TIT_NM="+"전체상품"
+                             +"&LIST_TITLE="+"담보대출"
+                             +"&CNRN_PDT_OK="+"OK"
+                             +"&MENU_ID="+"FPMLON092100002";
+                             
+                            appendHidden(formMnu , 'NEXT_PAGE',"FPMLON092001002"); // RETURN 페이지는  대출상세페이지로..
+                            appendHidden(formMnu , 'NEXT_PARAMETER',param); 
+                            callMenu(formMnu);
+                         }
+                     });
+                     
+                   
+                  } else  if(RSP_RSLT_DVCD == '2') {
+                      Message.confirm("이미 관심상품 등록이 되어있는 상품입니다.", "등록된 관심상품을 확인하러 가시겠습니까?", function(result){ 
+                          if(result) { 
+                              if(data.LOGIN_DVCD == "01") { //개인으로 공인인증서 로그인 시
+                                  changeMenu(formMnu7,"BHPMPG078001004","FPMPDT092INQV1BM","BHPPDT078INQV1DM");    
+                                  callMenu(formMnu7);    
+                              } else if(data.LOGIN_DVCD == "02") { //기업으로 공인인증서 로그인 시
+                                  changeMenu(formMnu7,"BHPMEG078001004","FPMPDT092INQV1BM","BHPPDT078INQV1DM");    
+                                  callMenu(formMnu7);
+                              }
+                          }
+                      });
+                      return;
+                   } else if(RSP_RSLT_DVCD == '1') {
+                       Message.confirm("관심상품이 등록되었습니다.", "등록된 관심상품을 확인하러 가시겠습니까?", function(result){ 
+                           if(result) { 
+                               if(data.LOGIN_DVCD == "01") { //개인으로 공인인증서 로그인 시
+                                   changeMenu(formMnu7,"BHPMPG078001004","FPMPDT092INQV1BM","BHPPDT078INQV1DM");    
+                                   callMenu(formMnu7);    
+                               } else if(data.LOGIN_DVCD == "02") { //기업으로 공인인증서 로그인 시
+                                   changeMenu(formMnu7,"BHPMEG078001004","FPMPDT092INQV1BM","BHPPDT078INQV1DM");    
+                                   callMenu(formMnu7);
+                               }
+                           }
+                       });
+                      return;
+                   }
+             });
+
+         });
+         
+         /*평점주기*/
+         $form.find('#btnScore').bind('click', function (evt) {
+             
+             var form2 =  $("#form2");
+
+             callAction(form2, function(data) {
+                 var RSP_RSLT_DVCD = data.RSP_RSLT_DVCD; 
+            
+                 if(RSP_RSLT_DVCD == '3') {  //로그인이 안되어 있는경우
+                     var conFlag = confirm("상품평가를 등록하시려면 로그인을 하셔야 합니다.\n로그인 페이지로 이동하시겠습니까? ");
+                     if(conFlag) {
+                  
+                        var param = "FPCD="+"0010400037"
+                                    +"&FP_HLV_DVCD="+"00104"
+                                    +"&FP_LRG_CLACD="+"001040102"
+                                    +"&SYS_TPCD="+""
+                                    +"&TIT_NM="+"전체상품"
+                                    +"&LIST_TITLE="+"담보대출"
+                                    +"&LOGIN_OK="+"OK"
+                                    +"&MENU_ID="+"FPMLON092100002";
+                                    
+                       appendHidden(formMnu , 'NEXT_PAGE',"FPMLON092001002"); // RETURN 페이지는 대출상세페이지로..
+                       appendHidden(formMnu , 'NEXT_PARAMETER',param); 
+                       callMenu(formMnu);
+                     }
+               
+                     return;
+                   
+                  } else  if(RSP_RSLT_DVCD == '2') { // 로그인이 완료된 경우는 평점주기 팝업창 호출
+                      var paramForm = JUtilForm.createForm("paramForm");
+                      appendHidden(paramForm, 'FPCD', $form.find("#FPCD").val());
+                      appendHidden(paramForm, 'POP_YN', "0");
+                    
+                      ExtLayerPop.load(
+                              paramForm,
+                               'FPMLON092100000', 
+                              'FPMCMN360IPTV1EP', 
+                              function() {}
+                      );
+                     
+                    return;
+                 } 
+             });
+                                                                  
+         });   
+        
+         /*평점결과보기*/
+         $form.find('#btnScoreRslt').bind('click', function (evt) {
+            
+             var form2 =  $("#form2");
+
+             callAction(form2, function(data) {
+
+             var paramForm = JUtilForm.createForm("paramForm");
+             appendHidden(paramForm, 'FPCD',         $form.find("#FPCD").val());
+             appendHidden(paramForm, 'FP_NM',       "BNK인터넷예적금담보대출");
+             appendHidden(paramForm, 'PDT_VLTN_SC', $form.find("#PDT_VLTN_SC").val());
+             appendHidden(paramForm, 'PTPNT_CNT',   "");
+             ExtLayerPop.load(
+                           paramForm,
+                            'FPMLON092100000', 
+                           'FPMCMN360IPTV1FP', 
+                           function() {}
+                  );
+                  return;
+              });
+          });
+        
+         /*영업점가입버튼 클릭시*/ 
+         $form.find("#btnBrnoRegTop").click( function(ev){
+             qryBrnoInfo(ev);        
+         });
+         /*영업점버튼클릭*/ 
+         $form.find("#btnBrnoRegMid").click( function(ev){   
+             qryBrnoInfo(ev);
+         });  
+         /*영업점버튼클릭*/ 
+         $form.find("#btnBrnoRegDown").click( function(ev){   
+             qryBrnoInfo(ev);
+         });
+         
+         function qryBrnoInfo(evt) {
+             var loginYn = 'N';
+             var ClickId =  evt.target.id;
+             
+             if(ClickId == "btnBrnoRegMid")
+             {
+                 var paramForm = JUtilForm.createForm("paramForm");
+                 if(loginYn == 'N') {                    
+                     //영업점안내
+                     var paramForm = JUtilForm.createForm("paramForm");
+                     JBizUtilWindow.window95Open(paramForm, BHP_URL + "/ib20/mnu/BHPBKI445001101","Popup",10,10,'yes');   
+                 } else if(loginYn == 'Y') {
+                     //영업점찾기
+                     var paramForm = JUtilForm.createForm("paramForm");
+                     ExtLayerPop.load(
+                             paramForm,
+                              'FPMLON092100000', 
+                             'FPMCMN360INQV1BP', 
+                             function() {}
+                     );
+                     return;
+                 }       
+                 return;    
+             }            
+         }
+         
+       //트위터 버튼 클릭
+         $(form).find(".twitter").bind("click", function() {
+//                var sharePath="https://twitter.com/home?status="+JBizUtilInfo.getBsibUrl(2);    
+//                var snsForm = JUtilForm.createForm("snsForm");
+//                JUtilWindow.windowOpen(snsForm,sharePath,"snsFPopup",500,500,10,10);
+               
+               var FPCD= $(this).attr("FPCD");
+               var FPNM= $(this).attr("FPNM");
+               var FP_OTL_CNTN= $(this).attr("FP_OTL_CNTN");
+               var lurl = JBizUtilInfo.getBsibUrl(1)+"/ib20/mnu/FPMPDTDT0000001?FPCD="+FPCD;
+               var resultMsg = "[부산은행 - "+FPNM+"] "+FP_OTL_CNTN;
+               FPMUtils.snsSharePopup("T",lurl,resultMsg);
+     
+         });
+         
+         //페이스북 버튼 클릭
+        $(form).find(".facebook").bind("click", function() {
+//                var sharePath="https://www.facebook.com/sharer/sharer.php?u="+JBizUtilInfo.getBsibUrl(2);    
+//                var snsForm = JUtilForm.createForm("snsForm");
+//                JUtilWindow.windowOpen(snsForm,sharePath,"snsFPopup",500,500,10,10);
+
+               var FPCD= $(this).attr("FPCD");
+               var FPNM= $(this).attr("FPNM");
+               var FP_OTL_CNTN= $(this).attr("FP_OTL_CNTN");
+               var lurl = JBizUtilInfo.getBsibUrl(1)+"/ib20/mnu/FPMPDTDT0000001?FPCD="+FPCD;
+               var resultMsg = "[부산은행 - "+FPNM+"] "+FP_OTL_CNTN;
+               FPMUtils.snsSharePopup("F",lurl,resultMsg);
+         });
+         
+        //추천메일
+        $(form).find(".email").bind("click", function() {
+
+            var paramForm = JUtilForm.createForm("paramForm");
+            var FPCD= $(this).attr("FPCD");
+            var FPNM= $(this).attr("FPNM");
+            var FP_OTL_CNTN= $(this).attr("FP_OTL_CNTN");
+            
+            appendHidden(paramForm, 'FPCD',  FPCD);
+            appendHidden(paramForm, 'FP_NM', FPNM);
+            appendHidden(paramForm, 'FP_OTL_CNTN', FP_OTL_CNTN);
+            ExtLayerPop.load(
+                    paramForm,
+                     'FPMLON092100000', 
+                    'FPMCMN360INQV1IP', 
+                    function() {}
+            );
+            return;
+      
+     
+         });
+          
+          /* 대출계산기에서 대출기간 클릭시 처리 */
+          $form.find('.loPrid').bind('click', function (evt) {
+              var addTxt = $(this).text();
+              var orgVal = JUtilFormat.toNumber($form.find("#loPrid").val());
+              if(orgVal == "")
+              {
+                  orgVal = 0;
+              }
+              if (addTxt == "정정") {
+                  $("#loPrid").val(0);
+              }else {
+                  $("#loPrid").val(JUtilFormat.formatCommas(parseInt(orgVal) + (parseInt(JUtilFormat.toNumber(addTxt)))));
+              }
+          });
+          
+          /* 대출계산기 계산결과 클릭시 처리 */
+          $(form).find('#calcAmt').bind('click', function(){
+              
+              $("#resultTable1 tbody").empty();//계산하기 버튼 클릭식 reset기능
+              $("#resultTable2 tbody").empty();
+              
+              //check: null 값 체크
+              var loAmtVal   = JUtilFormat.toNumber($form.find("#loAmt").val());   //대출금액
+              var loPridVal  = JUtilFormat.toNumber($form.find("#loPrid").val());  //대출기간
+              var loInrstVal = $form.find("#loInrst").val(); //대출금리
+
+              if("" == loAmtVal || "0" == loAmtVal){
+                  Message.alert("대출금액을 입력하세요.");
+                  $("#loAmt").focus();
+                  return;
+              }
+              if("" == loPridVal || "0" == loPridVal){
+                  Message.alert("대출기간을 입력하세요.");
+                  $("#loPrid").focus();
+                  return;
+              }
+              if("" == loInrstVal || "0" == loInrstVal){
+                  Message.alert("대출금리를 입력하세요.");
+                  $("#loInrst").focus();
+                  return;
+              }
+              var fpmLoanVal = $form.find("input:radio[name='fpmLoan']:checked").val();  //상환방법 value 
+              
+              var paramForm = JUtilForm.createForm("paramForm");
+              appendHidden(paramForm, 'loAmt',        loAmtVal);              
+              appendHidden(paramForm, 'loPrid',       loPridVal);              
+              appendHidden(paramForm, 'loInrst',      loInrstVal);              
+              appendHidden(paramForm, 'PYBK_MTD',     fpmLoanVal);              
+              appendHidden(paramForm, 'calculateFlag', 'Y' );              
+             
+              ExtLayerPop.load(
+                   paramForm,
+                    'FPMLON092100000', 
+                   'FPMLON091INQV1CP', 
+                   function() {}
+              );
+              return;
+          });
+          
+        //가입자현황 (성별) 
+          $form.find('#jnSex').click( function(){     
+           
+              var paramForm = JUtilForm.createForm("paramForm");
+              appendHidden(paramForm , 'MAN_CNT', ""); // 남자수
+              appendHidden(paramForm , 'WMN_CNT', ""); // 여자수
+              
+              ExtLayerPop.load(
+                      paramForm,
+                       'FPMLON092100000', 
+                      'FPMCMN360INQV1KP', 
+                      function() {}
+              );
+               return;
+                             
+          });
+          
+          //가입자현황 (연령별) 
+          $form.find('#jnAge').click( function(){     
+           
+              var paramForm = JUtilForm.createForm("paramForm");
+              appendHidden(paramForm , 'FP_JN_MAN_CNT1', ""); // 
+              appendHidden(paramForm , 'FP_JN_MAN_CNT2', ""); // 
+              appendHidden(paramForm , 'FP_JN_MAN_CNT3', ""); // 
+              appendHidden(paramForm , 'FP_JN_MAN_CNT4', ""); // 
+              appendHidden(paramForm , 'FP_JN_MAN_CNT5', ""); // 
+              appendHidden(paramForm , 'FP_JN_MAN_CNT6', ""); // 
+              appendHidden(paramForm , 'FP_JN_WMN_CNT1', ""); // 
+              appendHidden(paramForm , 'FP_JN_WMN_CNT2', ""); // 
+              appendHidden(paramForm , 'FP_JN_WMN_CNT3', ""); // 
+              appendHidden(paramForm , 'FP_JN_WMN_CNT4', ""); // 
+              appendHidden(paramForm , 'FP_JN_WMN_CNT5', ""); // 
+              appendHidden(paramForm , 'FP_JN_WMN_CNT6', ""); // 
+
+              ExtLayerPop.load(
+                      paramForm,
+                       'FPMLON092100000', 
+                      'FPMCMN360INQV1LP', 
+                      function() {}
+              );
+               return;
+                             
+          });
+          
+          /*대출신청결과조회*/ 
+          $form.find("#LonAplRsltSch").click( function(ev){   
+              Lon_AplRsltSch($(this));
+          });
+          
+          /*대출신청취소*/ 
+          $form.find("#LonAplCan").click( function(ev){   
+              Lon_AplCan($(this));
+          });
+          
+          //재직기업 팝업호출//
+          $(form).find('#searchqlfc').bind('click', function(event){
+              var paramForm = JUtilForm.createForm("PEBDPO031IPTV1AM_Form",CONTENT_FORM);
+              ExtLayerPop.load(
+                      paramForm,
+                      'FPMLON092100000', 
+                      'FPMLON348IPTV1AP', 
+                      function() {},
+                      function() {}
+              );
+          });
+          
+        if("" == "OK")
+        {
+            var paramForm = JUtilForm.createForm("paramForm");
+            appendHidden(paramForm, 'FPCD', "0010400037");
+            appendHidden(paramForm, 'POP_YN', "0");
+          
+            ExtLayerPop.load(
+                    paramForm,
+                     'FPMLON092100000', 
+                    'FPMCMN360IPTV1EP', 
+                    function() {}
+            );
+           
+          return;
+        }
+        
+        if("" == "OK")
+        {
+            var form8 =  $("#form8");
+            var FPCD  = $("#FPCD").val();                  // 상품코드
+           
+            appendHidden(form8 , 'FPCD',      FPCD);    // 금융상품코드
+
+            callAction(form8, function(data) {
+                var RSP_RSLT_DVCD = data.RSP_RSLT_DVCD; 
+                
+                if(RSP_RSLT_DVCD == '2') {
+                    Message.confirm("이미 관심상품 등록이 되어있는 상품입니다.", "등록된 관심상품을 확인하러 가시겠습니까?", function(result){ 
+                        if(result) { 
+                            if(data.LOGIN_DVCD == "01") { //개인으로 공인인증서 로그인 시
+                                changeMenu(formMnu7,"BHPMPG078001004","FPMPDT092INQV1BM","BHPPDT078INQV1DM");    
+                                callMenu(formMnu7);    
+                            } else if(data.LOGIN_DVCD == "02") { //기업으로 공인인증서 로그인 시
+                                changeMenu(formMnu7,"BHPMEG078001004","FPMPDT092INQV1BM","BHPPDT078INQV1DM");    
+                                callMenu(formMnu7);
+                            }
+                        }
+                    });
+                    return;
+                 } else if(RSP_RSLT_DVCD == '1') {
+                     Message.confirm("관심상품이 등록되었습니다.", "등록된 관심상품을 확인하러 가시겠습니까?", function(result){ 
+                         if(result) { 
+                             if(data.LOGIN_DVCD == "01") { //개인으로 공인인증서 로그인 시
+                                 changeMenu(formMnu7,"BHPMPG078001004","FPMPDT092INQV1BM","BHPPDT078INQV1DM");    
+                                 callMenu(formMnu7);    
+                             } else if(data.LOGIN_DVCD == "02") { //기업으로 공인인증서 로그인 시
+                                 changeMenu(formMnu7,"BHPMEG078001004","FPMPDT092INQV1BM","BHPPDT078INQV1DM");    
+                                 callMenu(formMnu7);
+                             }
+                         }
+                     });
+                    return;
+                 }
+            });
+        }
+
+        if("0" == "1") {
+            Message.alert("이 상품은 로그인하신 인증서로 가입할 수 없는 상품입니다.");
+        }
+        
+        /*상담신청*/
+        $form.find("#CHT_LOAN").bind("click", function() {
+            var paramForm = JUtilForm.createForm("paramForm");
+            ExtLayerPop.load(
+                    paramForm,
+                     'FPMLON092100000', 
+                    'FPMPDT092INQV1AP', 
+                    function() {}
+            );
+            return;
+        });
+        if(("" != '0.0') || ("" != '0.0')){
+
+            //2022.03.31 OU13645 김천 도넛차트 그리기 추가  S     
+            // 도넛차트 그리기
+            // 데이터 세팅
+            var legendData = [];
+            var seriesData = [];       
+            var lVarM_Title_org ="남자";
+            var lVarW_Title_org ="여자";
+            
+            var lVarM_Cnt     = "";
+            var lVarW_Cnt     = "";
+            
+            var lVarM_TpCd     = "10";
+            var lVarW_TpCd     = "20";
+            console.log("lVarM_Cnt :: ", lVarM_Cnt);
+            console.log("lVarW_Cnt :: ", lVarW_Cnt);
+            lVarM_Title = lVarM_Title_org + '(' + lVarM_Cnt + '%)';
+            lVarW_Title = lVarW_Title_org + '(' + lVarW_Cnt + '%)';
+            //legend data setting
+            legendData.push({name: lVarM_Title, icon: 'square', textStyle:{fontSize:'12'}});
+            legendData.push({name: lVarW_Title, icon: 'square', textStyle:{fontSize:'12'}});
+            //series data setting
+            seriesData.push({value: lVarM_Cnt, name: lVarM_Title, itemStyle: {color: '#368BF9'} });
+            seriesData.push({value: lVarW_Cnt, name: lVarW_Title, itemStyle: {color: '#FF9900'} });
+    
+            drawDoughnutChart_FPMPDT092INQV1CM("doughnutChart", legendData, seriesData);
+            
+            var lVarM_Cnt1 = "";
+            var lVarM_Cnt2 = "";
+            var lVarM_Cnt3 = "";
+            var lVarM_Cnt4 = "";
+            var lVarM_Cnt5 = "";
+            var lVarM_Cnt6 = "";
+            
+            var lVarW_Cnt1 = "";
+            var lVarW_Cnt2 = "";
+            var lVarW_Cnt3 = "";
+            var lVarW_Cnt4 = "";
+            var lVarW_Cnt5 = "";
+            var lVarW_Cnt6 = "";
+            //2022.03.31 OU13645 김천 도넛차트 그리기 추가  E
+            
+            //2022.03.31 OU13645 김천 mixedBarChart 그리기 추가 S
+            
+            var legendData2 = []; 
+            var seriesData2 = []; 
+            var periodData2 = [ '10대','20대','30대','40대','50대','60대'];        
+            
+            legendData2.push({name: lVarM_Title_org, icon: 'square'});
+            legendData2.push({name: lVarW_Title_org, icon: 'square'});
+    
+            seriesData2.push({name: lVarM_Title_org, type: 'bar', barGap:0, emphasis:{focus:'series'}, data: [lVarM_Cnt1, lVarM_Cnt2, lVarM_Cnt3, lVarM_Cnt4, lVarM_Cnt5 ,lVarM_Cnt6], itemStyle: {color:'#368BF9'}});
+            seriesData2.push({name: lVarW_Title_org, type: 'bar', barGap:0, emphasis:{focus:'series'}, data: [lVarW_Cnt1, lVarW_Cnt2, lVarW_Cnt3, lVarW_Cnt4, lVarW_Cnt5 ,lVarW_Cnt6], itemStyle: {color:'#FF9900'}});        
+            drawMixedBarChart_FPMPDT092INQV1CM("mixedBarChart", legendData2, seriesData2, periodData2);
+    
+            //2022.03.31 OU13645 김천 mixedBarChart 그리기 추가 E
+        }
+    });
+    
+    function Lon_AplRsltSch(obj) {
+       var form5 =  $("#form5");
+       var FPCD     = (obj.attr("FPCD"));                  // 상품코드 
+       
+       callAction(form5, function(data) {
+           var loginYn = data.LOGIN_YN; 
+           if(loginYn == 'N') {
+
+               Message.confirm("인터넷가입을 위해서는 로그인을 하셔야 합니다.", "계속 진행하시겠습니까?", function(result){
+                   if(result) { 
+                       var param = "FPCD="+"0010400037"
+                       +"&FP_HLV_DVCD="+"00104"
+                       +"&FP_LRG_CLACD="+"001040102"
+                       +"&SYS_TPCD="+""
+                       +"&TIT_NM="+"전체상품"
+                       +"&LIST_TITLE="+"담보대출"
+                       +"&MENU_ID="+"FPMLON092100002";
+                       
+                      appendHidden(formMnu , 'NEXT_PAGE',"FPMLON092001002"); // RETURN 페이지는  대출상세페이지로..
+                      appendHidden(formMnu , 'NEXT_PARAMETER',param); 
+                      var logoutForm = JUtilForm.createForm('logoutForm');
+                      appendHidden(logoutForm, "autoLogout", "5");
+                       callAjax(logoutForm, "FIL0000000000119", function(data) {
+                           callMenu(formMnu);
+                       });
+                   }
+               });
+               
+           } else if(loginYn == 'Y') {
+               if(FPCD == '0010400129' || FPCD == '0010400135' || FPCD == '0010400139') {  //공무원우대대출
+                   var paramForm =  $("#form10");
+                   appendHidden(paramForm, 'FPCD',         FPCD);
+                   callWidget(paramForm);
+               }else {  //CSS신용대출, BS새희망홀씨대출
+                   var paramForm = JUtilForm.createForm("paramForm");
+                   appendHidden(paramForm, 'FPCD',         FPCD);
+                   ExtLayerPop.load(
+                                 paramForm,
+                                  'FPMLON092100000', 
+                                 'FPMPDT092INQV1CP', 
+                                 function() {}
+                        );
+               }
+           }
+       }); 
+    }
+    
+    function Lon_AplCan(obj) {
+        var form5 =  $("#form5");
+        var FPCD     = (obj.attr("FPCD"));                  // 상품코드 
+
+        callAction(form5, function(data) {
+            var loginYn = data.LOGIN_YN; 
+            if(loginYn == 'N') {
+
+                Message.confirm("인터넷가입을 위해서는 로그인을 하셔야 합니다.", "계속 진행하시겠습니까?", function(result){
+                    if(result) { 
+                        var param = "FPCD="+"0010400037"
+                        +"&FP_HLV_DVCD="+"00104"
+                        +"&FP_LRG_CLACD="+"001040102"
+                        +"&SYS_TPCD="+""
+                        +"&TIT_NM="+"전체상품"
+                        +"&LIST_TITLE="+"담보대출"
+                        +"&MENU_ID="+"FPMLON092100002";
+                        
+                       appendHidden(formMnu , 'NEXT_PAGE',"FPMLON092001002"); // RETURN 페이지는  대출상세페이지로..
+                       appendHidden(formMnu , 'NEXT_PARAMETER',param); 
+
+                       var logoutForm = JUtilForm.createForm('logoutForm');
+                      appendHidden(logoutForm, "autoLogout", "5");
+                       callAjax(logoutForm, "FIL0000000000119", function(data) {
+                           callMenu(formMnu);
+                       });
+                    }
+                });
+                
+            } else if(loginYn == 'Y') {
+                var paramForm = JUtilForm.createForm("paramForm");
+                appendHidden(paramForm, 'FPCD',         FPCD);
+                ExtLayerPop.load(
+                              paramForm,
+                               'FPMLON092100000', 
+                              'FPMPDT092INQV1DP', 
+                              function() {}
+                     );
+            }
+        }); 
+    }
+    
+//]]>
+</script>
+ 
+
+
+<form name="form3" id="form3" method="post" action="">
+    <input type='hidden' name='action_type' value='wgt'/>
+<input type='hidden' name='ib20_action' value='/ib20/wgt/FPMPDT092INQV1CM'/>
+<input type='hidden' name='ib20_cur_mnu' value='FPMLON092100000'/>
+<input type='hidden' name='ib20_cur_wgt' value='FPMPDT092INQV1BM'/>
+<input type='hidden' name='ib20_change_wgt' value=''/>
+<input type='hidden' name='REQUEST_TOKEN_KEY' value='5a09cbb7418fea53f4ad3c394cc108eb'/>
+
+</form>
+
+<form name="contentForm4" id="contentForm4" method="post" action="" >        
+    <input type='hidden' name='action_type' value='mnu'/>
+<input type='hidden' name='ib20_action' value='/ib20/mnu/BHPMPG078001004'/>
+<input type='hidden' name='ib20_wc' value='FPMPDT092INQV1CM:BHPPDT078INQV1DM'/>
+<input type='hidden' name='REQUEST_TOKEN_KEY' value='fc8c798b64fde0f6285b6cc7928b2c8d'/>
+
+</form>
+
+<form name="contentForm3" id="contentForm3" method="post" action="" >        
+    <input type='hidden' name='action_type' value='mnu'/>
+<input type='hidden' name='ib20_action' value='/ib20/mnu/'/>
+<input type='hidden' name='ib20_wc' value='FPMPDT092INQV1BM:'/>
+<input type='hidden' name='REQUEST_TOKEN_KEY' value='14e455b9324f80206db63f96c7c18d7b'/>
+
+</form>
+
+<form name="contentForm2" id="contentForm2" method="post" action="" >        
+    <input type='hidden' name='action_type' value='mnu'/>
+<input type='hidden' name='ib20_action' value='/ib20/mnu/PEBLIN0010001'/>
+<input type='hidden' name='ib20_wc' value='FPMPDT092INQV1BM:FPMFND345IPTV1AM'/>
+<input type='hidden' name='REQUEST_TOKEN_KEY' value='fc8c798b64fde0f6285b6cc7928b2c8d'/>
+
+</form>
+
+<form name="contentForm1" id="contentForm1" method="post" action="" >        
+    <input type='hidden' name='action_type' value='mnu'/>
+<input type='hidden' name='ib20_action' value='/ib20/mnu/BHPLIN0020001'/>
+<input type='hidden' name='ib20_wc' value='FPMPDT092INQV1CM:BHPCMN001LGIV00M'/>
+<input type='hidden' name='REQUEST_TOKEN_KEY' value='14e455b9324f80206db63f96c7c18d7b'/>
+
+</form>
+
+<form name="form12" id="form12" method="post" action="">
+    <input type='hidden' name='action_type' value='wgt'/>
+<input type='hidden' name='ib20_action' value='/ib20/wgt/FPMLON202INQV1BM'/>
+<input type='hidden' name='ib20_cur_mnu' value='FPMLON092100000'/>
+<input type='hidden' name='ib20_cur_wgt' value='FPMPDT092INQV1BM'/>
+<input type='hidden' name='ib20_change_wgt' value=''/>
+<input type='hidden' name='REQUEST_TOKEN_KEY' value='4e06dfc0d4ec974fb0cf6769a9cd53b1'/>
+
+</form>
+
+<form name="form11" id="form11" method="post" action="">
+    <input type='hidden' name='action_type' value='wgt'/>
+<input type='hidden' name='ib20_action' value='/ib20/wgt/FPMLON201INQV1AM'/>
+<input type='hidden' name='ib20_cur_mnu' value='FPMLON092100000'/>
+<input type='hidden' name='ib20_cur_wgt' value='FPMPDT092INQV1BM'/>
+<input type='hidden' name='ib20_change_wgt' value=''/>
+<input type='hidden' name='REQUEST_TOKEN_KEY' value='14e455b9324f80206db63f96c7c18d7b'/>
+
+</form>
+
+<form name="form10" id="form10" method="post" action="">
+    <input type='hidden' name='action_type' value='wgt'/>
+<input type='hidden' name='ib20_action' value='/ib20/wgt/FPMLON202INQV1AM'/>
+<input type='hidden' name='ib20_cur_mnu' value='FPMLON092100000'/>
+<input type='hidden' name='ib20_cur_wgt' value='FPMPDT092INQV1BM'/>
+<input type='hidden' name='ib20_change_wgt' value=''/>
+<input type='hidden' name='REQUEST_TOKEN_KEY' value='4e06dfc0d4ec974fb0cf6769a9cd53b1'/>
+
+</form>
+
+<form name="form9" id="form9" method="post" action="">
+    <input type='hidden' name='action_type' value='act'/>
+<input type='hidden' name='ib20_action' value='/ib20/act/FPMCMN301INQA1AM'/>
+<input type='hidden' name='ib20_cur_mnu' value='FPMLON092100000'/>
+<input type='hidden' name='ib20_cur_wgt' value='FPMPDT092INQV1BM'/>
+
+</form>
+
+<form name="form8" id="form8" method="post" action="">
+    <input type='hidden' name='action_type' value='act'/>
+<input type='hidden' name='ib20_action' value='/ib20/act/FPMPDT012INQA1BM'/>
+<input type='hidden' name='ib20_cur_mnu' value='FPMLON092100000'/>
+<input type='hidden' name='ib20_cur_wgt' value='FPMPDT092INQV1BM'/>
+
+</form>
+
+<form name="form7" id="form7" method="post" action="">
+<input type='hidden' name='action_type' value='mnu'/>
+<input type='hidden' name='ib20_action' value='/ib20/mnu/FPMFND344IPTV1AM'/>
+<input type='hidden' name='ib20_wc' value='FPMPDT092INQV1CM:FPMFND344IPTV1AM'/>
+<input type='hidden' name='REQUEST_TOKEN_KEY' value='14e455b9324f80206db63f96c7c18d7b'/>
+
+</form>
+
+<form name="form6" id="form6" method="post" action="">
+<input type='hidden' name='action_type' value='wgt'/>
+<input type='hidden' name='ib20_action' value='/ib20/wgt/FPMLON347IPTV1AM'/>
+<input type='hidden' name='ib20_cur_mnu' value='FPMLON092100000'/>
+<input type='hidden' name='ib20_cur_wgt' value='FPMPDT092INQV1BM'/>
+<input type='hidden' name='ib20_change_wgt' value=''/>
+<input type='hidden' name='REQUEST_TOKEN_KEY' value='4e06dfc0d4ec974fb0cf6769a9cd53b1'/>
+
+</form>
+
+<form name="form5" id="form5" method="post" action="">
+  <input type='hidden' name='action_type' value='act'/>
+<input type='hidden' name='ib20_action' value='/ib20/act/FPMCMN300INQA1AM'/>
+<input type='hidden' name='ib20_cur_mnu' value='FPMLON092100000'/>
+<input type='hidden' name='ib20_cur_wgt' value='FPMPDT092INQV1BM'/>
+
+</form>
+
+<form name="form4" id="form4" method="post" action="">
+<input type='hidden' name='action_type' value='mnu'/>
+<input type='hidden' name='ib20_action' value='/ib20/mnu/FPMLON092100002'/>
+<input type='hidden' name='ib20_wc' value='FPMPDT092INQV1BM:FPMPDT092INQV1BM'/>
+<input type='hidden' name='REQUEST_TOKEN_KEY' value='498337654c66f2a514939482f895073c'/>
+
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+    <input type="hidden" id="INQ_CNTN" name="INQ_CNTN" value="" />
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+    <input type="hidden" id="DVCD" name="DVCD" value="L" />
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+    <input type="hidden" id="IS_FPM" name="IS_FPM" value="1" />
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+    <input type="hidden" id="TITLE" name="TITLE" value="담보대출" />
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     
+
+</form>
+
+<form name="form2" id="form2" method="post" action="">
+  <input type='hidden' name='action_type' value='act'/>
+<input type='hidden' name='ib20_action' value='/ib20/act/FPMCMN360IPTA1EP'/>
+<input type='hidden' name='ib20_cur_mnu' value='FPMLON092100000'/>
+<input type='hidden' name='ib20_cur_wgt' value='FPMPDT092INQV1BM'/>
+
+</form>
+
+<!-- 전세예방가이드(팝업) -->
+<div class="layerpop-wrap" id="layerPopInfo01" style="display:none;">
+    <div class="layerpop layer-wth700">
+        <div class="layer-top"></div>
+        <div class="layer-boder">
+            <div class="layer-header">
+                <a class="layer-close js-layer-close" href="#none" title="팝업닫기">[닫기]</a>
+                <h3 class="pop-tit-type1">소중한 전세보증금 지키는 전세사기 예방법</h3>
+            </div>
+            <div class="layer-inner" tabindex="0">
+                <div class="layer-body" style="overflow:hidden;">
+                    <!-- popup content start -->
+                    <div class="jeonse_guide">
+                        <ul class="js-accordion">
+                            <li>
+                                <a href="#none" class="js-accordion-header">전세계약 체결 시 꼭 점검하세요!</a>
+                                <div class="dis-n">
+                                    <dl>
+                                        <dt class="mt0">등기부등본상의 소유자와 계약서 도장 찍는 임대인이 동일한지 확인 하세요!</dt>
+                                        <dd>
+                                            <ul class="txt-type2">
+                                                <li><span class="bul">&nbsp;</span>임대인이 개인인 경우 신분증, 등기필증 등 확인
+                                                    <p>
+                                                        <span>주민등록증: <span class="point-cw">ARS 1382</span> 또는 <span class="point-cw">정부24(<a href="https://gov.kr" title="정부24 사이트로 바로가기"><span class="point-c2">gov.kr</span></a>)</span></span>
+                                                        <span>운전면허증: <span class="point-cw">경찰청 교통민원(<a href="https://efine.go.kr" title="경찰청 교통민원 사이트 바로가기"><span class="point-c2">efine.go.kr</span></a>)</span></span>
+                                                    </p>
+                                                </li>
+                                                <li><span class="bul">&nbsp;</span>임대인이 법인인 경우 법인 대표자의 신분증과 법인 인감증명서 확인</li>
+                                                <li><span class="bul">&nbsp;</span>임대인에게 법적인 ‘행위능력’이 있는지 확인<br>※미성년자, 피한정후견인 등 유의
+                                                    <p>임대인의 대리인과 계약시 위임장 상 대리인의 위임범위, 위임장에 찍힌 인감과 인감증명서의 인감비교, 임대인과의 통화를 통해 계약 내용 확인하세요.</p>
+                                                </li>
+                                            </ul>
+                                        </dd>
+                                        <dt>주택가격을 꼭 확인하여 보증금이 주택시세의 80% 초과한다면 유의하세요!</dt>
+                                        <dd>
+                                            <ul class="txt-type2">
+                                                <li>
+                                                    <span class="bul">&nbsp;</span>
+                                                    <span class="point-cw">국토교통부 실거래가 공개시스템</span>
+                                                    <a href="https://rt.molit.go.kr" title="국토교통부 실거래가 공개시스템 바로가기"><span class="point-c2 ml5">rt.molit.go.kr</span></a>
+                                                </li>
+                                                <li>
+                                                    <span class="bul">&nbsp;</span>
+                                                    <span class="point-cw">KB시세</span>
+                                                    <a href="https://kbland.kr" title="KB시세 바로가기"><span class="point-c2 ml5">kbland.kr</span></a>
+                                                </li>
+                                                <li>
+                                                    <span class="bul">&nbsp;</span>
+                                                    <span class="point-cw">부동산테크 시세</span>
+                                                    <a href="https://rtech.or.kr" title="부동산테크 시세 바로가기"><span class="point-c2 ml5">rtech.or.kr</span></a>
+                                                </li>
+                                                <li>
+                                                    <span class="bul">&nbsp;</span>
+                                                    <span class="point-cw">부동산 공시가격</span>
+                                                    <a href="https://realtyprice.kr" title="부동산 공시가격 바로가기"><span class="point-c2 ml5">realtyprice.kr</span></a>
+                                                </li>
+                                                <li>
+                                                    <span class="bul">&nbsp;</span>
+                                                    <span class="point-cw">오피스텔인 경우 국세청에서 공시한 오피스텔 기준가격</span>
+                                                    <a href="https://hometax.go.kr" title="국세청에서 공시한 오피스텔 기준가격 바로가기"><span class="point-c2 ml5">hometax.go.kr</span></a>
+                                                </li>
+                                            </ul>
+                                        </dd>
+                                        <dt>전세 계약 전, 잔금 치르기 직전, 계약 후 등기부등본을 꼭 확인해야해요!</dt>
+                                        <dd>
+                                            <ul class="txt-type2">
+                                                <li><span class="bul">&nbsp;</span>표제부(일반현황)
+                                                    <p>건물의 주소, 건축물의 용도(근생 전세대출 불가 유의),전유부분, 대지권, 별도등기 유무를 확인</p>
+                                                </li>
+                                                <li class="mt10"><span class="bul">&nbsp;</span>갑구 (소유권)
+                                                    <p>소유자와 임대인이 일치하는지, 압류/가압류/가등기 등 소유권 침해 요소는 없는지 확인</p>
+                                                </li>
+                                                <li class="mt10"><span class="bul">&nbsp;</span>을구 (소유권 외 권리)
+                                                    <p>전세권(앞으로 퇴실 할 세입자 인지, 예전 세입자가 보증금을 돌려받지 못해서 등기된 건지 확인)<br>근저당권(설정된 금액과 보증금을 합한 금액이 주택의 가격보다 높은지 확인해서 깡통주택인지 점검하세요)</p>
+                                                </li>
+                                            </ul>
+                                        </dd>
+                                        <dt>정부24(<a href="https://gov.kr" title="정부24 사이트로 바로가기"><span class="point-c2">gov.kr</span></a>)에서 건축물대장 발급 후 꼭 확인하세요!</dt>
+                                        <dd>
+                                            <ul class="txt-type2">
+                                                <li><span class="bul">&nbsp;</span>건축법상 건축물의 용도와 일치 여부</li>
+                                                <li><span class="bul">&nbsp;</span>위반 건축물 여부 확인</li>
+                                            </ul>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </li>
+                            <li>
+                                <a href="#none" class="js-accordion-header">꼭 알아야 할 전세사기 유형 및 예방법</a>
+                                <div class="dis-n">
+                                    <dl>
+                                        <dt class="mt0">깡통주택</dt>
+                                        <dd>
+                                            <p>주택의 매매가격을 세입자의 보증금과 빚으로 채우고 있는 사실상 집주인의 자금 없이 매매한 주택</p>
+                                            <ul class="txt-type2">
+                                                <li class="mt3"><span class="bul">&nbsp;</span>보증금이 매매시세의 80%초과시 유의</li>
+                                                <li><span class="bul">&nbsp;</span>전세반환보증보험 가입 가능한 집인지 확인</li>
+                                            </ul>
+                                        </dd>
+                                        <dt>가짜 임대인</dt>
+                                        <dd>
+                                            <p>실제 임대인의 인적사항 도용 및 위임장 또는 증명서류를 위조해 대리인 행세를 하면서 세입자의 보증금 가로챔</p>
+                                            <ul class="txt-type2">
+                                                <li class="mt3"><span class="bul">&nbsp;</span>인감도장이 찍힌 위임장과 인감증명서 확인</li>
+                                                <li><span class="bul">&nbsp;</span>임대인과 유선 통화를 통해 계약 내용 확인</li>
+                                                <li><span class="bul">&nbsp;</span>임대인 명의의 통장에 지급, 임대인의 요청에 의해 대리인 계좌로 입금해야 하는 경우에는 관련 내용 특약사항 명시</li>
+                                            </ul>
+                                        </dd>
+                                        <dt>이중계약</dt>
+                                        <dd>
+                                            <p>임대인이 새로운 임차인에게 보증금을 받은 후 기존 세입자에게 반환하지 않고 잠적</p>
+                                            <ul class="txt-type2 mt3">
+                                                <li><span class="bul">&nbsp;</span>깡통주택 유의 : 깡통 주택일수록 이중계약 사기사례 발생</li>
+                                                <li><span class="bul">&nbsp;</span>기존 세입자가 나갔는지 확인 후 잔금 지급</li>
+                                            </ul>
+                                        </dd>
+                                        <dt>특약조건 불이행</dt>
+                                        <dd>
+                                            <p>선순위 근저당, 신탁등기 말소 조건으로 계약하였으나 불이행</p>
+                                            <ul class="txt-type2 mt3">
+                                                <li><span class="bul">&nbsp;</span>특약사항에 임대인의 의무 정확하게 표기</li>
+                                            </ul>
+                                        </dd>
+                                        <dt>전세계약 당일 임대인 주담대 실행</dt>
+                                        <dd>
+                                            <p>대항력 발생시기(전입 다음날)와 근저당권 발생시기(설정 당일)차이를 이용한 사기</p>
+                                            <ul class="txt-type2 mt3">
+                                                <li><span class="bul">&nbsp;</span>전세계약 당일 잔금 치르기 전에 등기부등본 확인(2~-3일 뒤에 한번 더 확인)</li>
+                                                <li><span class="bul">&nbsp;</span>특약사항 추가(계약 체결일 다음날까지 소유권 변경 근저당 설정 등의 행위를 일체 하지 않는다)</li>
+                                                <li><span class="bul">&nbsp;</span>전세권 설정: 전세권은 등기한 때부터 효력 발생(단, 임대인의 동의 필요 및 비용 발생)</li>
+                                            </ul>
+                                        </dd>
+                                        <dt>전출신고 요구사기</dt>
+                                        <dd>
+                                            <p>세입자의 전출신고 후 대출받기, 집 팔기 등</p>
+                                            <ul class="txt-type2 mt3">
+                                                <li><span class="bul">&nbsp;</span>전입신고를 한 후에는 임대인의 전출신고 요구 거절하기</li>
+                                            </ul>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </li>
+                            <li>
+                                <a href="#none" class="js-accordion-header">집주인이 전세금을 돌려주지 않는다면?</a>
+                                <div class="dis-n">
+                                    <dl>
+                                        <dt class="mt0">집주인에게 내용증명 보내기</dt>
+                                        <dd>
+                                            <ul class="txt-type2">
+                                                <li><span class="bul">&nbsp;</span>우체국에서 서류 전달되었는지 뿐만 아니라 그 내용까지 증명</li>                                                
+                                            </ul>
+                                        </dd>
+                                        <dt>임차권 등기명령</dt>
+                                        <dd>
+                                            <ul class="txt-type2">
+                                                <li><span class="bul">&nbsp;</span>이사를 가더라도 임차권등기명령을 완료해 놓으면 대항력 유지</li>
+                                                <li><span class="bul">&nbsp;</span>임차권에 대한 권리와 보증금에 대한 권리보호</li>
+                                            </ul>
+                                        </dd>
+                                        <dt>지급명령 신청하기</dt>
+                                        <dd>
+                                            <ul class="txt-type2">
+                                                <li><span class="bul">&nbsp;</span>전세금 반환소송에 비해 상대적으로 소요기간이 짧고 소요비용이 적음</li>
+                                            </ul>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </li>
+                            <li>
+                                <a href="#none" class="js-accordion-header">전세사기 방지 참고 사이트 / APP</a>
+                                <div class="dis-n">
+                                    <dl>
+                                        <dt class="mt0">주택도시보증공사(HUG) 안심전세 포털 <a href="https://www.khug.or.kr/jeonse" title="주택도시보증공사(HUG) 안심전세 포털 바로가기" class="ml5"><span class="point-c2">www.khug.or.kr/jeonse</span></a></dt>
+                                        <dt>HUG안심전세 APP</dt>
+                                        <dt class="mb0">부산은행 모바일뱅킹 APP &gt; 혜택 &gt; 부동산 &gt; 전세지키미*</dt>
+                                        <dd>
+                                            <p class="mt3"><span>* 부동산 등기사항 변동 시 실시간으로 고객에게 알려주는 서비스</span></p>
+                                        </dd>
+                                        <dt class="mb0">한국부동산원 임대차 시장 사이렌 <a href="https://rtech.or.kr/board/rentRateView.do" title="한국부동산원 임대차 시장 사이렌 바로가기" class="ml5"><span class="point-c2">rtech.or.kr/board/rentRateView.do</span></a></dt>
+                                    </dl>
+                                </div>
+                            </li>
+                        </ul>
+                        <ul class="txt mt10">
+                            <li><span class="mark">※</span>위 내용은 부산은행에서 작성한 내용이 아니며, <span class="point-cw ml0 mr0">주택도시보증공사(HUG) 안심전세포털(<a href="https://www.khug.or.kr/jeonse" title="주택도시보증공사(HUG) 안심전세포털"><span class="point-c2 ml0 mr0">www.khug.or.kr/jeonse</span></a>)</span>에서<br>발췌한 내용으로 전세사기 방지를 위한 대고객 참고자료 입니다.</li>
+                        </ul>
+                    </div>
+                    <!--// popup content end -->
+                    <div class="btn-btm">
+                        <span class="btn-pack btn-type-2c wth160"><a href="#none" class="btn_primary js-layer-close">확인</a></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form name="form1" id="form1" method="post" action="">
+<input type='hidden' name='action_type' value='wgt'/>
+<input type='hidden' name='ib20_action' value='/ib20/wgt/FPMPDT092INQV1CM'/>
+<input type='hidden' name='ib20_cur_mnu' value='FPMLON092100000'/>
+<input type='hidden' name='ib20_cur_wgt' value='FPMPDT092INQV1BM'/>
+<input type='hidden' name='ib20_change_wgt' value=''/>
+<input type='hidden' name='REQUEST_TOKEN_KEY' value='20d3ac6ed1ebbf8689298fb745cd8fb8'/>
+
+<input type="hidden" id="FPCD" name="FPCD" value ="0010400037"/>
+<input type="hidden" id="PDT_VLTN_SC" name="PDT_VLTN_SC" value =""/>
+<input type="hidden" name="ibs_current_page" id="ibs_current_page" value="1"/>
+
+
+
+<div class="SSP_PDT_PRV_LIST">
+    
+</div>
+
+<div class="SSP-PDT-WRAP">
+    
+
+
+
+
+<div class="SSP-PDT-CNTN INIT-SSP-PDT-CNTN" data-mkpd_cd="0300000382" data-chnl_dvcd="IB">
+	<input type="hidden" class="SSP_TMPLT_JSON_TEXT" value="%7B%22dtb_Ltiv%22%3A%5B%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2201%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2201%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EB%A7%88%EC%BC%80%ED%8C%85%EB%AC%B8%EA%B5%AC(%EC%83%81)%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%EA%B8%B4%EA%B8%89%EC%9E%90%EA%B8%88%EC%9D%B4%20%ED%95%84%EC%9A%94%ED%95%A0%20%EB%95%8C%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%229%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%221%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2201%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2201%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EB%A7%88%EC%BC%80%ED%8C%85%EB%AC%B8%EA%B5%AC(%ED%95%98)%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%EC%A0%81%EB%A6%BD%EC%8B%9D%2F%EA%B1%B0%EC%B9%98%EC%8B%9D%20%EC%98%88%EA%B8%88%20%ED%95%B4%EC%A7%80%EC%97%86%EC%9D%B4%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2210%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%222%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%221%22%2C%22CMPNT_TYP_CD%22%3A%2209%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2201%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EA%B8%88%EB%A6%AC%ED%91%9C%EC%8B%9C%EC%97%AC%EB%B6%80%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%220%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%220%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2241%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%2242%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%221%22%2C%22CMPNT_TYP_CD%22%3A%2209%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2201%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EB%8C%80%EC%B6%9C%ED%95%9C%EB%8F%84%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%2201%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%221%EC%96%B5%EC%9B%90(%EC%B5%9C%EC%A0%80%2010%EB%A7%8C%EC%9B%90%2C%20%EA%B3%84%EC%A2%8C%20%EC%9E%94%EC%95%A1%2095%25%EA%B9%8C%EC%A7%80)%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2211%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%2228%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%222%22%2C%22CMPNT_TYP_CD%22%3A%2209%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2201%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EB%8C%80%EC%B6%9C%ED%95%9C%EB%8F%84%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%221%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%221%EC%96%B5%EC%9B%90(%EC%B5%9C%EC%A0%80%2010%EB%A7%8C%EC%9B%90%2C%20%EA%B3%84%EC%A2%8C%20%EC%9E%94%EC%95%A1%2095%25%EA%B9%8C%EC%A7%80)%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2211%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%2228%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%223%22%2C%22CMPNT_TYP_CD%22%3A%2209%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2201%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EB%8C%80%EC%B6%9C%ED%95%9C%EB%8F%84%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%2209%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%221%EC%96%B5%EC%9B%90(%EC%B5%9C%EC%A0%80%2010%EB%A7%8C%EC%9B%90%2C%20%EA%B3%84%EC%A2%8C%20%EC%9E%94%EC%95%A1%2095%25%EA%B9%8C%EC%A7%80)%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2211%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%2228%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%226%22%2C%22CMPNT_TYP_CD%22%3A%2209%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2201%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EB%8C%80%EC%B6%9C%ED%95%9C%EB%8F%84%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%EC%B5%9C%EC%A0%80%2010%EB%A7%8C%EC%9B%90%2C%20%EA%B3%84%EC%A2%8C%20%EC%9E%94%EC%95%A1%2095%25%EA%B9%8C%EC%A7%80%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%221%EC%96%B5%EC%9B%90(%EC%B5%9C%EC%A0%80%2010%EB%A7%8C%EC%9B%90%2C%20%EA%B3%84%EC%A2%8C%20%EC%9E%94%EC%95%A1%2095%25%EA%B9%8C%EC%A7%80)%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2211%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%2228%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%2211%22%2C%22CMPNT_TYP_CD%22%3A%2209%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2201%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EB%8C%80%EC%B6%9C%EA%B8%B0%EA%B0%84%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%2202%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%EB%8B%B4%EB%B3%B4%20%EC%83%81%ED%92%88%20%EB%A7%8C%EA%B8%B0%EC%9D%BC%EA%B9%8C%EC%A7%80%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2212%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%2229%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%2212%22%2C%22CMPNT_TYP_CD%22%3A%2209%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2201%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EB%8C%80%EC%B6%9C%EA%B8%B0%EA%B0%84%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%EB%8B%B4%EB%B3%B4%20%EC%83%81%ED%92%88%20%EB%A7%8C%EA%B8%B0%EC%9D%BC%EA%B9%8C%EC%A7%80%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%EB%8B%B4%EB%B3%B4%20%EC%83%81%ED%92%88%20%EB%A7%8C%EA%B8%B0%EC%9D%BC%EA%B9%8C%EC%A7%80%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2212%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%2229%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2201%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2201%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EC%B5%9C%EC%A0%80%EA%B8%88%EB%A6%AC%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%EC%88%98%EC%8B%A0%EA%B8%88%EB%A6%AC%2B1.30%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2234%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%2231%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2202%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2202%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EC%83%81%ED%92%88%EA%B0%9C%EC%9A%94%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E%EB%B3%B8%EC%9D%B8%20%EB%AA%85%EC%9D%98%EC%9D%98%20%EC%98%88%EA%B8%88%2C%20%EC%A0%81%EA%B8%88%2C%20%EC%9E%A5%EB%B6%80%EA%B0%80%20%EB%B0%A9%EC%8B%9D%EC%8B%A0%ED%83%81%EC%9D%84%20%EB%8B%B4%EB%B3%B4%EB%A1%9C%20%EC%98%81%EC%97%85%EC%A0%90%20%EB%B0%A9%EB%AC%B8%20%EC%97%86%EC%9D%B4%20%EC%9D%B8%ED%84%B0%EB%84%B7%EC%83%81%EC%97%90%EC%84%9C%20%ED%95%84%EC%9A%94%ED%95%A0%20%EB%95%8C%20%EC%A6%89%EC%8B%9C%20%EB%8C%80%EC%B6%9C%EC%9D%84%20%EB%B0%9B%EC%9D%84%20%EC%88%98%20%EC%9E%88%EB%8A%94%20%EC%9D%B8%ED%84%B0%EB%84%B7%20%EC%A0%84%EC%9A%A9%EC%83%81%ED%92%88%3C%2Fp%3E%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2217%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%224%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2206%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2202%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EB%8C%80%EC%B6%9C%EC%A1%B0%EA%B1%B4(%EC%9E%90%EA%B2%A9)%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E%EB%B3%B8%EC%9D%B8%20%EB%AA%85%EC%9D%98%EC%9D%98%20%EB%B6%80%EC%82%B0%EC%9D%80%ED%96%89%20%EC%A0%95%EA%B8%B0%EC%98%88%EA%B8%88%2C%20%EB%B6%80%EA%B8%88%2C%20%EC%A0%81%EA%B8%88%2C%20%EC%8B%A0%ED%83%81(%EC%9E%A5%EB%B6%80%EA%B0%80%20%EB%B0%A9%EC%8B%9D)%EC%83%81%ED%92%88%EC%9D%84%20%EB%8B%B4%EB%B3%B4%EB%A1%9C%20%EC%A0%9C%EA%B3%B5%ED%95%98%EA%B3%A0%20%EB%8C%80%EC%B6%9C%EC%9D%84%20%EB%B0%9B%EA%B3%A0%EC%9E%90%20%ED%95%98%EB%8A%94%20%EA%B3%A0%EA%B0%9D%3C%2Fp%3E%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2218%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%225%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2202%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2202%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EB%8C%80%EC%B6%9C%ED%95%9C%EB%8F%84%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%EC%98%88%EA%B8%88(%EC%A0%81%EA%B8%88)%EB%B6%88%EC%9E%85%EC%95%A1%EC%9D%98%2095%25(%EB%8B%A8%2C%20%EC%A7%80%EC%88%98%EC%97%B0%EB%8F%99%EC%A0%95%EA%B8%B0%EC%98%88%EA%B8%88%EC%9D%B8%EA%B2%BD%EC%9A%B0%20%EC%9B%90%EA%B8%88%EC%9D%98%2090%25)%EC%9D%B4%EB%82%B4%EB%A1%9C%20%EB%8C%80%EC%B6%9C%20%EA%B1%B4%EB%B3%84%20%EC%B5%9C%EA%B3%A0%201%EC%96%B5%EC%9B%90%EC%9D%B4%EB%82%B4%5Cn%EC%9E%A5%EB%B6%80%EA%B0%80%EB%B0%A9%EC%8B%9D%20%EA%B0%9C%EC%9D%B8%EC%97%B0%EA%B8%88%EC%8B%A0%ED%83%81%20%EB%8B%B4%EB%B3%B4%EC%9D%B8%20%EA%B2%BD%EC%9A%B0%20%EC%A4%91%EB%8F%84%ED%95%B4%EC%A7%80%EA%B8%88%EC%95%A1%EC%9D%98%2090%25%EC%9D%B4%EB%82%B4%EB%A1%9C%20%EB%8C%80%EC%B6%9C%20%EA%B1%B4%EB%B3%84%20%EC%B5%9C%EA%B3%A0%205%EC%B2%9C%EB%A7%8C%EC%9B%90%20%EC%9D%B4%EB%82%B4%5Cn%E2%80%BB%20%EB%8C%80%EC%B6%9C%EC%8B%A0%EC%B2%AD%EA%B8%88%EC%95%A1%EC%9D%80%20%EC%B5%9C%EC%A0%80%2010%EB%A7%8C%EC%9B%90%2C%20%EC%B5%9C%EA%B3%A0%201%EC%96%B5%EC%9B%90%20%EC%9D%B4%EB%82%B4%EC%9D%B4%EB%A9%B0%2C%2010%EB%A7%8C%EC%9B%90%20%EB%8B%A8%EC%9C%84%EB%A1%9C%20%EC%8B%A0%EC%B2%AD%EA%B0%80%EB%8A%A5%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2219%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%226%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2209%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2202%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EC%83%81%ED%99%98%EB%B0%A9%EB%B2%95%20%EB%B0%8F%20%EB%8C%80%EC%B6%9C%EA%B8%B0%EA%B0%84%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%3Cul%20class%3D%5C%22info-list%20type-li-dot%5C%22%3E%3Cli%3E%EC%9D%BC%EC%8B%9C%EC%83%81%ED%99%98%20%3A%20%EB%8B%B4%EB%B3%B4%20%EC%98%88%26%23x2022%EC%A0%81%EA%B8%88%20%2F%20%EC%9E%A5%EB%B6%80%EA%B0%80%20%EB%B0%A9%EC%8B%9D%20%EC%8B%A0%ED%83%81%EC%9D%98%20%EB%A7%8C%EA%B8%B0%EC%9D%BC%3C%2Fli%3E%3Cli%3E%EC%9D%B4%EC%9E%90%EB%B6%80%EA%B3%BC%EC%8B%9C%EA%B8%B0%3A%20%EB%A7%A4%EC%9B%94%20%ED%9B%84%EC%B7%A8(%EB%8C%80%EC%B6%9C%20%ED%95%B4%EB%8B%B9%EC%9D%BC%20%EB%98%90%EB%8A%94%20%EC%9D%91%EB%8B%B9%EC%9D%BC%20%EB%B6%80%EA%B3%BC)%3C%2Fli%3E%3C%2Ful%3E%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E%E2%80%BB%20%ED%9C%B4%EC%9D%BC%20%EB%8C%80%EC%B6%9C%EC%9B%90%EA%B8%88%20%EB%98%90%EB%8A%94%20%EC%9D%B4%EC%9E%90%20%EC%83%81%ED%99%98%20%EA%B0%80%EB%8A%A5%3C%2Fp%3E%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2220%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%227%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2209%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2202%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EA%B8%88%EB%A6%AC%EB%B3%80%EB%8F%99%EC%A3%BC%EA%B8%B0%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E%ED%95%B4%EB%8B%B9%EC%82%AC%ED%95%AD%EC%97%86%EC%9D%8C%3C%2Fp%3E%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2221%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%228%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2209%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2202%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EA%B8%B0%EB%B3%B8%EA%B8%88%EB%A6%AC%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%3Cul%20class%3D%5C%22info-list%20type-li-dot%5C%22%3E%3Cli%3E%EC%98%88%C2%B7%EC%A0%81%EA%B8%88%3A%26nbsp%3B%20%EC%88%98%EC%8B%A0%EA%B8%88%EB%A6%AC%20%2B%201.30%25%3C%2Fli%3E%3Cli%3E%EC%A7%80%EC%88%98%EC%97%B0%EB%8F%99%EC%A0%95%EA%B8%B0%EC%98%88%EA%B8%88%20%3A%20%EB%AA%A8%EC%A7%91%EA%B8%B0%EA%B0%84%EC%9D%B4%EC%9C%A8%20%2B%201.30%25%3C%2Fli%3E%3C%2Ful%3E%3Cul%20class%3D%5C%22info-list%20type-li-dot%5C%22%3E%3Cli%3E%EC%9E%A5%EB%B6%80%EA%B0%80%20%EB%B0%A9%EC%8B%9D%EC%8B%A0%ED%83%81%3A%26nbsp%3B%20%EC%88%98%ED%83%81%EC%9D%B4%EC%9C%A8%20%2B%201.00%25%3C%2Fli%3E%3C%2Ful%3E%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2223%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%2223%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2209%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2202%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EC%B5%9C%EC%A2%85%EA%B8%88%EB%A6%AC%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%EC%98%88.%EC%A0%81%EA%B8%88%3A%20%EC%88%98%EC%8B%A0%EA%B8%88%EB%A6%AC%20%2B%201.30%25%5Cn%EC%A7%80%EC%88%98%EC%97%B0%EB%8F%99%EC%A0%95%EA%B8%B0%EC%98%88%EA%B8%88%20%3A%20%EB%AA%A8%EC%A7%91%EA%B8%B0%EA%B0%84%EC%9D%B4%EC%9C%A8%20%2B%201.30%25%5Cn%EC%9E%A5%EB%B6%80%EA%B0%80%20%EB%B0%A9%EC%8B%9D%EC%8B%A0%ED%83%81%3A%20%EC%88%98%ED%83%81%EC%9D%B4%EC%9C%A8%20%2B%201.00%25%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2226%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%2222%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2202%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2202%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EB%8B%B4%EB%B3%B4%EC%A1%B0%EA%B1%B4%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E%EB%B6%80%EC%82%B0%EC%9D%80%ED%96%89%20%EC%A0%81%EB%A6%BD%EC%8B%9D%20%EB%98%90%EB%8A%94%20%EA%B1%B0%EC%B9%98%EC%8B%9D%20%EC%98%88%EA%B8%88%2C%20%EC%9E%A5%EB%B6%80%EA%B0%80%20%EB%B0%A9%EC%8B%9D%20%EC%8B%A0%ED%83%81%3C%2Fp%3E%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2227%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%2227%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2204%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2202%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EA%B0%80%EC%9E%85%EB%B0%A9%EB%B2%95%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E%EC%9D%B8%ED%84%B0%EB%84%B7%20%EC%8B%A0%EC%B2%AD%3C%2Fp%3E%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2228%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%2215%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2206%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2202%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EC%88%98%EC%88%98%EB%A3%8C(%EB%B6%80%EB%8C%80%EB%B9%84%EC%9A%A9)%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E%E2%96%A1%20%EC%9D%B8%EC%A7%80%EC%84%B8%3C%2Fp%3E%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E-%20%E3%80%8C%EC%9D%B8%EC%A7%80%EC%84%B8%EB%B2%95%E3%80%8D%EC%97%90%20%EB%94%B0%EB%9D%BC%20%EB%8C%80%EC%B6%9C%EC%95%BD%EC%A0%95%EC%8B%9C%20%EB%82%A9%EB%B6%80%ED%95%98%EB%8A%94%20%EC%84%B8%EA%B8%88%EC%9C%BC%EB%A1%9C%20%EB%8C%80%EC%B6%9C%EA%B8%88%EC%95%A1%EC%97%90%20%EB%94%B0%EB%9D%BC%20%EC%84%B8%EC%95%A1%EC%9D%B4%20%EC%B0%A8%EB%93%B1%EC%A0%81%EC%9A%A9%EB%90%98%EB%A9%B0%2C%20%EC%9D%80%ED%96%89%EA%B3%BC%20%EA%B3%A0%EA%B0%9D%EC%9D%B4%20%EA%B0%81%EA%B0%81%2050%25%20%EB%B6%80%EB%8B%B4%3C%2Fp%3E%3Cdiv%20class%3D%5C%22table-box%5C%22%3E%3Ctable%20class%3D%5C%22tbl-matrix%5C%22%20style%3D%5C%22width%3A%20100%25%3B%5C%22%3E%3Ctbody%3E%3Ctr%3E%3Ctd%20style%3D%5C%22width%3A%2010%25%3B%5C%22%3E%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E%EB%8C%80%EC%B6%9C%EA%B8%88%EC%95%A1%3C%2Fp%3E%3C%2Ftd%3E%3Ctd%20style%3D%5C%22width%3A%2010%25%3B%5C%22%3E%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E5%EC%B2%9C%EB%A7%8C%EC%9B%90%20%EC%9D%B4%ED%95%98%3C%2Fp%3E%3C%2Ftd%3E%3Ctd%20style%3D%5C%22width%3A%2010%25%3B%5C%22%3E%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E5%EC%B2%9C%EB%A7%8C%EC%9B%90%20%EC%B4%88%EA%B3%BC%3C%2Fp%3E%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E~%201%EC%96%B5%EC%9B%90%20%EC%9D%B4%ED%95%98%3C%2Fp%3E%3C%2Ftd%3E%3Ctd%20style%3D%5C%22width%3A%2010%25%3B%5C%22%3E%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E1%EC%96%B5%EC%9B%90%20%EC%B4%88%EA%B3%BC%3C%2Fp%3E%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E~%2010%EC%96%B5%EC%9B%90%20%EC%9D%B4%ED%95%98%3C%2Fp%3E%3C%2Ftd%3E%3Ctd%20style%3D%5C%22width%3A%2010%25%3B%5C%22%3E%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E10%EC%96%B5%EC%9B%90%20%EC%B4%88%EA%B3%BC%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%20style%3D%5C%22width%3A%2010%25%3B%5C%22%3E%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E%EC%9D%B8%EC%A7%80%EC%84%B8%EC%95%A1%3C%2Fp%3E%3C%2Ftd%3E%3Ctd%20style%3D%5C%22width%3A%2010%25%3B%5C%22%3E%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E%EB%B9%84%EA%B3%BC%EC%84%B8%3C%2Fp%3E%3C%2Ftd%3E%3Ctd%20style%3D%5C%22width%3A%2010%25%3B%5C%22%3E%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E7%EB%A7%8C%EC%9B%90%3C%2Fp%3E%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E(%EA%B0%81%EA%B0%81%203%EB%A7%8C5%EC%B2%9C%EC%9B%90)%3C%2Fp%3E%3C%2Ftd%3E%3Ctd%20style%3D%5C%22width%3A%2010%25%3B%5C%22%3E%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E15%EB%A7%8C%EC%9B%90%3C%2Fp%3E%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E(%EA%B0%81%EA%B0%81%207%EB%A7%8C5%EC%B2%9C%EC%9B%90)%3C%2Fp%3E%3C%2Ftd%3E%3Ctd%20style%3D%5C%22width%3A%2010%25%3B%5C%22%3E%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E35%EB%A7%8C%EC%9B%90%3C%2Fp%3E%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E(%EA%B0%81%EA%B0%81%2017%EB%A7%8C5%EC%B2%9C%EC%9B%90)%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2229%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%2216%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2209%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2202%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EC%A4%91%EB%8F%84%EC%83%81%ED%99%98%EC%88%98%EC%88%98%EB%A3%8C%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E%EB%A9%B4%EC%A0%9C%3C%2Fp%3E%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2230%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%2217%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2206%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2202%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EA%B8%88%EC%9C%B5%EC%86%8C%EB%B9%84%EC%9E%90%EA%B0%80%20%EC%95%8C%EC%95%84%EC%95%BC%20%ED%95%A0%20%EC%82%AC%ED%95%AD%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%3Cul%20class%3D%5C%22info-list%20type-li-dot%5C%22%3E%3Cli%3E%EB%8C%80%EC%B6%9C%EC%9D%98%20%EB%A7%8C%EA%B8%B0%EA%B0%80%20%EB%8F%84%EB%9E%98%ED%95%98%EC%97%AC%20%EC%83%81%ED%99%98%20%EA%B8%B0%EC%9D%BC%EC%9D%B4%20%EC%97%B0%EC%9E%A5%EB%90%98%EA%B1%B0%EB%82%98%2C%20%EC%97%B0%EC%9E%A5%EC%97%90%20%EB%94%B0%EB%A5%B8%20%EB%8C%80%EC%B6%9C%EC%9D%B4%EC%9C%A8%EC%9D%B4%20%EB%B3%80%EA%B2%BD%EB%90%A0%20%EA%B2%BD%EC%9A%B0%20(%EB%8C%80%EC%B6%9C%EC%9D%B4%EC%9E%90%EC%9C%A8%20%EC%A0%81%EC%9A%A9%EB%B0%A9%EC%8B%9D%EC%9D%98%20%EB%B3%80%EA%B2%BD%EC%9D%80%20%EC%A0%9C%EC%99%B8)%EC%97%90%EB%8F%84%20%EC%9D%80%ED%96%89%EC%97%90%EC%84%9C%20%EC%A0%95%ED%95%9C%20%EC%97%B0%EC%9E%A5%EA%B8%B0%EC%A4%80%EC%9D%84%20%EB%94%B0%EB%A5%B4%EA%B8%B0%EB%A1%9C%20%ED%95%A9%EB%8B%88%EB%8B%A4.%3C%2Fli%3E%3Cli%3E%EB%8C%80%EC%B6%9C%20%EB%A7%8C%EA%B8%B0%EB%8F%84%EB%9E%98%20%EC%8B%9C%20%EA%B3%A0%EA%B0%9D%EB%8B%98%EC%9D%98%20%EC%9E%AC%EC%A7%81%EC%83%81%ED%83%9C%2C%20%EC%8B%A0%EC%9A%A9%EC%83%81%ED%83%9C%20%EB%B0%8F%20%EC%9D%80%ED%96%89%EC%9D%98%20%EC%8B%AC%EC%82%AC%EA%B8%B0%EC%A4%80%EC%97%90%20%EB%94%B0%EB%9D%BC%26nbsp%3B%20%EB%8C%80%EC%B6%9C%EC%9D%B4%20%EC%97%B0%EC%9E%A5%EB%90%98%EC%A7%80%20%EC%95%8A%EC%9D%84%20%EC%88%98%EB%8F%84%20%EC%9E%88%EA%B3%A0%2C%20%EB%8C%80%EC%B6%9C%EA%B1%B0%EB%9E%98%EC%A1%B0%EA%B1%B4(%EC%9D%B4%EC%9C%A8%20%EB%B0%8F%20%ED%95%9C%EB%8F%84%EB%93%B1)%EC%9D%B4%20%EB%B3%80%EA%B2%BD%20%EB%90%A0%20%EC%88%98%EB%8F%84%20%EC%9E%88%EC%9C%BC%EB%8B%88%2C%20%EC%9D%B4%EC%A0%90%20%EC%9C%A0%EC%9D%98%ED%95%98%EC%8B%9C%EA%B8%B0%20%EB%B0%94%EB%9E%8D%EB%8B%88%EB%8B%A4.%3C%2Fli%3E%3Cli%3E%EB%8C%80%EC%B6%9C%20%EC%B7%A8%EA%B8%89%20%ED%9B%84%20%EA%B1%B0%EB%9E%98%EC%A1%B0%EA%B1%B4(%EC%83%81%ED%99%98%20%EC%A1%B0%EA%B1%B4%20%EB%B3%80%EA%B2%BD%20%EB%93%B1)%EC%9D%84%20%EB%B3%80%EA%B2%BD%ED%95%98%EA%B3%A0%EC%9E%90%20%ED%95%98%EB%8A%94%20%EA%B2%BD%EC%9A%B0%EC%97%90%EB%8A%94%20%EC%9D%80%ED%96%89%EC%9D%98%20%EC%8A%B9%EC%9D%B8%EC%9D%B4%20%EC%9E%88%EC%96%B4%EC%95%BC%20%ED%95%A9%EB%8B%88%EB%8B%A4.%3C%2Fli%3E%3Cli%3E%EB%8C%80%EC%B6%9C%20%EC%9D%B4%EC%9E%90%20%EB%98%90%EB%8A%94%20%EC%9B%90%EA%B8%88%EC%9D%84%20%EC%95%BD%EC%A0%95%ED%95%9C%20%EB%82%A0%EC%97%90%20%EB%82%A9%EC%9E%85(%EC%83%81%ED%99%98)%ED%95%98%EC%A7%80%20%EC%95%8A%EC%9D%84%20%EA%B2%BD%EC%9A%B0%20%EC%97%B0%EC%B2%B4%EC%9D%B4%EC%9E%90%EB%A5%BC%20%EB%B6%80%EB%8B%B4%ED%95%98%EC%97%AC%EC%95%BC%ED%95%98%EB%A9%B0%2C%EA%B8%88%EC%9C%B5%EA%B1%B0%EB%9E%98%20%EC%A0%9C%EC%95%BD%20%EB%93%B1%20%EB%B6%88%EC%9D%B4%EC%9D%B5%EC%9D%84%20%EB%B0%9B%EC%9C%BC%EC%8B%A4%20%EC%88%98%20%EC%9E%88%EC%8A%B5%EB%8B%88%EB%8B%A4.%20%EB%8B%A8%2C%20%E3%80%8C%EA%B0%9C%EC%9D%B8%EA%B8%88%EC%9C%B5%EC%B1%84%EA%B6%8C%EC%9D%98%20%EA%B4%80%EB%A6%AC%20%EB%B0%8F%20%EA%B0%9C%EC%9D%B8%EA%B8%88%EC%9C%B5%EC%B1%84%EB%AC%B4%EC%9E%90%EC%9D%98%20%EB%B3%B4%ED%98%B8%EC%97%90%20%EA%B4%80%ED%95%9C%20%EB%B2%95%EB%A5%A0%E3%80%8D%EC%97%90%EC%84%9C%20%EC%A0%95%ED%95%98%EB%8A%94%20%EB%B0%94%EC%97%90%20%EB%94%B0%EB%9D%BC%20%EA%B3%84%EC%A2%8C%EB%B3%84%20%EB%8C%80%EC%B6%9C%EC%9B%90%EA%B8%88(%EC%95%BD%EC%A0%95%EA%B8%88%EC%95%A1%EC%9D%84%20%EA%B8%B0%EC%A4%80%EC%9C%BC%EB%A1%9C%20%ED%95%98%EB%A9%B0%2C%20%ED%95%9C%EB%8F%84%EB%8C%80%EC%B6%9C%EC%9D%98%20%EA%B2%BD%EC%9A%B0%20%ED%95%9C%EB%8F%84%EA%B8%88%EC%95%A1%EC%9D%84%20%EA%B8%B0%EC%A4%80%EC%9C%BC%EB%A1%9C%20%ED%95%A8)%EC%9D%B4%205%EC%B2%9C%EB%A7%8C%EC%9B%90%20%EB%AF%B8%EB%A7%8C%EC%9D%B8%20%EA%B2%BD%EC%9A%B0%EB%A1%9C%EC%84%9C%20%EC%97%B0%EC%B2%B4%EA%B0%80%20%EB%B0%9C%EC%83%9D%ED%95%98%EC%97%AC%20%EA%B8%B0%ED%95%9C%EC%9D%98%20%EC%9D%B4%EC%9D%B5%EC%9D%B4%20%EC%83%81%EC%8B%A4%EB%90%9C%20%EA%B2%BD%EC%9A%B0%EC%97%90%EB%8A%94%2C%20%EC%B1%84%EB%AC%B4%EC%9D%B4%ED%96%89%EC%9D%98%20%EA%B8%B0%ED%95%9C%EC%9D%B4%20%EB%8F%84%EB%9E%98%ED%95%98%EC%A7%80%20%EC%95%84%EB%8B%88%ED%95%9C%20%EB%8C%80%EC%B6%9C%EC%9B%90%EA%B8%88%EC%97%90%20%EB%8C%80%ED%95%98%EC%97%AC%EB%8A%94%20%EC%97%B0%EC%B2%B4%EC%9D%B4%EC%9E%90%EC%9C%A8%EC%9D%B4%20%EC%A0%81%EC%9A%A9%EB%90%98%EC%A7%80%20%EC%95%8A%EC%8A%B5%EB%8B%88%EB%8B%A4.%3Cbr%3E%E2%80%BB%20%EC%97%B0%EC%B2%B4%EC%9D%B4%EC%9C%A8%20%3A%20%EB%8C%80%EC%B6%9C%EA%B8%88%EB%A6%AC%EC%97%90%203.0%25%EB%A5%BC%20%EA%B0%80%EC%82%B0(%EC%B5%9C%EA%B3%A0%2015.0%25)%20(%EB%8C%80%EC%B6%9C%EA%B8%88%EB%A6%AC%EA%B0%80%20%EC%B5%9C%EA%B3%A0%20%EC%97%B0%EC%B2%B4%EC%9D%B4%EC%9C%A8%20%EC%9D%B4%EC%83%81%EC%9D%BC%20%EA%B2%BD%EC%9A%B0%20%EB%8C%80%EC%B6%9C%EA%B8%88%EB%A6%AC%20%2B2.0%25)%3C%2Fli%3E%3Cli%3E%EB%A7%8C%EA%B8%B0%EC%9D%BC%20%EA%B2%BD%EA%B3%BC%20%ED%9B%84%20%EB%8C%80%EC%B6%9C%EA%B8%88%EC%95%A1%EC%9D%84%20%EC%A0%84%EC%95%A1%20%EC%83%81%ED%99%98%ED%95%98%EC%A7%80%20%EC%95%8A%EA%B1%B0%EB%82%98%20%EA%B8%B0%ED%95%9C%EC%97%B0%EC%9E%A5%20%ED%95%98%EC%A7%80%20%EC%95%8A%EC%9D%80%20%EA%B2%BD%EC%9A%B0%2C%20%EC%9D%80%ED%96%89%EC%97%AC%EC%8B%A0%EA%B1%B0%EB%9E%98%20%EA%B8%B0%EB%B3%B8%EC%95%BD%EA%B4%80%EC%97%90%20%EB%94%B0%EB%9D%BC%20%EA%B8%B0%ED%95%9C%EC%9D%98%20%EC%9D%B4%EC%9D%B5%EC%9D%B4%20%EC%83%81%EC%8B%A4%EB%90%98%EC%96%B4%20%EB%8C%80%EC%B6%9C%EC%9E%A5%EC%95%A1%EC%97%90%20%EB%8C%80%ED%95%9C%20%EC%A7%80%EC%97%B0%EB%B0%B0%EC%83%81%EA%B8%88%EC%9D%B4%20%EB%B6%80%EA%B3%BC%EB%90%98%EB%A9%B0%2C%20%EC%98%88%EA%B8%88%EB%93%B1%20%EA%B8%B0%ED%83%80%EC%B1%84%EA%B6%8C%EA%B3%BC%20%EC%83%81%EA%B3%84%EB%82%98%20%EB%B2%95%EC%A0%81%EC%A0%88%EC%B0%A8%20%EB%93%B1%EC%9C%BC%EB%A1%9C%20%EC%9E%AC%EC%82%B0%EC%83%81%20%EB%B6%88%EC%9D%B4%EC%9D%B5%EA%B3%BC%20%EA%B8%88%EC%9C%B5%EA%B1%B0%EB%9E%98%20%EC%A0%9C%EC%95%BD%EC%9D%84%20%EB%B0%9B%EC%9C%BC%EC%8B%A4%20%EC%88%98%20%EC%9E%88%EC%8A%B5%EB%8B%88%EB%8B%A4.%3C%2Fli%3E%3Cli%3E%EB%8C%80%EC%B6%9C%EC%9B%90%EA%B8%88%2C%20%EC%9D%B4%EC%9E%90%20%EB%93%B1%EC%9D%84%203%EA%B0%9C%EC%9B%94%20%EC%9D%B4%EC%83%81%20%EC%97%B0%EC%B2%B4%ED%95%9C%20%EA%B2%BD%EC%9A%B0%EC%97%90%EB%8A%94%203%EA%B0%9C%EC%9B%94%EC%9D%B4%20%EB%90%98%EB%8A%94%20%EB%82%A0%EC%9D%84%20%EB%93%B1%EB%A1%9D%EC%82%AC%EC%9C%A0%20%EB%B0%9C%EC%83%9D%EC%9D%B4%EB%A1%9C%20%ED%95%98%EC%97%AC%20%EA%B7%B8%20%EB%95%8C%EB%B6%80%ED%84%B0%207%EC%98%81%EC%97%85%EC%9D%BC%20%EC%9D%B4%EB%82%B4%EC%97%90%20%5C%22%EC%8B%A0%EC%9A%A9%EC%A0%95%EB%B3%B4%EA%B4%80%EB%A6%AC%EA%B7%9C%EC%95%BD%5C%22%EC%97%90%EC%84%9C%20%EC%A0%95%ED%95%9C%20&#039;%EC%97%B0%EC%B2%B4%20%EB%93%B1&#039;%20%EC%A0%95%EB%B3%B4%EA%B1%B0%EB%9E%98%EC%B2%98%EB%A1%9C%20%EB%93%B1%EB%A1%9D%EB%90%98%EC%96%B4%20%EA%B8%88%EC%9C%B5%EA%B1%B0%EB%9E%98%EC%A0%9C%EC%95%BD%20%EB%93%B1%20%EB%B6%88%EC%9D%B4%EC%9D%B5%EC%9D%84%20%EB%B0%9B%EC%9D%84%20%EC%88%98%20%EC%9E%88%EC%8A%B5%EB%8B%88%EB%8B%A4.%3C%2Fli%3E%3Cli%3E%EB%82%A9%EB%B6%80%ED%95%B4%EC%95%BC%ED%95%A0%20%EC%9B%90%EB%A6%AC%EA%B8%88%EC%9D%B4%20%EC%97%B0%EC%B2%B4%EB%90%A0%20%EA%B2%BD%EC%9A%B0%20%EA%B3%84%EC%95%BD%EB%A7%8C%EB%A3%8C%20%EA%B8%B0%ED%95%9C%EC%9D%B4%20%EB%8F%84%EB%9E%98%ED%95%98%EA%B8%B0%20%EC%A0%84%20%EB%AA%A8%EB%93%A0%20%EC%9B%90%EB%A6%AC%EA%B8%88%EC%9D%84%20%EB%B3%80%EC%A0%9C%20%ED%95%B4%EC%95%BC%ED%95%A0%20%EC%9D%98%EB%AC%B4%EA%B0%80%20%EB%B0%9C%EC%83%9D%ED%95%A0%20%EC%88%98%20%EC%9E%88%EC%8A%B5%EB%8B%88%EB%8B%A4.%3C%2Fli%3E%3Cli%3E%EC%83%81%ED%99%98%EB%8A%A5%EB%A0%A5%EC%97%90%20%EB%B9%84%ED%95%B4%20%EB%8C%80%EC%B6%9C%EA%B8%88%EC%9D%B4%20%EA%B3%BC%EB%8F%84%ED%95%A0%20%EA%B2%BD%EC%9A%B0%20%EC%8B%A0%EC%9A%A9%ED%8F%89%EC%A0%90%EC%9D%B4%20%ED%95%98%EB%9D%BD%ED%95%A0%EC%88%98%20%EC%9E%88%EC%9C%BC%EB%A9%B4%20%EC%8B%A0%EC%9A%A9%ED%8F%89%EC%A0%90%20%ED%95%98%EB%9D%BD%EC%97%90%20%EB%94%B0%EB%9D%BC%20%EA%B8%88%EC%9C%B5%EA%B1%B0%EB%9E%98%20%EC%A0%9C%EC%95%BD%20%EB%93%B1%20%EB%B6%88%EC%9D%B4%EC%9D%B5%EC%9D%84%20%EB%B0%9B%EC%9C%BC%EC%8B%A4%20%EC%88%98%20%EC%9E%88%EC%8A%B5%EB%8B%88%EB%8B%A4.%3C%2Fli%3E%3Cli%3E%EC%9D%B4%20%EC%84%A4%EB%AA%85%EC%84%9C%EB%8A%94%20%EC%9D%80%ED%96%89%EC%9D%B4%EC%9A%A9%EC%9E%90%EC%9D%98%20%EC%83%81%ED%92%88%EC%97%90%20%EB%8C%80%ED%95%9C%20%EC%9D%B4%ED%95%B4%EB%A5%BC%20%EB%8F%95%EA%B3%A0%20%EC%95%BD%EA%B4%80%EC%9D%98%20%EC%A4%91%EC%9A%94%EB%82%B4%EC%9A%A9%EC%9D%84%20%EC%95%8C%EB%A0%A4%EB%93%9C%EB%A6%AC%EA%B8%B0%20%EC%9C%84%ED%95%9C%20%EC%B0%B8%EA%B3%A0%EC%9E%90%EB%A3%8C%EC%9D%B4%EB%A9%B0%2C%20%EC%8B%A4%EC%A0%9C%20%EA%B3%84%EC%95%BD%EC%9D%80%20%EC%9D%80%ED%96%89%EC%97%AC%EC%8B%A0%EA%B1%B0%EB%9E%98%20%EA%B8%B0%EB%B3%B8%EC%95%BD%EA%B4%80(%EA%B0%80%EA%B3%84%EC%9A%A9)%EC%9D%B4%20%EC%A0%81%EC%9A%A9%20%EB%90%A9%EB%8B%88%EB%8B%A4.%20%EA%B3%84%EC%95%BD%EC%9D%84%20%EC%8B%A0%EC%B2%AD%ED%95%98%EB%8A%94%20%EA%B2%BD%EC%9A%B0%20%EC%95%BD%EA%B4%80%EC%9D%B4%2C%20%EA%B3%84%EC%95%BD%EC%9D%84%20%EC%B2%B4%EA%B2%B0%ED%95%98%EB%8A%94%20%EA%B2%BD%EC%9A%B0%20%EA%B3%84%EC%95%BD%EC%84%9C%EB%A5%98%EA%B0%80%20%EA%B5%90%EB%B6%80%EB%90%A9%EB%8B%88%EB%8B%A4.%3C%2Fli%3E%3Cli%3E%EA%B8%88%EC%9C%B5%EC%83%81%ED%92%88%20%EA%B3%84%EC%95%BD%20%EC%B2%B4%EA%B2%B0%20%EC%A0%84%20%EC%83%81%ED%92%88%EC%84%A4%EB%AA%85%EC%84%9C%20%EB%B0%8F%20%EC%95%BD%EA%B4%80%EC%9D%84%20%EB%B0%98%EB%93%9C%EC%8B%9C%20%EC%9D%BD%EC%96%B4%EB%B3%B4%EC%8B%9C%EA%B8%B0%20%EB%B0%94%EB%9E%8D%EB%8B%88%EB%8B%A4.%3C%2Fli%3E%3Cli%3E%EA%B8%88%EC%9C%B5%EC%86%8C%EB%B9%84%EC%9E%90%EB%8A%94%20%EC%83%81%ED%92%88%EC%97%90%20%EB%8C%80%ED%95%9C%20%EC%B6%A9%EB%B6%84%ED%95%9C%20%EC%84%A4%EB%AA%85%EC%9D%84%20%EB%B0%9B%EC%9D%84%20%EA%B6%8C%EB%A6%AC%EA%B0%80%20%EC%9E%88%EC%9C%BC%EB%A9%B0%2C%20%EA%B7%B8%20%EC%84%A4%EB%AA%85%EC%9D%84%20%EC%9D%B4%ED%95%B4%ED%95%98%EC%8B%A0%20%ED%9B%84%20%EA%B1%B0%EB%9E%98%ED%95%98%EC%8B%9C%EA%B8%B0%20%EB%B0%94%EB%9E%8D%EB%8B%88%EB%8B%A4.%3C%2Fli%3E%3Cli%3E%EA%B8%B0%ED%83%80%20%EC%9E%90%EC%84%B8%ED%95%9C%20%EC%82%AC%ED%95%AD%EC%9D%80%20%EA%B0%80%EA%B9%8C%EC%9A%B4%20%EC%98%81%EC%97%85%EC%A0%90%20%EB%98%90%EB%8A%94%20%EB%B6%80%EC%82%B0%EC%9D%80%ED%96%89%20%EA%B3%A0%EA%B0%9D%EC%84%BC%ED%84%B0(1544-6200%2C%201588-6200)%EB%A1%9C%20%EB%AC%B8%EC%9D%98%ED%95%98%EC%8B%9C%EA%B8%B0%20%EB%B0%94%EB%9E%8D%EB%8B%88%EB%8B%A4.%3C%2Fli%3E%3C%2Ful%3E%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2231%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%2218%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2209%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2202%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%ED%95%84%EC%9A%94%EC%84%9C%EB%A5%98%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%3Cp%20class%3D%5C%22ssp-editor-p%5C%22%3E%EC%97%86%EC%9D%8C%3C%2Fp%3E%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2236%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%2236%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2202%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EB%A7%88%EC%9D%B4%EB%84%88%EC%8A%A4%ED%86%B5%EC%9E%A5(%EC%A2%85%ED%95%A9%ED%86%B5%EC%9E%A5%EB%8C%80%EC%B6%9C)%EA%B0%80%EB%8A%A5%EC%97%AC%EB%B6%80%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%3Cp%3E%EB%B6%88%EA%B0%80%EB%8A%A5%3C%2Fp%3E%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%2232%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%2219%22%7D%2C%7B%22MKPD_LTIV_ITEM_SEQ%22%3A%22%22%2C%22CMPNT_TYP_CD%22%3A%2201%22%2C%22MKPD_LTIV_ITEM_DVCD%22%3A%2203%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22MKPD_LTIV_ITEM_NM%22%3A%22%EA%B3%B5%EC%8B%9C-%EB%94%94%EC%A7%80%ED%84%B8%EC%95%88%EB%82%B4%EC%9E%A5%22%2C%22MKPD_LTIV_ITEM_ATTR_CNTN%22%3A%22%22%2C%22MKPD_LTIV_ITEM_CNTN%22%3A%22%EC%A4%80%EB%B2%95%EA%B0%90%EC%8B%9C%EC%9D%B8%20%EC%8B%AC%EC%9D%98%ED%95%84%202026-0791(%EC%8B%AC%EC%9D%98%EC%9D%BC%EC%9E%90%20%3A%202026.04.10)%20%26%26%20%EC%9C%A0%ED%9A%A8%EA%B8%B0%EC%9D%BC%202026.04.17%20~%202027.04.16%22%2C%22MKPD_LTIV_ITEM_NO%22%3A%221%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22MKPD_LTIV_ITEM_ADN_CNTN%22%3A%22%22%2C%22ITMZ_SEQ%22%3A%22500%22%7D%5D%2C%22dtb_Digit%22%3A%5B%7B%22MRKTNG_PDMN_DV_ID%22%3A%22SSP13_0110%22%2C%22DGTL_LTIV_IMG_NM%22%3A%22%EB%94%94%EC%A7%80%ED%84%B8%EC%95%88%EB%82%B4%EC%9E%A5(%EC%97%AC%EC%8B%A0-%EC%98%88%EA%B8%88%2F%EC%88%98%EC%9D%B5%EC%A6%9D%EA%B6%8C%20%EB%8B%B4%EB%B3%B4)%22%2C%22CMGRP_CD%22%3A%2201%22%2C%22DGTL_LTIV_IMG_URL%22%3A%22https%3A%2F%2Fwww.busanbank.co.kr%2FSSPCTS%2FLTIV%2FINFO%2FBAS%2Fimg_invitation_loan.png%22%7D%5D%2C%22dtb_Prv%22%3A%5B%7B%22CTS_CH_NO%22%3A%221%22%2C%22IMG_PATH_VAL%22%3A%22%2FSSPCTS%2FLN%2F397%2F1%22%2C%22MYN%22%3A%221%22%2C%22IMG_SHT_VAL%22%3A%224%22%2C%22MKCTS_KNDCD%22%3A%22034%22%2C%22IMG_URL_VAL%22%3A%22%22%2C%22IMG_FILE_NM%22%3A%22%EC%9D%80%ED%96%89%EC%97%AC%EC%8B%A0%EA%B1%B0%EB%9E%98%EC%95%BD%EA%B4%80(%EA%B0%80%EA%B3%84%EC%9A%A9)(501128)%22%2C%22SSP_CTS_NEW_DVCD%22%3A%221%22%2C%22ATFILE_DTL_GUID_ID%22%3A%22e97fa261073c4d50bf314073f1cefa7a%22%2C%22CTS_MNGM_CLACD%22%3A%2202%22%2C%22CTS_MNGM_SEQ%22%3A%22397%22%2C%22CTS_DPLY_CHNL_DVCD%22%3A%22IB%22%2C%22CTS_MNGM_ID%22%3A%220300000382%22%2C%22CTS_FILE_NM%22%3A%22%EC%9D%80%ED%96%89%EC%97%AC%EC%8B%A0%EA%B1%B0%EB%9E%98%EC%95%BD%EA%B4%80(%EA%B0%80%EA%B3%84%EC%9A%A9)(501128).pdf%22%2C%22MKCTS_CLACD%22%3A%2203%22%2C%22ATFILE_GUID_ID%22%3A%22ab0cb2a8f1614cc895403d0515adaaae%22%2C%22MKCTS_NM%22%3A%22%EC%97%AC%EC%8B%A0%EA%B1%B0%EB%9E%98%20%EA%B8%B0%EB%B3%B8%EC%95%BD%EA%B4%80%22%2C%22SSP_DOC_PATH_VAL%22%3A%22%2FSSPCTS%2FLN%2F397%2F1%22%2C%22MKCTS_TPCD%22%3A%22033%22%7D%2C%7B%22CTS_CH_NO%22%3A%222%22%2C%22IMG_PATH_VAL%22%3A%22%2FSSPCTS%2FLN%2F1254%2F2%22%2C%22MYN%22%3A%221%22%2C%22IMG_SHT_VAL%22%3A%2213%22%2C%22MKCTS_KNDCD%22%3A%22102%22%2C%22IMG_URL_VAL%22%3A%22%22%2C%22IMG_FILE_NM%22%3A%222026-0101_%EA%B0%80%EA%B3%84%EB%8C%80%EC%B6%9C%20%EC%83%81%ED%92%88%EC%84%A4%EB%AA%85%EC%84%9C(501195)%22%2C%22SSP_CTS_NEW_DVCD%22%3A%222%22%2C%22ATFILE_DTL_GUID_ID%22%3A%22e7f0bb26802649fb922d6933430dc369%22%2C%22CTS_MNGM_CLACD%22%3A%2202%22%2C%22CTS_MNGM_SEQ%22%3A%221254%22%2C%22CTS_DPLY_CHNL_DVCD%22%3A%22IB%22%2C%22CTS_MNGM_ID%22%3A%220300000382%22%2C%22CTS_FILE_NM%22%3A%222026-0101_%EA%B0%80%EA%B3%84%EB%8C%80%EC%B6%9C%20%EC%83%81%ED%92%88%EC%84%A4%EB%AA%85%EC%84%9C(501195).pdf%22%2C%22MKCTS_CLACD%22%3A%2203%22%2C%22ATFILE_GUID_ID%22%3A%224ae65237b6f546739926b1d2371a2eba%22%2C%22MKCTS_NM%22%3A%22%EA%B0%80%EA%B3%84%EB%8C%80%EC%B6%9C%20%EC%83%81%ED%92%88%EC%84%A4%EB%AA%85%EC%84%9C%22%2C%22SSP_DOC_PATH_VAL%22%3A%22%2FSSPCTS%2FLN%2F1254%2F2%22%2C%22MKCTS_TPCD%22%3A%22042%22%7D%2C%7B%22CTS_CH_NO%22%3A%224%22%2C%22IMG_PATH_VAL%22%3A%22%2FSSPCTS%2FLN%2F3044%2F4%22%2C%22MYN%22%3A%221%22%2C%22IMG_SHT_VAL%22%3A%225%22%2C%22MKCTS_KNDCD%22%3A%22189%22%2C%22IMG_URL_VAL%22%3A%22%22%2C%22IMG_FILE_NM%22%3A%22(2026.04.01)%20BNK%EC%9D%B8%ED%84%B0%EB%84%B7%20%EC%98%88%EC%A0%81%EA%B8%88%EB%8B%B4%EB%B3%B4%EB%8C%80%EC%B6%9C%22%2C%22SSP_CTS_NEW_DVCD%22%3A%222%22%2C%22ATFILE_DTL_GUID_ID%22%3A%224a13dbbfcbf8433686f9a98ff6440945%22%2C%22CTS_MNGM_CLACD%22%3A%2202%22%2C%22CTS_MNGM_SEQ%22%3A%223044%22%2C%22CTS_DPLY_CHNL_DVCD%22%3A%22IB%22%2C%22CTS_MNGM_ID%22%3A%220300000382%22%2C%22CTS_FILE_NM%22%3A%22(2026.04.01)%20BNK%EC%9D%B8%ED%84%B0%EB%84%B7%20%EC%98%88%EC%A0%81%EA%B8%88%EB%8B%B4%EB%B3%B4%EB%8C%80%EC%B6%9C.pdf%22%2C%22MKCTS_CLACD%22%3A%2203%22%2C%22ATFILE_GUID_ID%22%3A%2275b78aa24a0140478bfaa843506f4751%22%2C%22MKCTS_NM%22%3A%22%EC%83%81%ED%92%88%EA%B3%B5%EC%8B%9C%EC%9E%90%EB%A3%8C%22%2C%22SSP_DOC_PATH_VAL%22%3A%22%2FSSPCTS%2FLN%2F3044%2F4%22%2C%22MKCTS_TPCD%22%3A%22051%22%7D%5D%2C%22dtb_Ntrt%22%3A%5B%7B%22MKPD_PRIM_INRST_VAL%22%3A%220%22%2C%22MKPD_LT_INRST_CNTN%22%3A%22%EC%98%88.%EC%A0%81%EA%B8%88%3A%20%EC%88%98%EC%8B%A0%EA%B8%88%EB%A6%AC%20%2B%201.30%25%5Cn%EC%A7%80%EC%88%98%EC%97%B0%EB%8F%99%EC%A0%95%EA%B8%B0%EC%98%88%EA%B8%88%20%3A%20%EB%AA%A8%EC%A7%91%EA%B8%B0%EA%B0%84%EC%9D%B4%EC%9C%A8%20%2B%201.30%25%5Cn%EC%9E%A5%EB%B6%80%EA%B0%80%20%EB%B0%A9%EC%8B%9D%EC%8B%A0%ED%83%81%3A%20%EC%88%98%ED%83%81%EC%9D%B4%EC%9C%A8%20%2B%201.00%25%22%2C%22MKPD_BLCRI_CNTN%22%3A%22%22%2C%22MKPD_ADINS_CNTN%22%3A%22%22%2C%22MKPD_PRIM_INRST_CNTN%22%3A%22%22%2C%22MKPD_BAS_INRST_CNTN%22%3A%22%3Cul%20class%3D%5C%22info-list%20type-li-dot%5C%22%3E%3Cli%3E%EC%98%88%C2%B7%EC%A0%81%EA%B8%88%3A%26nbsp%3B%20%EC%88%98%EC%8B%A0%EA%B8%88%EB%A6%AC%20%2B%201.30%25%3C%2Fli%3E%3Cli%3E%EC%A7%80%EC%88%98%EC%97%B0%EB%8F%99%EC%A0%95%EA%B8%B0%EC%98%88%EA%B8%88%20%3A%20%EB%AA%A8%EC%A7%91%EA%B8%B0%EA%B0%84%EC%9D%B4%EC%9C%A8%20%2B%201.30%25%3C%2Fli%3E%3C%2Ful%3E%3Cul%20class%3D%5C%22info-list%20type-li-dot%5C%22%3E%3Cli%3E%EC%9E%A5%EB%B6%80%EA%B0%80%20%EB%B0%A9%EC%8B%9D%EC%8B%A0%ED%83%81%3A%26nbsp%3B%20%EC%88%98%ED%83%81%EC%9D%B4%EC%9C%A8%20%2B%201.00%25%3C%2Fli%3E%3C%2Ful%3E%22%2C%22CMGRP_CD%22%3A%2201%22%2C%22MKPD_CD%22%3A%220300000382%22%7D%5D%2C%22dtb_Data%22%3A%5B%7B%22MKPD_KNM%22%3A%22BNK%EC%9D%B8%ED%84%B0%EB%84%B7%EC%98%88%EC%A0%81%EA%B8%88%EB%8B%B4%EB%B3%B4%EB%8C%80%EC%B6%9C%22%2C%22SPSL_PDT_YN%22%3A%220%22%2C%22MKPD_SM_CLACD%22%3A%22%22%2C%22ITN_NEW_PSBLYN%22%3A%221%22%2C%22MKPD_INRST_DVCD%22%3A%22%22%2C%22MKPD_OTL_CNTN%22%3A%22%EC%98%88%EC%A0%81%EA%B8%88%2C%EC%8B%A0%ED%83%81(%EC%9E%A5%EB%B6%80%EA%B0%80%EB%B0%A9%EC%8B%9D)%EC%9D%84%20%EB%8B%B4%EB%B3%B4%EB%A1%9C%20%ED%95%84%EC%9A%94%ED%95%A0%20%EB%95%8C%20%EB%B0%A9%EB%AC%B8%EC%97%86%EC%9D%B4%20%EC%A6%89%EC%8B%9C%EC%8B%A0%EC%B2%AD%22%2C%22MKPD_INRST_VAL2%22%3A%220%22%2C%22MKPD_INRST_VAL1%22%3A%220%22%2C%22INRST_STRT_PRID_CNT2%22%3A%220%22%2C%22MKPD_HG_ABNM%22%3A%22BNK%EC%9D%B8%ED%84%B0%EB%84%B7%EC%98%88%EC%A0%81%EA%B8%88%EB%8B%B4%EB%B3%B4%EB%8C%80%EC%B6%9C%22%2C%22SLBR_NEW_PSBLYN%22%3A%221%22%2C%22INRST_CD1%22%3A%22%22%2C%22MKPD_FE_CNTN%22%3A%22%22%2C%22MKPD_KYWR_CNTN%22%3A%22%EC%98%88%EA%B8%88%2C%EC%A0%81%EA%B8%88%2C%EC%8B%A0%ED%83%81(%EC%9E%A5%EB%B6%80%EA%B0%80%20%EB%B0%A9%EC%8B%9D)%2C%EC%A4%91%EB%8F%84%EC%83%81%ED%99%98%EC%88%98%EC%88%98%EB%A3%8C%EB%A9%B4%EC%A0%9C%22%2C%22MKPD_APY_STS_DVCD%22%3A%221%22%2C%22MKPD_MD_CLACD%22%3A%2201%22%2C%22PRSNL_MBL_NEW_PSBLYN%22%3A%221%22%2C%22DPPR_YN%22%3A%220%22%2C%22TX_PRYN%22%3A%220%22%2C%22APY_EDT%22%3A%2221001231%22%2C%22MKPD_CD%22%3A%220300000382%22%2C%22EPCO_MBL_NEW_PSBLYN%22%3A%220%22%2C%22INRST_CD2%22%3A%22%22%2C%22APY_STRDT%22%3A%2220000101%22%2C%22INRST_STRT_PRID_CNT1%22%3A%220%22%2C%22SELL_EDT%22%3A%2221001231%22%2C%22MKPD_LRG_CLACD%22%3A%2202%22%2C%22MKPD_INRST_SMR_CNTN%22%3A%22%20%20%20%22%2C%22MKPD_BIZ_DVCD%22%3A%2203%22%2C%22SELL_STRDT%22%3A%2220000101%22%7D%5D%2C%22dtb_Inrst%22%3A%5B%5D%7D"/>
+	
+	
+
+<!-- 1. gauce5 컴포넌트에서 사용될 데이터 테이블(g5-dataset) 선언 -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 2. gauce5 컴포넌트에서 데이터 서비스 선언 -->
+
+
+
+
+
+<!-- Body -->
+<div class="scroll-box">
+    <div class="digital-guide-container type-mortgage">
+        <div class="visual-area">
+            <!-- 12/30 컨텐츠 감싸는 visual-wrap 마크업 추가 -->
+            <div class="visual-wrap">
+                <div class="title-box">
+                    <p class="dg-logo"></p>
+                    <h1 class="dg-tit1" id="Mirroring_Caption"></h1>
+                    <h2 class="dg-tit2">
+                        <!-- 12/19 텍스트 영역 분할 -->
+                        <span class="heading-block-txt" data-itemno1="1"></span>
+                        <span class="heading-block-txt" data-itemno2="2"></span>
+                        <!-- //12/19 텍스트 영역 분할 -->
+                    </h2><!-- 11/13 br태그 삭제 -->
+                </div>
+                <div class="vis-info-box">
+                    <!-- 2025-02-18 최고금리추가 -->
+                    <div class="years-info-box">
+                        <span class="vis-s-txt">기준일자  : </span> <!-- 2025-04-11 기준일자 추가 -->
+                        <span class="default-txt">최저 연 <span class="counting" data-limit="2" data-itemno31="31">0.00</span>%</span>
+                        <span class="max-txt">최고 연 <span class="counting" data-limit="2" data-itemno41="41">0.00</span>%</span>
+                    </div>
+                    <!-- //2025-02-18 최고금리추가 -->
+                    <div class="dl-list">
+                        <dl>
+                            <dt>
+                                <span class="vis-s-txt">대출한도(최대)</span>
+                            </dt>
+                            <dd data-itemno28="28">
+                                <span class="vis-s-info-txt"></span>
+                            </dd>
+                        </dl>
+                        <dl>
+                            <dt>
+                                <span class="vis-s-txt">대출기간</span>
+                            </dt>
+                            <dd data-itemno29="29">
+                                <span class="vis-s-info-txt"></span>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <!-- //12/30 컨텐츠 감싸는 visual-wrap 마크업 추가 -->
+            <div class="after"><img id="mark_img" src="#" alt="" style="display:none;" aria-hidden="true" /></div><!-- 1/21 SEJ 비주얼이미지 ::after 에서 .after로 꺼냄 -->
+        </div>
+
+        <div class="cont pdt-0">
+            <!-- 11/11 접근성 마크업 수정 -->
+            <!-- Tab 메뉴 영역 -->
+            <div class="guide-details">
+                <div class="tabs-container type03" data-role="tab">
+                    <ul class="tabs-menu" role="tablist">
+                        <li class="active">
+                            <button type="button" id="tab-01" role="tab" aria-selected="true" aria-controls="tab-panel-01">상품안내</button>
+                        </li>
+                        <li>
+                            <button type="button" id="tab-02" role="tab" aria-selected="false" aria-controls="tab-panel-02">금리안내</button>
+                        </li>
+                        <li>
+                            <button type="button" id="tab-03" role="tab" aria-selected="false" aria-controls="tab-panel-03">상품약관</button>
+                        </li>
+                    </ul>
+
+                    <div class="tabs-contents">
+                        <!-- 상품안내 -->
+                        <div class="tabs-con active" id="tab-panel-01" role="tabpanel" aria-labelledby="tab-01" tabindex="0">
+                        </div>
+        
+                        <!-- 금리안내 -->
+                        <div class="tabs-con" id="tab-panel-02" role="tabpanel" aria-labelledby="tab-02" tabindex="0" hidden="true">
+                            <!-- 금리표시여부 -->
+                            <input type="hidden" id="mkpd_inrst_yn">
+                            <div class="info-box">
+                                <div class="table-box">
+                                    <table class="tbl-matrix fixed">
+                                        <caption class="hidden">기준금리, 변동, 기본금리, 가산금리, 우대금리, 최종금리 내용</caption>
+                                        <colgroup>
+                                            <col style="width:20%;">
+                                            <col style="width:10%;">
+                                            <col style="width:70%;">
+                                        </colgroup>
+                                        <tbody>
+                                            <tr id="tr_blCri1">
+                                                <th scope="row" rowspan="2">기준금리</th>
+                                                <th scope="row" id="criInrstNm"></th>
+                                                <td id="criInrstItem">
+                                                </td>
+                                            </tr>
+                                            <tr id="tr_blCri2">
+                                                <td colspan="2" id="blcriCntn">
+                                                </td>
+                                            </tr>
+                                            <tr id="tr_basNtrt">
+                                                <th scope="row">기본금리</th>
+                                                <td colspan="2" id="basInrstCntn">
+                                                    <!--<p class="bul-dot"></p>-->
+                                                </td>
+                                            </tr>
+                                            <tr id="tr_adNtrt">
+                                                <th scope="row">가산금리</th>
+                                                <td colspan="2" id="adinsCntn">
+                                                    <!--<p class="bul-dot"></p>-->
+                                                </td>
+                                            </tr>
+                                            <tr id="tr_primNtrt">
+                                                <th scope="row">우대금리</th>
+                                                <td colspan="2" id="primInrstCntn">
+                                                </td>
+                                            </tr>
+                                            <tr id="tr_lastNtrt">
+                                                <th scope="row" rowspan="2">최종금리</th>
+                                                <td colspan="2">
+                                                    <p class="bul-dot" id="lastNtrt"></p>
+                                                </td>
+                                            </tr>
+                                            <tr id="tr_AdlastNtrt">
+                                                <td colspan="2" id="ltInrstCntn">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+        
+                        <!-- 상품약관 -->
+                        <div class="tabs-con" id="tab-panel-03" role="tabpanel" aria-labelledby="tab-03" tabindex="0" hidden="true">
+                            <div class="terms-box">
+                                <ul class="terms-list gcss_ssp_PdtPrv">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- //Tab 메뉴 영역 -->
+        </div>
+        <!-- 공시영역 -->
+        <div class="guide-footer" style="display:none;">
+            <strong class="foot-tit">공시승인번호</strong>
+            <p id="panc_defForm1" style="display:none;">준법감시인 심의필 2025-0000(심의일자 : 2025.00.00)</p>
+            <p id="panc_defForm2" style="display:none;">유효기일 2025.00.00 ~ 2025.00.00</p>
+        </div>
+        <!-- //공시영역 -->
+    </div>
+</div>
+
+
+
+
+</div>
+</div>
+
+
+
+
+
+<div class="btn-mid">
+    <!-- 
+    
+        
+        
+            <span class="btn-pack btn-type-2"><a href="#none" id="smp_01">스마트폰가입</a></span>
+        
+    
+    -->
+    
+    
+    
+        
+        
+            
+                <span class="btn-pack btn-type-2c"><a href="#none" class="item-btn-type1" id="btnIntRegTop" FPCD="0010400037">인터넷대출신청</a></span>
+            
+            
+                <span class="btn-pack btn-type-2"><a href="#none" id="smp">스마트폰가입</a></span>
+            
+            <span class="btn-pack btn-type-2"><a href="#none" id="btnConsult">상담신청</a></span>
+        
+    
+    
+     
+    <span class="btn-pack btn-type-2"><a href="#none" id ="PDT_LIST">목록보기</a></span>
+    
+</div>
+
+<input type="hidden" name="downloadFileName" id="downloadFileName"/>
+<!-- 업무 패키지명을 기술한다.(cmn, adm, peb, ecb...)-->
+<input type="hidden" name="packageCode" id="packageCode" value="bhp"/>
+
+</form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+<script type="text/javascript">
+//<![CDATA[
+// 계좌목록(CUSTTOM_TAG)에서 계좌가 한개일때 선택처리 
+/*
+$("input[type='hidden'][name='_SelectCommboAcnoType']").each(function(){
+    var $tmpSelectObj = $("#"+$(this).val());
+    if($tmpSelectObj.length > 0 && $tmpSelectObj.get(0).tagName == "SELECT" && $tmpSelectObj.find("option").length == 2){
+        $tmpSelectObj.find("option").eq(1).attr("selected", "selected");
+        $tmpSelectObj.trigger("change");
+    }
+});         
+*/           
+//]]>
+</script>
+
+
+<!-- [2019.07.23 박형신]GA추가 -->
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KBP4NLD" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<script type="text/javascript" src="/product/install/wlo/wlo.js?v=20260616000001"></script>
+<script type="text/javascript">
+    _n_sid = 'ecrm_web';     // log file
+    _n_p1 = '0010400037';     // strFPCD
+    _n_p2 = 'FPMLON092100000';     // strIB20_base_mnu
+    _n_p3 = 'FPMPDT092INQV1BM';     // strIB20_base_wgt
+    _n_p4 = 'FPMPDT092INQV1CM';     // strIB20_base_wgt
+    _n_p5 = 'VIEW';     // _currentFileType
+    _n_p6 = 'WIDGET';     // _currentFileType
+    _n_p7 = 'N';
+    n_logging();
+</script>

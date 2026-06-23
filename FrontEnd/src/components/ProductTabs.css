@@ -1,0 +1,31 @@
+.tabs {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg);
+  display: flex;
+  gap: 9px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.tabs__btn {
+  flex: 0 0 auto;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  color: var(--ink-soft);
+  font-size: 15px;
+  font-weight: 700;
+  padding: 9px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.tabs__btn[aria-selected='true'] {
+  background: #2b2b2b;
+  color: #fff;
+  border: 1.5px dashed #2b2b2b;
+}
+.tabs__btn:focus-visible {
+  outline: 2px solid var(--bnk-red);
+  outline-offset: 2px;
+}

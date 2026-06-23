@@ -1,0 +1,50 @@
+/* ============================================================
+   페이지 모바일 컬럼 셸 + 디자인 토큰 브리지.
+   원본(busanbank-loan-mall)의 검증된 컴포넌트 CSS를 그대로 살리되,
+   실제 색/치수 값은 styles/globals.css 의 팀 팔레트에서 끌어온다.
+   → 아래 별칭이 원본 토큰명(--bnk-red 등)을 팀 토큰에 연결한다.
+   ============================================================ */
+:root {
+  --bnk-red: var(--second-600); /* #e80000 ≈ BNK 브랜드 레드 */
+  --bnk-red-soft: var(--second-300); /* #ff5454 */
+  --bnk-red-deep: var(--second-700); /* #b50000 */
+  --ink: var(--black-color);
+  --ink-soft: var(--gray-800);
+  --ink-faint: var(--gray-500);
+  --line: var(--gray-100);
+  --line-strong: var(--gray-200);
+  --bg: var(--white-color);
+  --bg-soft: var(--gray-50);
+  --app-maxw: var(--background-width); /* 450px */
+}
+
+/* 모바일 우선 중앙 컬럼. body(globals.css)가 flex 중앙 정렬을 담당한다. */
+.app-shell {
+  width: 100%;
+  max-width: var(--app-maxw);
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--bg);
+  position: relative;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+}
+
+/* 상세 상단 뒤로가기 바 */
+.topbar {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px 0;
+}
+.topbar__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding: 4px 2px;
+}
+.topbar__back:hover {
+  color: var(--bnk-red);
+}

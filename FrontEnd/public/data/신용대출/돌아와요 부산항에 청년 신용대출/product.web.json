@@ -1,0 +1,106 @@
+{
+  "meta": {
+    "name": "돌아와요 부산항에 청년 신용대출",
+    "baseDate": "2026-06-23",
+    "mkpd_cd": "0300013204",
+    "fpcd": "0010400239"
+  },
+  "summary": {
+    "catchphrase": "수도권에서 부산·울산·경남으로 전입 &취업한 청년급여소득자 전용신용대출",
+    "rateMin": "2.65",
+    "rateMax": "2.65",
+    "baseRate": "2.65",
+    "limit": "10백만원",
+    "term": "6개월 ~ 12개월",
+    "target": "대출 신청일 기준 최근 1년 내 수도권에서 거주하다 부산·울산·경남으로 전입 및 취업 완료 한 청년(만 19세 ~ 만 45세) 급여소득자 中 아래 요건을 충족하는 자 1) 연소득 기준 : 60백만원 이하\n2) 재직 기간 : 1개월 이상\n3) CB 평점 : NICE 745점 및 KCB 690점 이상"
+  },
+  "infoSections": [
+    {
+      "title": "상품개요",
+      "html": "수도권에서 거주하다 부산·울산·경남지역으로 전입 및 취업 완료한 청년 급여소득자 대상 저금리 포용금융 상품"
+    },
+    {
+      "title": "대출조건(자격)",
+      "html": "<p>대출 신청일 기준 최근 1년&nbsp;내 수도권에서 거주하다 부산·울산·경남지역으로 전입 및 취업 완료 한 청년(만 19세 ~ 만 45세) 급여소득자 中 아래 요건을 충족하는 자<br><br>1) 연소득 기준 : 60백만원 이하<br>2) 재직 기간 : 1개월 이상<br>3) CB 평점 : NICE 745점 및 KCB 690점 이상</p>"
+    },
+    {
+      "title": "대출한도",
+      "html": "최대 10백만원"
+    },
+    {
+      "title": "상환방법 및 대출기간",
+      "html": "만기일시상환 : 6개월이상 ~ 12개월이하\n이자부과시기 : 매월 후취(대출 해당일 또는 응당일 부과)\n※ 휴일 대출원금 또는 이자상환 가능"
+    },
+    {
+      "title": "기준금리",
+      "html": "고정금리"
+    },
+    {
+      "title": "최종금리",
+      "html": "최저 연 2.65 % ~최고 연 2.65 % (2026.04.14 현재)\n\n※ 단, 최초 취급후 3년 경과 후 산출금리(변동) 적용\n1) 기준금리 : 신잔액 COFIX\n2) 금리변동주기 : 3개월, 6개월, 12개월\n3) 본부 금리 감면 불가"
+    },
+    {
+      "title": "담보조건",
+      "html": "무보증 신용대출"
+    },
+    {
+      "title": "가입방법",
+      "html": " 모바일뱅킹(개인)"
+    },
+    {
+      "title": "수수료(부대비용)",
+      "html": "<p class=\"ssp-editor-p\"><span>※ 수입인지대금 : 5천 만원 초과시 대출금액별 수입인지비용 차등 부과(50% 균등부담)</span></p><p class=\"ssp-editor-p\">&nbsp;</p><div class=\"table-box\"><table class=\"tbl-matrix\" ><thead><tr><th rowspan=\"2\" ><b>대출금액</b></th><th colspan=\"2\" ><b>인지세액</b></th></tr><tr><th ><b>고객</b></th><th ><b>은행</b></th></tr></thead><tbody><tr><td ><p class=\"ssp-editor-p\">5천만원 초과1억원 이하</p></td><td ><p class=\"ssp-editor-p\">3만5천원</p></td><td ><p class=\"ssp-editor-p\">3만5천원</p></td></tr><tr><td ><p class=\"ssp-editor-p\">1억원 초과10억원 이하</p></td><td ><p class=\"ssp-editor-p\">7만5천원</p></td><td ><p class=\"ssp-editor-p\">7만5천원</p></td></tr><tr><td ><p class=\"ssp-editor-p\">10억원 초과</p></td><td ><p class=\"ssp-editor-p\">17만5천원</p></td><td ><p class=\"ssp-editor-p\">17만5천원</p></td></tr></tbody></table></div>"
+    },
+    {
+      "title": "중도상환수수료",
+      "html": "면제"
+    },
+    {
+      "title": "금융소비자가 알아야 할 사항",
+      "html": "<ul class=\"info-list type-li-dot\"><li>대출의 만기가 도래하여 상환 기일이 연장되거나, 연장에 따른 대출이율이 변경될 경우 (대출이자율 적용방식의 변경은 제외)에도 은행에서 정한 연장기준을 따르기로 합니다.</li><li>대출 만기도래 시 고객님의 재직상태, 신용상태 및 은행의 심사기준에 따라&nbsp; 대출이 연장되지 않을 수도 있고, 대출거래조건(이율 및 한도등)이 변경 될 수도 있으니, 이점 유의하시기 바랍니다.</li><li>대출 취급 후 거래조건(상환 조건 변경 등)을 변경하고자 하는 경우에는 은행의 승인이 있어야 합니다.</li><li>대출 이자 또는 원금을 약정한 날에 납입(상환)하지 않을 경우 연체이자를 부담하여야하며,금융거래 제약 등 불이익을 받으실 수 있습니다. 단, 상기에도 불구하고, 「개인금융채권의 관리 및 개인금융채무자의 보호에 관한 법률」에서 정하는 바에 따라 계좌별 대출원금(약정금액을 기준으로 하며, 한도대출의 경우 한도금액을 기준으로 함)이 5천만원 미만인 경우로서 연체가 발생하여 기한의 이익이 상실된 경우에는, 채무이행의 기한이 도래하지 아니한 대출원금에 대하여는 연체이자율이 적용되지 않습니다.<br>※ 연체이율 : 대출금리에 3.0%를 가산(최고 15.0%) (대출금리가 최고 연체이율 이상일 경우 대출금리 +2.0%)</li></ul><ul class=\"info-list type-li-dot\"><li>만기일 경과 후 대출금액을 전액 상환하지 않거나 기한연장 하지 않은 경우, 은행여신거래 기본약관에 따라 기한의 이익이 상실되어 대출잔액에 대한 지연배상금이 부과되며, 예금등 기타채권과 상계나 법적절차 등으로 재산상 불이익과 금융거래 제약을 받으실 수 있습니다.</li><li>대출원금, 이자 등을 3개월 이상 연체한 경우에는 3개월이 되는 날을 등록사유 발생일로 하여 그 때부터 7영업일 이내에 \"신용정보관리규약\"에서 정한 '연체 등' 정보거래처로 등록되어 금융거래제약 등 불이익을 받을 수 있습니다.</li><li>납부해야할 원리금이 연체될 경우 계약만료 기한이 도래하기 전 모든 원리금을 변제 해야할 의무가 발생할 수 있습니다.</li><li>상환능력에 비해 대출금이 과도할 경우 신용평점이 하락할수 있으면 신용평점 하락에 따라 금융거래 제약 등 불이익을 받으실 수 있습니다.</li><li>이 설명서는 은행이용자의 상품에 대한 이해를 돕고 약관의 중요내용을 알려드리기 위한 참고자료이며, 실제 계약은 은행여신거래 기본약관(가계용)이 적용 됩니다. 계약을 신청하는 경우 약관이, 계약을 체결하는 경우 계약서류가 교부됩니다.</li><li>금융상품 계약 체결 전 상품설명서 및 약관을 반드시 읽어보시기 바랍니다.</li><li>금융소비자는 상품에 대한 충분한 설명을 받을 권리가 있으며, 그 설명을 이해하신 후 거래하시기 바랍니다.</li><li>기타 자세한 사항은 가까운 영업점 또는 부산은행 고객센터(1544-6200, 1588-6200)로 문의하시기 바랍니다.</li></ul>"
+    },
+    {
+      "title": "필요서류",
+      "html": "<p class=\"ssp-editor-p\">1.&nbsp; 본인 확인서류 : 신분증 (주민등록증, 운전면허증 등)</p><p class=\"ssp-editor-p\">2. 재직 확인서류 : 재직증명서(회사 날인)</p><p class=\"ssp-editor-p\">3. 소득 증빙서류 :&nbsp;<span style=\"font-family: Pretendard; font-size: 100%\">급여명세서</span><span style=\"font-family: Pretendard; font-size: 100%\">(</span><span style=\"font-family: Pretendard; font-size: 100%\">회사날인</span><span style=\"font-family: Pretendard; font-size: 100%\">), </span><span style=\"font-family: Pretendard; font-size: 100%\">갑근세원천징수증명서</span><span style=\"font-family: Pretendard; font-size: 100%\">(</span><span style=\"font-family: Pretendard; font-size: 100%\">회사날인</span><span style=\"font-family: Pretendard; font-size: 100%\">), </span><span style=\"font-family: Pretendard; font-size: 100%\">근로소득원천징수영수증</span><span style=\"font-family: Pretendard; font-size: 100%\">(</span><span style=\"font-family: Pretendard; font-size: 100%\">연말정산용</span><span style=\"font-family: Pretendard; font-size: 100%\">), </span><span style=\"font-family: Pretendard; font-size: 100%\">소득금액증명원</span><span style=\"font-family: Pretendard; font-size: 100%\">(</span><span style=\"font-family: Pretendard; font-size: 100%\">세무서발급</span><span style=\"font-family: Pretendard; font-size: 100%\">) </span><span style=\"font-family: Pretendard; font-size: 100%\">등</span></p><p class=\"ssp-editor-p\">4. 거주 확인서류 : 주민등록초본 (전체 주소변동이력 포함)</p><p class=\"ssp-editor-p\">&nbsp;</p><p class=\"ssp-editor-p\">※&nbsp;<span style=\"font-size: 100%\">심사 시 대상자격 요건 확인을 위해 재직확인 및 소득 증빙서류는고객님께서 사진촬영을 통해 직접 업로드 해주셔야 하며</span><span style=\"font-size: 100%\">,</span></p><p class=\"ssp-editor-p\">거주확인 서류는 공공마이데이터 또는 스크래핑을 통해 모바일서류제출이 가능합니다.</p>"
+    },
+    {
+      "title": "마이너스통장(종합통장대출)가능여부",
+      "html": "부"
+    },
+    {
+      "title": "유의사항",
+      "html": "<p class=\"ssp-editor-p\">1.&nbsp; 본 상품은 취급 후 3년간 고정금리 적용되며, 3년 경과 후 기한연기 시 변동금리로 전환되므로 이 점 유의하시기 바랍니다.</p><p class=\"ssp-editor-p\">2. [선택] 개인정보 제3자 제공 동의서(돌아와요 부산항에 청년 신용대출 대상자 설문조사 기초자료 활용) 징구에 동의하신 고객님께서는 대출 후 3개월 내에 (재)청년재단에서 대출 효과 분석에 따른 설문조사 진행이&nbsp;있는 바 이 점 참고하시기 바랍니다.</p>"
+    }
+  ],
+  "rateSections": [
+    {
+      "title": "기준금리",
+      "html": "고정금리"
+    },
+    {
+      "title": "최종금리",
+      "html": "최저 연 2.65 % ~최고 연 2.65 % (2026.04.14 현재)<br><br>※ 단, 최초 취급후 3년 경과 후 산출금리(변동) 적용<br>1) 기준금리 : 신잔액 COFIX<br>2) 금리변동주기 : 3개월, 6개월, 12개월<br>3) 본부 금리 감면 불가"
+    }
+  ],
+  "documents": [
+    {
+      "type": "TERMS",
+      "title": "여신거래 기본약관",
+      "file": "은행여신거래약관(가계용)(501128).pdf",
+      "url": "https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf"
+    },
+    {
+      "type": "PRODUCT_GUIDE",
+      "title": "가계대출 상품설명서",
+      "file": "2026-0101_가계대출 상품설명서(501195).pdf",
+      "url": "https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf"
+    },
+    {
+      "type": "ETC",
+      "title": "돌아와요 부산항에 청년 신용대출 공시자료",
+      "file": "(2026.04.17)돌아와요 부산항에 청년 신용대출 공시자료.pdf",
+      "url": "https://www.busanbank.co.kr/SSPCTS/LN/9017/5/(2026.04.17)돌아와요 부산항에 청년 신용대출 공시자료.pdf"
+    }
+  ],
+  "_note": "html fields are UNSANITIZED. Run DOMPurify.sanitize() at render time."
+}

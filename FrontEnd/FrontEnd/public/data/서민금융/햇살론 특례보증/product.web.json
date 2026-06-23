@@ -1,0 +1,118 @@
+{
+  "meta": {
+    "name": "햇살론 특례보증",
+    "baseDate": "2026-06-23",
+    "mkpd_cd": "0300013809",
+    "fpcd": "0010400241"
+  },
+  "summary": {
+    "catchphrase": "저신용자를 위한 포용금융 서민금융진흥원 보증서 대출상품",
+    "rateMin": "6",
+    "rateMax": "6",
+    "baseRate": "6",
+    "limit": "10백만원(최소 50만원, 보증금액 이하)",
+    "term": "3년 ~ 6년(거치기간 최대 1년)",
+    "target": "서민금융진흥원 보증서 발급 가능 고객"
+  },
+  "infoSections": [
+    {
+      "title": "상품개요",
+      "html": "소득 증빙이 어렵거나 신용등급이 상대적으로 낮아 햇살론 일반보증을 이용하기 어려운 차주를 폭넓게 지원하기 위한 서민금융진흥원 보증부 정책 서민금융상품"
+    },
+    {
+      "title": "대출조건(자격)",
+      "html": "<p class=\"ssp-editor-p\">&#x2022;&nbsp;서민금융진흥원으로부터&nbsp;신용보증 결정 통보를 받은 자로써 소득증빙이 가능하며 아래 요건을 모두 충족하는 자</p><p class=\"ssp-editor-p\">-소득 구분별 상세 요건</p><div class=\"table-box\"><table class=\"tbl-matrix\" ><colgroup><col><col><col><col></colgroup><tbody><tr><th ><p class=\"ssp-editor-p\">구분</p></th><th ><p class=\"ssp-editor-p\">근로소득</p></th><th ><p class=\"ssp-editor-p\">사업소득</p></th><th class=\"\" ><p class=\"ssp-editor-p\">연금소득</p></th></tr><tr><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">소득금액</p></td><td colspan=\"3\" ><p class=\"ssp-editor-p\" style=\"text-align: center\">신용평점 NICE 749점 이하 또는&nbsp;KCB 700점 이하로 연소득 35백만원인 자</p></td></tr><tr><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">재직(사업)기간</p></td><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">3개월 이상</p></td><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">3개월 이상</p></td><td class=\"\" ><p class=\"ssp-editor-p\" style=\"text-align: center\">1회 이상 수령</p></td></tr></tbody></table></div><p class=\"ssp-editor-p\">&#x2022;&nbsp;요건 (아래 요건 모두 충족)</p><p class=\"ssp-editor-p\">-&nbsp;민법상 성년(만 19세 이하)</p><p class=\"ssp-editor-p\">-&nbsp;국내에 거주하는 대한민국 국민(외국인, 재외국민, 해외이주신고자 등은 제외)</p><p class=\"ssp-editor-p\">- 최근 6개월 내 연체 횟수 6회 미만 또는 최근 6개월간&nbsp;대출 최장 연체일이 60일을 초과한 경험이 없고, 현재 연체중이지 않은자</p>"
+    },
+    {
+      "title": "대출한도",
+      "html": "최소 50만원 ~ 최대 1,000만원 이내 (10만원 단위)\n* 직접 보증방식 및 추정소득 활용자인 경우 최대 3백만원"
+    },
+    {
+      "title": "상환방법 및 대출기간",
+      "html": "원리금균등상환 : 3년이상 ~ 6년이하\n* 원리금균등 분할상환방식 : 매월 정해진 날짜에 주기적으로 원금과 이자를 균등하게 상환\n* 이자부과시기 : 매월 후취(대출 해당일 또는 응당일 부과)\n* 거치기간 최대 1년 선택 가능\nEX) 거치기간 1년, 할부상환기간 5년 = 총 대출기간 6년\n※ 휴일 대출원금 또는 이자 상환 가능"
+    },
+    {
+      "title": "금리변동주기",
+      "html": "  해당사항없음"
+    },
+    {
+      "title": "기준금리",
+      "html": "고정금리"
+    },
+    {
+      "title": "기본금리",
+      "html": "<p>대출금리는 서민금융진흥원에서 정한 금리에 따름</p><p class=\"ssp-editor-p\"><span style=\"font-size: 100%\">· 채무자 부담이율 : 대출금리 + 보증료율</span></p><p class=\"ssp-editor-p\">· 대출금리 : 연 6.00% 고정금리 적용 (2025.12.23 현재)<br></p><p class=\"ssp-editor-p\">· 보증료율 : 최대 연 6.50%</p>"
+    },
+    {
+      "title": "최종금리",
+      "html": "· 대출금리 : 연 6.00% 고정금리 적용 (2026.04.07 현재)\n· 보증료율 : 최저 연 3.90% ~ 최고 연 6.50% 적용 (2026.04.07 현재)\n· 최종 고객 부담이율 : 최저 연 9.90% ~ 최고 연 12.50% (2026.04.07 기준)\n* 최종 고객 부담이율은 대출금리에 보증료율을 가산하여 산정합니다."
+    },
+    {
+      "title": "담보조건",
+      "html": "서민금융진흥원 보증서(보증비율 : 100%)"
+    },
+    {
+      "title": "가입방법",
+      "html": " 영업점, 모바일뱅킹(개인)"
+    },
+    {
+      "title": "수수료(부대비용)",
+      "html": "<p class=\"ssp-editor-p\"><span>※ 수입인지대금 : 5천 만원 초과시 대출금액별 수입인지비용 차등 부과(50% 균등부담)</span></p><p class=\"ssp-editor-p\">&nbsp;</p><div class=\"table-box\"><table class=\"tbl-matrix\" ><thead><tr><th rowspan=\"2\" ><b>대출금액</b></th><th colspan=\"2\" ><b>인지세액</b></th></tr><tr><th ><b>고객</b></th><th ><b>은행</b></th></tr></thead><tbody><tr><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">5천만원 초과1억원 이하</p></td><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">3만5천원</p></td><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">3만5천원</p></td></tr><tr><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">1억원 초과10억원 이하</p></td><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">7만5천원</p></td><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">7만5천원</p></td></tr><tr><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">10억원 초과</p></td><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">17만5천원</p></td><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">17만5천원</p></td></tr></tbody></table></div>"
+    },
+    {
+      "title": "중도상환수수료",
+      "html": "면제"
+    },
+    {
+      "title": "금융소비자가 알아야 할 사항",
+      "html": "<ul class=\"info-list type-li-dot\"><li>대출의 만기가 도래하여 상환 기일이 연장되거나, 연장에 따른 대출이율이 변경될 경우 (대출이자율 적용방식의 변경은 제외)에도 은행에서 정한 연장기준을 따르기로 합니다.</li><li>대출 만기도래 시 고객님의 재직상태, 신용상태 및 은행의 심사기준에 따라&nbsp; 대출이 연장되지 않을 수도 있고, 대출거래조건(이율 및 한도등)이 변경 될 수도 있으니, 이점 유의하시기 바랍니다.</li><li>대출 취급 후 거래조건(상환 조건 변경 등)을 변경하고자 하는 경우에는 은행의 승인이 있어야 합니다.</li><li>대출 이자 또는 원금을 약정한 날에 납입(상환)하지 않을 경우 연체이자를 부담하여야하며,금융거래 제약 등 불이익을 받으실 수 있습니다. 단, 상기에도 불구하고, 「개인금융채권의 관리 및 개인금융채무자의 보호에 관한 법률」에서 정하는 바에 따라 계좌별 대출원금(약정금액을 기준으로 하며, 한도대출의 경우 한도금액을 기준으로 함)이 5천만원 미만인 경우로서 연체가 발생하여 기한의 이익이 상실된 경우에는, 채무이행의 기한이 도래하지 아니한 대출원금에 대하여는 연체이자율이 적용되지 않습니다.<br>※ 연체이율 : 대출금리에 3.0%를 가산(최고 15.0%) (대출금리가 최고 연체이율 이상일 경우 대출금리 +2.0%)</li></ul><ul class=\"info-list type-li-dot\"><li>만기일 경과 후 대출금액을 전액 상환하지 않거나 기한연장 하지 않은 경우, 은행여신거래 기본약관에 따라 기한의 이익이 상실되어 대출잔액에 대한 지연배상금이 부과되며, 예금등 기타채권과 상계나 법적절차 등으로 재산상 불이익과 금융거래 제약을 받으실 수 있습니다.</li><li>대출원금, 이자 등을 3개월 이상 연체한 경우에는 3개월이 되는 날을 등록사유 발생일로 하여 그 때부터 7영업일 이내에 \"신용정보관리규약\"에서 정한 '연체 등' 정보거래처로 등록되어 금융거래제약 등 불이익을 받을 수 있습니다.</li><li>납부해야할 원리금이 연체될 경우 계약만료 기한이 도래하기 전 모든 원리금을 변제 해야할 의무가 발생할 수 있습니다.</li><li>상환능력에 비해 대출금이 과도할 경우 신용평점이 하락할수 있으면 신용평점 하락에 따라 금융거래 제약 등 불이익을 받으실 수 있습니다.</li><li>이 설명서는 은행이용자의 상품에 대한 이해를 돕고 약관의 중요내용을 알려드리기 위한 참고자료이며, 실제 계약은 은행여신거래 기본약관(가계용)이 적용 됩니다. 계약을 신청하는 경우 약관이, 계약을 체결하는 경우 계약서류가 교부됩니다.</li><li>금융상품 계약 체결 전 상품설명서 및 약관을 반드시 읽어보시기 바랍니다.</li><li>금융소비자는 상품에 대한 충분한 설명을 받을 권리가 있으며, 그 설명을 이해하신 후 거래하시기 바랍니다.</li><li>기타 자세한 사항은 가까운 영업점 또는 부산은행 고객센터(1544-6200, 1588-6200)로 문의하시기 바랍니다.</li></ul>"
+    },
+    {
+      "title": "필요서류",
+      "html": "<p class=\"ssp-editor-p\">&nbsp;</p><table class=\"tbl-matrix\" cellspacing=\"0\" cellpadding=\"0\"><colgroup><col><col><col></colgroup><tbody><tr><th ><p class=\"ssp-editor-p\">구분</p></th><th ><p class=\"ssp-editor-p\">재직, 사업증빙 (택 1)</p></th><th ><p class=\"ssp-editor-p\">소득증빙 (택 1)</p></th></tr><tr><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">근로소득자</p></td><td ><p class=\"ssp-editor-p\">① 재직증명서 (사업자등록증첨부),공무원증 등 재직확인 서류</p><p class=\"ssp-editor-p\">② 국민연금 가입자 증명서</p><p class=\"ssp-editor-p\">③ 건강보험 자격득실확인서</p></td><td ><p class=\"ssp-editor-p\">① 전년도 근로소득원천징수영수증(연말정산용)</p><p class=\"ssp-editor-p\">② 소득금액증명원(세무서 발급)</p><p class=\"ssp-editor-p\">③ 국민연금 ‘연금산정용 가입내역 확인서’</p><p class=\"ssp-editor-p\">④ 국민건강보험 ‘건강·장기요양보험 보험료 납부 확인서’</p><p class=\"ssp-editor-p\">⑤ 급여내역이 포함된 확인서* 및 최근 3개월간의 월급여 입금통장</p><p class=\"ssp-editor-p\">⑥ 보험사 보험료 납부내역 등 보험정보 활용 (보험업권만 해당)</p><p class=\"ssp-editor-p\">*재직회사가 날인한 급여명세표,임금대장,갑근세원천징수확인서 등</p></td></tr><tr><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">사업소득자</p><p class=\"ssp-editor-p\" style=\"text-align: center\">(등록사업자)</p></td><td ><p class=\"ssp-editor-p\">① 사업자등록증(사본)</p><p class=\"ssp-editor-p\">② 사업자등록 증명원</p><p class=\"ssp-editor-p\"> ※ 사업자번호로 국세청 홈페이지 조회 필수(미등록, 휴·폐업인 경우 인정불가)</p></td><td ><p class=\"ssp-editor-p\">① 전년도 소득금액증명원(세무서발급)</p><p class=\"ssp-editor-p\">② 금년도 종합소득세 과세표준 확정 신고 및 납부계산서(세무사 확인분)</p><p class=\"ssp-editor-p\">③ 최근 3개월 국민건강보험 ‘건강·장기요양보험 보험료 납부 확인서’</p><p class=\"ssp-editor-p\">④ 최근 3개월 국민연금 ‘연금산정용 가입내역 확인서’</p></td></tr><tr><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">사업소득자</p><p class=\"ssp-editor-p\" style=\"text-align: center\">(미등록사업자)</p></td><td ><p class=\"ssp-editor-p\">현 직장에서 발급한 재직사실확인서*와 재직회사의 사업자등록증</p><p class=\"ssp-editor-p\"> * 고용계약서, 위촉증명서, 재직증명서 등</p></td><td ><p class=\"ssp-editor-p\">① 전년도 소득금액증명원(세무서발급)</p><p class=\"ssp-editor-p\">② 전년도 사업소득원천징수영수증(연말정산용)및 최근 3개월간의 월급여 입금통장 </p><p class=\"ssp-editor-p\">③ 전년도 거주자의 사업소득원천징수 영수증 및  최근 3개월간의 월급여 입금 통장</p><p class=\"ssp-editor-p\">④ 금년도 종합소득세 과세표준 확정 신고 및 납부계산서(세무사 확인분)</p><p class=\"ssp-editor-p\">⑤ 최근 3개월 국민건강보험 ‘건강·장기 요양보험 보험료 납부 확인서’</p><p class=\"ssp-editor-p\">⑥ 최근 3개월 국민연금 ‘연금산정용 가입내역 확인서’</p></td></tr><tr><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">연금소득자</p></td><td ><p class=\"ssp-editor-p\">① 연금수급증서<br> (국민/공무원/군인/사학연금)</p><p class=\"ssp-editor-p\">② 연금수급권자 확인서</p><p class=\"ssp-editor-p\">③ 연금기관에서 발급한 지급내역서 등 확인서</p><p class=\"ssp-editor-p\">※ 공적연금(국민연금, 공무원연금, 군인연금, 사학연금)에 한함</p></td><td ><p class=\"ssp-editor-p\">① 최근 1개월 이상 연금기관에서 발급한 지급내역서 등 확인서류</p><p class=\"ssp-editor-p\">② 최근 1개월 이상 연금수령통장</p><p class=\"ssp-editor-p\"> ※ 연금 지급내역서 등 확인서류에 연금수령액이  표기되지 않는 경우 연금수령통장 사본 징구 필수</p></td></tr><tr><td ><p class=\"ssp-editor-p\" style=\"text-align: center\">농·축·임·어업 종사자</p></td><td ><p class=\"ssp-editor-p\">&#x2022; 재직증명(고용사실) 확인서 및 급여지급사실확인서</p><p class=\"ssp-editor-p\"> ※ 사업체 및 경영주의 증빙서류* 첨부</p><p class=\"ssp-editor-p\"> * 사업체 : 사업자등록증 또는 고유번호증 사본</p><p class=\"ssp-editor-p\">&nbsp;&nbsp; 경영주 : 조합원확인서, 농지대장 등</p></td><td ><p class=\"ssp-editor-p\"> &#x2022; 급여지급사실확인서</p><p class=\"ssp-editor-p\"> * 확인서에 작성된 월평균 급여액 X 12</p></td></tr></tbody></table><p class=\"ssp-editor-p\">&nbsp;</p><p class=\"ssp-editor-p\">· <span style=\"font-size: 100%\">인터넷으로 발급한 소득금액증명원이나 보험료납부확인서 등의 진위여부 확인 후 원본으로 인정</span></p><p class=\"ssp-editor-p\"><span style=\"font-size: 100%\">· </span><span style=\"font-size: 100%\">통장 사본의 경우 인터넷뱅킹 출력본 미인정</span><span style=\"font-size: 100%\">, </span><span style=\"font-size: 100%\">통장거래내역서</span><span style=\"font-size: 100%\">(</span><span style=\"font-size: 100%\">은행직인필</span><span style=\"font-size: 100%\">) </span><span style=\"font-size: 100%\">또는 은행에서 직접 팩스 송부본 인정</span></p>"
+    },
+    {
+      "title": "마이너스통장(종합통장대출)가능여부",
+      "html": "부"
+    },
+    {
+      "title": "기타",
+      "html": "<p class=\"ssp-editor-p\" style=\"text-align: left\">· 내부 상품 심사기준에 따라 대출 거래가 제한될 수 있습니다.</p>"
+    }
+  ],
+  "rateSections": [
+    {
+      "title": "기준금리",
+      "html": "고정금리"
+    },
+    {
+      "title": "기본금리",
+      "html": "<p>대출금리는 서민금융진흥원에서 정한 금리에 따름</p><p class=\"ssp-editor-p\"><span style=\"font-size: 100%\">· 채무자 부담이율 : 대출금리 + 보증료율</span></p><p class=\"ssp-editor-p\">· 대출금리 : 연 6.00% 고정금리 적용 (2025.12.23 현재)<br></p><p class=\"ssp-editor-p\">· 보증료율 : 최대 연 6.50%</p>"
+    },
+    {
+      "title": "최종금리",
+      "html": "· 대출금리 : 연 6.00% 고정금리 적용 (2026.04.07 현재)<br>· 보증료율 : 최저 연 3.90% ~ 최고 연 6.50% 적용 (2026.04.07 현재)<br>· 최종 고객 부담이율 : 최저 연 9.90% ~ 최고 연 12.50% (2026.04.07 기준)<br>* 최종 고객 부담이율은 대출금리에 보증료율을 가산하여 산정합니다."
+    }
+  ],
+  "documents": [
+    {
+      "type": "TERMS",
+      "title": "여신거래 기본약관",
+      "file": "은행여신거래약관(가계용)(501128).pdf",
+      "url": "https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf"
+    },
+    {
+      "type": "PRODUCT_GUIDE",
+      "title": "가계대출 상품설명서",
+      "file": "2026-0101_가계대출 상품설명서(501195).pdf",
+      "url": "https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf"
+    },
+    {
+      "type": "ETC",
+      "title": "햇살론 특례보증 공시자료",
+      "file": "햇살론 특례보증 공시자료.pdf",
+      "url": "https://www.busanbank.co.kr/SSPCTS/LN/9028/1/햇살론 특례보증 공시자료.pdf"
+    }
+  ],
+  "_note": "html fields are UNSANITIZED. Run DOMPurify.sanitize() at render time."
+}

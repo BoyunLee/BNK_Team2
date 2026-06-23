@@ -1,0 +1,33 @@
+.cta {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 25;
+  display: flex;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+}
+.cta__btn {
+  flex: 1;
+  border: 0;
+  border-radius: 12px;
+  padding: 16px 0;
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+}
+.cta__btn--ghost {
+  background: var(--bnk-red-soft);
+}
+.cta__btn--main {
+  background: var(--bnk-red);
+}
+.cta__btn:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}

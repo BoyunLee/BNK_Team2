@@ -1,0 +1,158 @@
+/* ============================================================
+   .product-html — 크롤러가 넘긴 HTML 조각 전용 스코프 스타일.
+   부산은행 SSP 원본 CSS 의존을 끊고 재현한 것. 함부로 지우지 말 것.
+   색/간격 토큰은 styles/globals.css 의 팀 디자인 토큰을 사용한다.
+   실제 데이터에 등장하는 클래스: ssp-editor-p, info-list,
+   type-li-dot / type-li-dash-ed / type-li-gt, tbl-matrix, table-box,
+   __se_tbl, rate-vary, vary-label.
+   ============================================================ */
+.product-html {
+  font-size: var(--font-size-base); /* 14px */
+  line-height: 1.6;
+  color: var(--black-color);
+  /* keep-all: 한글 단어 중간 줄바꿈 방지(가독성).
+     overflow-wrap: anywhere: 끊을 곳이 없는 긴 런(예: &nbsp; 로 이어진 문장)도
+     넘치지 않게 마지막 수단으로 강제 줄바꿈 → 가로 오버플로 방지. */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  /* 본문은 선택 가능하게 (globals 의 user-select:none 무력화) */
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.product-html p {
+  margin: 0 0 0.5rem;
+}
+.product-html .ssp-editor-p {
+  margin: 0.15rem 0;
+}
+.product-html br {
+  line-height: 1.6;
+}
+
+/* ---- 리스트 공통 ---- */
+.product-html ul,
+.product-html .info-list {
+  margin: 0.4rem 0;
+  padding-left: 0;
+  list-style: none;
+}
+.product-html li {
+  position: relative;
+  padding-left: 0.95rem;
+  margin: 0.28rem 0;
+}
+.product-html ul ul,
+.product-html .info-list .info-list {
+  margin: 0.28rem 0 0.28rem 0.4rem;
+}
+
+/* ---- 마커 3종: 직계 자식 li 에만 적용해 중첩 레벨별로 다른 마커 ---- */
+/* • 점 */
+.product-html .type-li-dot > li::before {
+  content: '';
+  position: absolute;
+  left: 0.15rem;
+  top: 0.62em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--gray-500);
+}
+/* – 대시 */
+.product-html .type-li-dash-ed > li::before {
+  content: '–';
+  position: absolute;
+  left: 0.1rem;
+  top: 0;
+  color: var(--gray-600);
+  font-weight: 700;
+}
+/* › 꺾쇠 */
+.product-html .type-li-gt > li::before {
+  content: '›';
+  position: absolute;
+  left: 0.15rem;
+  top: -0.02em;
+  color: var(--gray-500);
+  font-weight: 700;
+}
+/* info-list 인데 마커 클래스가 없는 경우 기본 점 */
+.product-html .info-list:not(.type-li-dot):not(.type-li-dash-ed):not(.type-li-gt) > li::before,
+.product-html ul:not(.info-list) > li::before {
+  content: '';
+  position: absolute;
+  left: 0.15rem;
+  top: 0.62em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--gray-500);
+}
+
+/* ---- 각주/위첨자 ---- */
+.product-html sup {
+  color: var(--second-color);
+  font-size: 0.7rem;
+}
+
+/* ---- 표 ---- */
+.product-html .table-box {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0.75rem 0;
+}
+.product-html table,
+.product-html .tbl-matrix,
+.product-html .__se_tbl {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+  font-size: 0.8125rem; /* 13px — 밀집 표 가독성 */
+}
+.product-html .table-box table {
+  margin: 0; /* 래퍼가 여백 담당 */
+}
+.product-html th,
+.product-html td {
+  border: 1px solid var(--gray-200);
+  padding: 0.55rem 0.5rem;
+  text-align: center;
+  vertical-align: middle;
+}
+.product-html th {
+  background: var(--gray-50);
+  font-weight: 700;
+  color: var(--gray-900);
+}
+.product-html td p,
+.product-html th p {
+  margin: 0;
+}
+
+/* ---- 금리 변동 블록 ---- */
+.product-html .rate-vary {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  margin-bottom: 0.65rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px dashed var(--gray-100);
+}
+.product-html .rate-vary .vary-label {
+  flex: 0 0 auto;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-100);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 800;
+  color: var(--gray-900);
+}
+.product-html .rate-vary .info-list,
+.product-html .rate-vary ul {
+  margin: 0;
+  flex: 1;
+}
+.product-html .rate-vary li {
+  font-weight: 600;
+}

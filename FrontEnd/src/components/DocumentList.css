@@ -1,0 +1,23 @@
+.docs {
+  padding: 6px 20px 0;
+}
+.docs__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 2px;
+  border-bottom: 1px solid var(--line);
+  font-size: 17px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.docs__chev {
+  color: var(--ink-faint);
+  font-weight: 400;
+  font-size: 20px;
+}
+.docs-empty {
+  padding: 48px 20px;
+  text-align: center;
+  color: var(--ink-faint);
+}
