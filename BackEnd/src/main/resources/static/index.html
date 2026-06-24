@@ -1,0 +1,2010 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BNK 대출 신청</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#F0F4FF;font-family:-apple-system,BlinkMacSystemFont,'Noto Sans KR',sans-serif;display:flex;justify-content:center;min-height:100vh}
+#app{width:100%;max-width:430px;background:#fff;min-height:100vh;display:flex;flex-direction:column;box-shadow:0 0 20px rgba(0,0,0,.1)}
+.header{display:flex;align-items:center;padding:16px;border-bottom:1px solid #eee;background:#fff;position:sticky;top:0;z-index:10}
+.back-btn{background:none;border:none;font-size:20px;cursor:pointer;padding:4px 8px 4px 0;color:#333;line-height:1}
+.header-title{flex:1;text-align:center;font-size:17px;font-weight:600;color:#111}
+.header-spacer{width:40px}
+.content{flex:1;padding:24px 20px;overflow-y:auto}
+.bottom{padding:16px 20px;background:#fff;border-top:1px solid #eee}
+.btn{width:100%;padding:16px;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-primary{background:#0052CC;color:#fff}
+.btn-primary:hover{background:#003D99}
+.btn-primary:disabled{background:#B0C4E8;cursor:not-allowed}
+.btn-secondary{background:#F0F4FF;color:#0052CC;border:1.5px solid #0052CC;margin-top:10px}
+.btn-danger{background:#CC2200;color:#fff}
+.form-group{margin-bottom:18px}
+.label{display:block;font-size:14px;font-weight:500;color:#555;margin-bottom:7px}
+.input{width:100%;padding:14px;border:1.5px solid #DDE3ED;border-radius:10px;font-size:15px;color:#111;outline:none;transition:border .2s}
+.input:focus{border-color:#0052CC}
+.input[readonly]{background:#F8F9FB;color:#888}
+.select{width:100%;padding:14px;border:1.5px solid #DDE3ED;border-radius:10px;font-size:15px;color:#111;outline:none;background:#fff;appearance:none}
+.err{background:#FFF0F0;color:#CC0000;padding:12px;border-radius:8px;font-size:14px;margin:0 20px 12px;border:1px solid #FFCCCC}
+.info-box{background:#F0F4FF;border-radius:12px;padding:16px;margin-bottom:18px;font-size:14px;color:#444;line-height:1.6}
+.sub{font-size:14px;color:#666;margin-bottom:20px;line-height:1.5}
+.card{border:1.5px solid #DDE3ED;border-radius:12px;padding:16px;margin-bottom:12px;cursor:pointer;transition:all .2s}
+.card:hover,.card.sel{border-color:#0052CC;background:#F0F4FF}
+.card-title{font-size:15px;font-weight:600;color:#111;margin-bottom:4px}
+.card-sub{font-size:13px;color:#666}
+.row{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #F0F0F0;font-size:14px}
+.row:last-child{border-bottom:none}
+.rk{color:#666}
+.rv{color:#111;font-weight:500;text-align:right}
+.rv.blue{color:#0052CC;font-weight:700}
+.rv.green{color:#00875A;font-weight:700}
+.big-check{width:80px;height:80px;background:#00875A;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px}
+.done-title{text-align:center;font-size:22px;font-weight:700;color:#111;margin-bottom:8px}
+.done-sub{text-align:center;font-size:14px;color:#666;margin-bottom:24px}
+.doc-box{background:#F8F9FB;border:1px solid #DDE3ED;border-radius:10px;padding:16px;font-size:13px;color:#333;line-height:1.8;margin-bottom:18px;white-space:pre-line;max-height:200px;overflow-y:auto}
+.chk-row{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid #F0F0F0;cursor:pointer}
+.chk-row:last-child{border-bottom:none}
+.chk-row input[type=checkbox]{width:20px;height:20px;accent-color:#0052CC;flex-shrink:0;margin-top:2px;cursor:pointer}
+.chk-label{font-size:14px;color:#333;line-height:1.5}
+.big-amt{text-align:center;font-size:44px;font-weight:800;color:#0052CC;margin:20px 0 6px;letter-spacing:-1px}
+.big-amt-label{text-align:center;font-size:14px;color:#666;margin-bottom:24px}
+.toggle-group{display:flex;border:1.5px solid #DDE3ED;border-radius:10px;overflow:hidden;margin-bottom:18px}
+.toggle-btn{flex:1;padding:12px;background:#fff;border:none;font-size:14px;font-weight:500;cursor:pointer;color:#555;transition:all .2s}
+.toggle-btn.on{background:#0052CC;color:#fff}
+.mydata-card{background:#F0F4FF;border-radius:12px;padding:16px;margin-bottom:12px}
+.mydata-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:14px;border-bottom:1px solid #DDE3ED}
+.mydata-row:last-child{border-bottom:none}
+.ok{color:#00875A;font-weight:700}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.6);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.rate-big{font-size:22px;font-weight:700;color:#0052CC}
+.section{font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;margin:20px 0 10px}
+.terms-box{background:#F8F9FB;border:1px solid #DDE3ED;border-radius:8px;padding:14px;font-size:12px;color:#555;line-height:1.8;max-height:150px;overflow-y:auto;white-space:pre-line;margin-bottom:14px}
+.link-btn{background:none;border:none;color:#0052CC;font-size:14px;cursor:pointer;text-decoration:underline}
+.tag{display:inline-block;background:#F0F4FF;color:#0052CC;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600;margin-left:6px}
+.warn-box{background:#FFF8E6;border:1px solid #FFD54F;border-radius:8px;padding:12px;font-size:13px;color:#795600;line-height:1.5;margin-bottom:18px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border-radius:16px;padding:24px 20px;width:100%;max-width:360px}
+.modal-title{font-size:17px;font-weight:700;color:#111;margin-bottom:8px;text-align:center}
+.modal-body{font-size:14px;color:#555;line-height:1.6;text-align:center;margin-bottom:20px}
+.modal-btn-group{display:flex;flex-direction:column;gap:10px}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- 헤더 -->
+  <div class="header" v-if="step !== 'REGISTER_DONE' && step !== 'LOAN_DONE'">
+    <button class="back-btn" @click="goBack" v-if="hist.length > 0">←</button>
+    <div v-else style="width:40px"></div>
+    <div class="header-title">{{ title }}</div>
+    <div class="header-spacer"></div>
+  </div>
+
+  <!-- 에러 메시지 -->
+  <div class="err" v-if="err">{{ err }}</div>
+
+  <!-- 이어하기 모달 -->
+  <div class="overlay" v-if="showResumeModal">
+    <div class="modal">
+      <div class="modal-title">진행 중인 대출 신청이 있습니다</div>
+      <div class="modal-body">
+        <strong>{{ inProgressLoan ? inProgressLoan.productName : '' }}</strong><br>
+        {{ inProgressLoan ? inProgressLoan.statusName : '' }} 단계에서 중단되었습니다.<br><br>
+        이어서 작성하시겠습니까?
+      </div>
+      <div class="modal-btn-group">
+        <button class="btn btn-primary" @click="doResumeLoan" :disabled="loading">
+          <span class="spinner" v-if="loading"></span>{{ loading ? '불러오는 중...' : '이어서 작성하기' }}
+        </button>
+        <button class="btn btn-secondary" @click="doStartFresh" :disabled="loading">새로 시작하기 (기존 신청 취소)</button>
+        <button class="link-btn" style="text-align:center;padding:8px" @click="showResumeModal=false">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       1. 이메일 인증
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'REGISTER_EMAIL'">
+    <div class="content">
+      <div class="sub">본인 이메일을 입력해 주세요.</div>
+      <div class="form-group">
+        <label class="label">이메일</label>
+        <input class="input" type="email" v-model="s.email" placeholder="example@email.com" @keyup.enter="sendCode">
+      </div>
+      <div style="text-align:center;margin-top:16px">
+        <button class="link-btn" @click="go('LOGIN')">이미 계정이 있으신가요? 로그인</button>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="sendCode" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '처리 중...' : '인증코드 발송' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       2. 인증코드 확인
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'REGISTER_EMAIL_VERIFY'">
+    <div class="content">
+      <div class="info-box">{{ s.email }}으로 인증코드를 발송했습니다.<br>5분 내 입력해 주세요.</div>
+      <div class="form-group">
+        <label class="label">인증코드 (6자리)</label>
+        <input class="input" type="text" v-model="f.code" placeholder="000000" maxlength="6" inputmode="numeric" @keyup.enter="verifyCode">
+      </div>
+      <div style="text-align:center;margin-top:8px">
+        <button class="link-btn" @click="sendCode">인증코드 재발송</button>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="verifyCode" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '처리 중...' : '확인' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       3. 기본정보 입력
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'REGISTER_BASIC'">
+    <div class="content">
+      <div class="form-group">
+        <label class="label">이름</label>
+        <input class="input" type="text" v-model="s.name" placeholder="홍길동">
+      </div>
+      <div class="form-group">
+        <label class="label">휴대전화번호</label>
+        <input class="input" type="tel" v-model="s.phoneNo" placeholder="010-1234-5678" maxlength="13" @input="fmtPhone">
+      </div>
+      <div class="form-group">
+        <label class="label">생년월일</label>
+        <input class="input" type="text" v-model="s.birthDate" placeholder="YYYY-MM-DD" maxlength="10" inputmode="numeric" @input="fmtBirth">
+      </div>
+      <div class="form-group">
+        <label class="label">주소</label>
+        <input class="input" type="text" v-model="s.address" placeholder="부산시 중구 중앙대로 123">
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="go('REGISTER_SIMPLE_PWD')">다음</button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       4. 간편인증 비밀번호 설정
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'REGISTER_SIMPLE_PWD'">
+    <div class="content">
+      <div class="info-box">로그인 및 본인인증에 사용합니다.</div>
+      <div class="form-group">
+        <label class="label">간편인증 비밀번호 (6자리)</label>
+        <input class="input" type="password" v-model="f.p1" placeholder="••••••" maxlength="6" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label class="label">비밀번호 확인</label>
+        <input class="input" type="password" v-model="f.p2" placeholder="••••••" maxlength="6" inputmode="numeric" @keyup.enter="setSimplePwd">
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="setSimplePwd">다음</button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       5. 계좌 비밀번호 설정
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'REGISTER_ACCOUNT_PWD'">
+    <div class="content">
+      <div class="info-box">입출금 계좌 비밀번호입니다.</div>
+      <div class="form-group">
+        <label class="label">계좌 비밀번호 (4자리)</label>
+        <input class="input" type="password" v-model="f.a1" placeholder="••••" maxlength="4" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label class="label">비밀번호 확인</label>
+        <input class="input" type="password" v-model="f.a2" placeholder="••••" maxlength="4" inputmode="numeric" @keyup.enter="setAccountPwd">
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="setAccountPwd">다음</button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       6. 전자서명 비밀번호 설정
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'REGISTER_SIGN_PWD'">
+    <div class="content">
+      <div class="info-box">전자서명 시 사용합니다.</div>
+      <div class="form-group">
+        <label class="label">전자서명 비밀번호 (6자리)</label>
+        <input class="input" type="password" v-model="f.s1" placeholder="••••••" maxlength="6" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label class="label">비밀번호 확인</label>
+        <input class="input" type="password" v-model="f.s2" placeholder="••••••" maxlength="6" inputmode="numeric" @keyup.enter="doRegister">
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="doRegister" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '처리 중...' : '가입하기' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       7. 회원가입 완료
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'REGISTER_DONE'">
+    <div style="padding:60px 20px 24px;display:flex;flex-direction:column;align-items:center;flex:1">
+      <div class="big-check">
+        <svg viewBox="0 0 24 24" fill="none" width="40" height="40">
+          <path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="done-title">{{ s.name }}님 환영합니다!</div>
+      <div class="done-sub">회원가입이 완료되었습니다.</div>
+      <div class="info-box" style="width:100%;text-align:center">
+        <div style="font-size:13px;color:#888;margin-bottom:4px">자동 생성된 입출금 계좌번호</div>
+        <div style="font-size:20px;font-weight:700;color:#0052CC;letter-spacing:1px">{{ fmtAccount(s.accountNo) }}</div>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="go('LOGIN')">로그인하기</button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       8. 로그인
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'LOGIN'">
+    <div class="content">
+      <div style="text-align:center;margin-bottom:36px;padding-top:20px">
+        <div style="font-size:36px;font-weight:800;color:#0052CC">BNK</div>
+        <div style="font-size:14px;color:#888;margin-top:6px">부산은행 비대면 대출</div>
+      </div>
+      <div class="form-group">
+        <label class="label">이메일</label>
+        <input class="input" type="email" v-model="s.email" placeholder="example@email.com" @keyup.enter="doLogin">
+      </div>
+      <div class="form-group">
+        <label class="label">간편인증 비밀번호</label>
+        <input class="input" type="password" v-model="s.simplePassword" placeholder="••••••" maxlength="6" inputmode="numeric" @keyup.enter="doLogin">
+      </div>
+      <div style="text-align:center;margin-top:16px">
+        <button class="link-btn" @click="go('REGISTER_EMAIL')">계정이 없으신가요? 회원가입</button>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="doLogin" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '처리 중...' : '로그인' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       9. 대출 상품 선택
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'PRODUCT_LIST'">
+    <div class="content">
+      <div class="sub">신청 가능한 대출상품을 선택하세요.</div>
+      <div v-if="loading" style="text-align:center;padding:40px;color:#888">상품 불러오는 중...</div>
+      <div v-for="p in s.products" :key="p.productId" class="card" @click="selectProduct(p)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div style="flex:1">
+            <div class="card-title">{{ p.productName }}</div>
+            <div class="card-sub" style="margin-top:6px">대출기간: {{ p.loanPeriod }}</div>
+          </div>
+          <div style="text-align:right;margin-left:12px">
+            <div class="rate-big">{{ p.baseRate }}%</div>
+            <div style="font-size:11px;color:#888">기준금리</div>
+          </div>
+        </div>
+      </div>
+      <div v-if="!loading && s.products.length === 0" class="info-box" style="text-align:center;color:#888">
+        판매 중인 상품이 없습니다.
+      </div>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       10. 대출 신청 확인
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'LOAN_APPLY_CONFIRM'">
+    <div class="content">
+      <div class="sub">선택하신 상품을 확인해 주세요.</div>
+      <div class="card sel" v-if="s.selectedProduct">
+        <div class="card-title" style="font-size:17px;margin-bottom:12px">{{ s.selectedProduct.productName }}</div>
+        <div class="row"><span class="rk">기준금리</span><span class="rv blue">{{ s.selectedProduct.baseRate }}%</span></div>
+        <div class="row"><span class="rk">대출기간</span><span class="rv">{{ s.selectedProduct.loanPeriod }}</span></div>
+      </div>
+      <div v-if="inProgressLoans.length > 0"
+           style="background:#FFF0F0;border:1.5px solid #FFCCCC;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:#CC2200">
+        ⚠️ 진행 중인 신청서가 있습니다.<br>
+        신청하면 <strong>이어하기 또는 취소 여부</strong>를 선택할 수 있습니다.
+      </div>
+      <div class="warn-box">신청 버튼을 누르면 대출 신청서가 채번 등록됩니다.<br>신청서는 <strong>1일간</strong> 유효합니다.</div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="applyLoan" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '처리 중...' : '신청하기' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       11. 적합성·적정성 확인서
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'SUITABILITY_FORM'">
+    <div class="content">
+      <div class="sub">고객정보 확인서를 작성해 주세요.</div>
+      <div class="form-group">
+        <label class="label">대출 목적</label>
+        <select class="select" v-model="f.loanPurpose">
+          <option value="생활비">생활비</option>
+          <option value="사업자금">사업자금</option>
+          <option value="주택구입">주택구입</option>
+          <option value="기타">기타</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="label">상환 방법</label>
+        <select class="select" v-model="f.repayMethod">
+          <option value="원리금균등">원리금균등</option>
+          <option value="원금균등">원금균등</option>
+          <option value="만기일시">만기일시</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="label">자산 규모</label>
+        <select class="select" v-model="f.assetScale">
+          <option value="1억 이하">1억 이하</option>
+          <option value="1억~3억">1억~3억</option>
+          <option value="3억~5억">3억~5억</option>
+          <option value="5억 초과">5억 초과</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="label">연간 소득</label>
+        <select class="select" v-model="f.annualIncome">
+          <option value="3천만원 이하">3천만원 이하</option>
+          <option value="3천~5천만원">3천~5천만원</option>
+          <option value="5천만원~1억">5천만원~1억</option>
+          <option value="1억 초과">1억 초과</option>
+        </select>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="submitSuitability" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '처리 중...' : '다음' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       12. 본인인증 (적합성)
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'VERIFY_SUITABILITY'">
+    <div class="content">
+      <div class="sub">간편비밀번호로 본인인증을 진행합니다.</div>
+      <div class="form-group">
+        <label class="label">간편인증 비밀번호 (6자리)</label>
+        <input class="input" type="password" v-model="f.verifyPwd" placeholder="••••••" maxlength="6" inputmode="numeric" @keyup.enter="verifySuitability">
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="verifySuitability" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '인증 중...' : '확인' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       13. 적합성·적정성 확인 완료
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'SUITABILITY_DONE'">
+    <div class="content" style="display:flex;flex-direction:column;align-items:center;padding-top:60px">
+      <div class="big-check">
+        <svg viewBox="0 0 24 24" fill="none" width="40" height="40">
+          <path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="done-title" style="font-size:18px">적합성·적정성 확인 완료</div>
+      <div class="done-sub">고객정보 확인이 완료되었습니다.</div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="go('MYDATA_CONSENT')">공공마이데이터 동의 진행</button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       14. 공공마이데이터 이용 동의
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'MYDATA_CONSENT'">
+    <div class="content">
+      <div class="sub">대출 심사를 위해 공공마이데이터 이용에 동의해 주세요.</div>
+      <div class="chk-row">
+        <input type="checkbox" id="c1" v-model="f.consent1">
+        <label class="chk-label" for="c1"><strong>[필수]</strong> 본인 행정정보 제공 요구 동의 <span style="color:#888;font-size:12px">(행정안전부)</span></label>
+      </div>
+      <div class="chk-row">
+        <input type="checkbox" id="c2" v-model="f.consent2">
+        <label class="chk-label" for="c2"><strong>[필수]</strong> 공공마이데이터 활용 동의 <span style="color:#888;font-size:12px">(공공마이데이터포털)</span></label>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="submitConsent" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '처리 중...' : '동의하고 계속' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       15. 본인 행정정보 제공 요구서 열람
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'DOC_ADMIN_VIEW'">
+    <div class="content">
+      <div class="sub">아래 문서를 확인해 주세요.</div>
+      <div class="doc-box">본인 행정정보 제공 요구서
+
+본인은 대출 심사를 위하여 아래와 같이 본인의 행정정보 제공을
+행정안전부 장관에게 요구합니다.
+
+■ 제공 기관: 행정안전부
+■ 제공 항목: 주민등록정보, 가족관계정보, 소득정보
+■ 이용 목적: 대출 심사 및 한도 산출
+■ 제공 기간: 해당 대출 신청 건에 한함
+
+본 요구에 동의하는 경우 아래 동의 버튼을 클릭하십시오.</div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="viewDoc('ADMIN_INFO_REQUEST', 'DOC_ADMIN_AGREE')" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '처리 중...' : '확인했습니다' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       16. 본인 행정정보 제공 요구서 동의
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'DOC_ADMIN_AGREE'">
+    <div class="content">
+      <div class="sub">문서에 동의해 주세요.</div>
+      <div class="chk-row">
+        <input type="checkbox" id="da" v-model="f.docAdminAgree">
+        <label class="chk-label" for="da">본인 행정정보 제공 요구서에 <strong>동의합니다.</strong></label>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="agreeDoc('ADMIN_INFO_REQUEST', 'DOC_PERSONAL_VIEW')" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '처리 중...' : '동의합니다' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       17. 개인(신용)정보 수집·이용·제공 동의서 열람
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'DOC_PERSONAL_VIEW'">
+    <div class="content">
+      <div class="sub">아래 문서를 확인해 주세요.</div>
+      <div class="doc-box">개인(신용)정보 수집·이용·제공 동의서
+
+금융기관은 여신 서비스 제공을 위해 아래와 같이
+개인(신용)정보를 수집·이용·제공합니다.
+
+■ 수집 항목: 성명, 주민등록번호, 소득정보, 신용정보,
+  금융거래 정보 등
+■ 이용 목적: 대출 심사, 실행, 사후 관리
+■ 보유 기간: 대출 종료 후 5년
+■ 제3자 제공: 신용정보원, 금융결제원 등
+
+위 사항에 동의하지 않을 수 있으나, 동의 거부 시
+대출 서비스 제공이 어렵습니다.</div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="viewDoc('PERSONAL_INFO_CONSENT', 'DOC_PERSONAL_AGREE')" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '처리 중...' : '확인했습니다' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       18. 개인(신용)정보 동의서 동의
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'DOC_PERSONAL_AGREE'">
+    <div class="content">
+      <div class="sub">문서에 동의해 주세요.</div>
+      <div class="chk-row">
+        <input type="checkbox" id="dp" v-model="f.docPersonalAgree">
+        <label class="chk-label" for="dp">개인(신용)정보 수집·이용·제공 동의서에 <strong>동의합니다.</strong></label>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="agreeDoc('PERSONAL_INFO_CONSENT', 'PRE_SIGN')" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '처리 중...' : '동의합니다' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       19. 전자서명 (사전절차 PRE_PROCESS)
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'PRE_SIGN'">
+    <div class="content">
+      <div class="sub">사전 절차 전자서명을 진행합니다.</div>
+      <div class="doc-box">전자서명 동의서
+
+본인은 상기 제출한 정보가 사실임을 확인하고,
+대출 사전 절차의 모든 서류에 전자서명으로 동의합니다.
+
+- 본인 행정정보 제공 요구서
+- 개인(신용)정보 수집·이용·제공 동의서
+
+서명 일시: {{ new Date().toLocaleString('ko-KR') }}</div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="doPreSign" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '서명 중...' : '전자서명' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       20. 휴대폰 본인인증 약관 동의
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'MOBILE_AUTH_TERMS'">
+    <div class="content">
+      <div class="sub">휴대폰 본인인증 관련 약관에 동의해 주세요.</div>
+      <div class="terms-box">휴대폰 본인인증 서비스 이용약관
+
+제1조 (목적)
+본 약관은 휴대폰 본인인증 서비스의 이용에 관한
+기본적인 사항을 규정함을 목적으로 합니다.
+
+제2조 (서비스 내용)
+본인확인 서비스는 이동통신사의 통신 정보를 통해
+이용자의 본인 여부를 확인하는 서비스입니다.
+
+제3조 (개인정보 처리)
+서비스 제공을 위해 성명, 휴대폰번호, 이동통신사
+정보를 수집·이용합니다. 보유기간: 서비스 종료 즉시 삭제</div>
+      <div class="chk-row">
+        <input type="checkbox" id="mat" v-model="f.mobileTerms">
+        <label class="chk-label" for="mat">[필수] 휴대폰 본인인증 약관 전체 동의</label>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="agreeMobileTerms" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '처리 중...' : '동의하고 계속' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       21. 전자서명 인증수단 선택
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'TOKEN_SELECT'">
+    <div class="content">
+      <div class="sub">전자서명 방식을 선택해 주세요.</div>
+      <div class="card" :class="{sel: f.signType==='COMMON_CERT'}" @click="f.signType='COMMON_CERT'">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:28px">🔐</div>
+          <div>
+            <div class="card-title">공동인증서</div>
+            <div class="card-sub">구 공인인증서 방식</div>
+          </div>
+        </div>
+      </div>
+      <div class="card" :class="{sel: f.signType==='SIMPLE_CERT'}" @click="f.signType='SIMPLE_CERT'">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:28px">📱</div>
+          <div>
+            <div class="card-title">간편인증</div>
+            <div class="card-sub">카카오·PASS 등 간편 인증서</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="go('TOKEN_CERT_PWD')">다음</button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       22. 공동인증서 비밀번호 (토큰 발급)
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'TOKEN_CERT_PWD'">
+    <div class="content">
+      <div class="info-box">{{ f.signType === 'COMMON_CERT' ? '공동인증서' : '간편인증' }} 비밀번호를 입력하세요.<br><span style="font-size:12px;color:#888">(테스트: 아무 값이나 입력하세요)</span></div>
+      <div class="form-group">
+        <label class="label">{{ f.signType === 'COMMON_CERT' ? '인증서 비밀번호' : '간편인증 비밀번호' }}</label>
+        <input class="input" type="password" v-model="f.certPwd" placeholder="비밀번호 입력" @keyup.enter="issueToken">
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="issueToken" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '토큰 발급 중...' : '확인' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       23. 직장·소득정보 입력
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'INCOME_INPUT'">
+    <div class="content">
+      <div class="form-group">
+        <label class="label">회사명</label>
+        <input class="input" type="text" v-model="f.companyName" placeholder="(주)부산은행">
+      </div>
+      <div class="form-group">
+        <label class="label">직업 유형</label>
+        <select class="select" v-model="f.jobType">
+          <option value="금융업">금융업</option>
+          <option value="제조업">제조업</option>
+          <option value="서비스업">서비스업</option>
+          <option value="공무원">공무원</option>
+          <option value="기타">기타</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="label">고용 형태</label>
+        <select class="select" v-model="f.employmentType">
+          <option value="정규직">정규직</option>
+          <option value="계약직">계약직</option>
+          <option value="자영업">자영업</option>
+          <option value="프리랜서">프리랜서</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="label">연간 소득 (만원)</label>
+        <input class="input" type="number" v-model="f.incomeMan" placeholder="4500" min="0">
+        <div style="font-size:12px;color:#888;margin-top:4px">{{ fmtMoney((f.incomeMan||0)*10000) }}</div>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="submitIncome" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '처리 중...' : '다음' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       24. 공공마이데이터 확인
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'MYDATA_VIEW'">
+    <div class="content">
+      <div class="sub">공공마이데이터 조회 결과입니다.</div>
+      <div class="mydata-card" v-if="s.mydataResult">
+        <div class="mydata-row">
+          <span>소득 인증</span>
+          <span class="ok">{{ s.mydataResult.incomeVerified ? '✓ 확인됨' : '미확인' }}</span>
+        </div>
+        <div class="mydata-row">
+          <span>고용 인증</span>
+          <span class="ok">{{ s.mydataResult.employmentVerified ? '✓ 확인됨' : '미확인' }}</span>
+        </div>
+        <div class="mydata-row" v-if="s.mydataResult.taxInfo">
+          <span>국세청 연간소득 ({{ s.mydataResult.taxInfo.year }}년)</span>
+          <span style="font-weight:600">{{ fmtMoney(s.mydataResult.taxInfo.annualIncome) }}</span>
+        </div>
+        <div class="mydata-row" v-if="s.mydataResult.nationalPension">
+          <span>국민연금 월납부액</span>
+          <span style="font-weight:600">{{ fmtMoney(s.mydataResult.nationalPension.monthlyPremium) }}원</span>
+        </div>
+      </div>
+      <div v-else class="info-box" style="text-align:center;color:#888">조회 중...</div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="go('BETTER_LIMIT')">한도 조회 진행</button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       25. 더 높은 한도 마케팅 화면
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'BETTER_LIMIT'">
+    <div class="content" style="text-align:center">
+      <div style="font-size:48px;margin:30px 0 10px">🎯</div>
+      <div style="font-size:22px;font-weight:800;color:#111;margin-bottom:8px">더 높은 한도를 받을 수 있어요!</div>
+      <div style="font-size:14px;color:#666;margin-bottom:30px;line-height:1.6">공공마이데이터 기반 AI 심사로<br>정확한 한도를 산출합니다.</div>
+      <div style="background:#F0F4FF;border-radius:16px;padding:24px;margin-bottom:20px">
+        <div style="font-size:13px;color:#888;margin-bottom:4px">최대 한도</div>
+        <div style="font-size:40px;font-weight:800;color:#0052CC">1억원</div>
+        <div style="font-size:12px;color:#888;margin-top:8px">* 심사 결과에 따라 달라질 수 있습니다</div>
+      </div>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <div style="background:#F0FFF4;border-radius:10px;padding:10px 16px;font-size:13px;color:#00875A;font-weight:600">✓ 당일 심사</div>
+        <div style="background:#F0FFF4;border-radius:10px;padding:10px 16px;font-size:13px;color:#00875A;font-weight:600">✓ 공공데이터 기반</div>
+        <div style="background:#F0FFF4;border-radius:10px;padding:10px 16px;font-size:13px;color:#00875A;font-weight:600">✓ 실시간 산출</div>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="doScreening" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '심사 중...' : '한도 조회하기' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       26. 대출 한도 조회 결과
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'SCREENING_RESULT'">
+    <div class="content">
+      <div class="sub">대출 한도 조회 결과입니다.</div>
+      <div style="background:#F0F4FF;border-radius:16px;padding:24px;text-align:center;margin-bottom:20px">
+        <div style="font-size:13px;color:#888;margin-bottom:4px">최대 대출 한도</div>
+        <div class="big-amt">{{ fmtMoney(s.maxLimitAmt) }}</div>
+        <div style="font-size:13px;color:#666">적용 기준금리 <strong style="color:#0052CC">{{ s.appliedBaseRate }}%</strong></div>
+      </div>
+      <div class="card sel" style="cursor:default">
+        <div class="row"><span class="rk">심사 결과</span><span class="rv green">{{ s.screeningResult === 'APPROVED' ? '✓ 승인' : s.screeningResult }}</span></div>
+        <div class="row"><span class="rk">최대 한도</span><span class="rv blue">{{ fmtMoney(s.maxLimitAmt) }}</span></div>
+        <div class="row"><span class="rk">기준금리</span><span class="rv">{{ s.appliedBaseRate }}%</span></div>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="loadDescriptions">금융상품 중요사항 확인</button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       27. 금융상품 중요사항 설명 1/2
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'PRODUCT_DESC_1'">
+    <div class="content">
+      <div class="sub">상품 주요 내용을 확인해 주세요. (1/2)</div>
+      <div v-if="s.productDescriptions.length > 0">
+        <div v-for="d in s.productDescriptions.slice(0, Math.ceil(s.productDescriptions.length/2))" :key="d.attrKey"
+             style="padding:12px 0;border-bottom:1px solid #F0F0F0">
+          <div style="font-size:12px;color:#888;margin-bottom:4px">{{ d.attrKey }}</div>
+          <div style="font-size:14px;color:#111;line-height:1.5">{{ d.attrValue }}</div>
+        </div>
+      </div>
+      <div v-else class="info-box" style="color:#888">상품 설명 정보를 불러오는 중...</div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="go('PRODUCT_DESC_2')">다음 (2/2)</button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       28. 금융상품 중요사항 설명 2/2
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'PRODUCT_DESC_2'">
+    <div class="content">
+      <div class="sub">상품 주요 내용을 확인해 주세요. (2/2)</div>
+      <div v-if="s.productDescriptions.length > 0">
+        <div v-for="d in s.productDescriptions.slice(Math.ceil(s.productDescriptions.length/2))" :key="d.attrKey"
+             style="padding:12px 0;border-bottom:1px solid #F0F0F0">
+          <div style="font-size:12px;color:#888;margin-bottom:4px">{{ d.attrKey }}</div>
+          <div style="font-size:14px;color:#111;line-height:1.5">{{ d.attrValue }}</div>
+        </div>
+      </div>
+      <div class="warn-box" style="margin-top:16px">이 상품은 대출 원리금 상환에 어려움이 생길 수 있습니다. 본인의 상환 능력을 충분히 고려하세요.</div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="go('CONTRACT_TERMS_1')">확인했습니다</button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       29. 약관 확인 및 동의 (1)
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'CONTRACT_TERMS_1'">
+    <div class="content">
+      <div class="sub">아래 약관에 동의해 주세요.</div>
+      <div class="chk-row">
+        <input type="checkbox" id="t1" v-model="f.termProduct">
+        <label class="chk-label" for="t1">[필수] 대출 약관 동의</label>
+      </div>
+      <div class="chk-row">
+        <input type="checkbox" id="t2" v-model="f.termDesc">
+        <label class="chk-label" for="t2">[필수] 금융상품 설명서 확인 동의</label>
+      </div>
+      <div class="chk-row">
+        <input type="checkbox" id="t3" v-model="f.termBond">
+        <label class="chk-label" for="t3">[필수] 채권 전자약정 동의</label>
+      </div>
+      <div style="margin-top:12px">
+        <button class="btn btn-secondary" style="font-size:13px;padding:10px" @click="f.termProduct=f.termDesc=f.termBond=true">전체 동의</button>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="submitContractTerms" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '처리 중...' : '다음' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       30. 약관 상세 내용 (이미지)
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'CONTRACT_TERMS_2'">
+    <div class="content">
+      <div class="sub">약관 전체 내용을 확인해 주세요.</div>
+      <div class="section">대출 약관</div>
+      <div class="terms-box">제1조 (대출 계약) 본 약관은 대출 계약에 관한 기본 사항을 규정합니다.
+제2조 (금리) 대출 금리는 기준금리에 가산금리를 더하여 산출합니다.
+제3조 (상환) 차주는 약정한 상환방식에 따라 원금 및 이자를 상환해야 합니다.
+제4조 (기한이익 상실) 연체 발생 시 기한의 이익이 상실될 수 있습니다.
+제5조 (담보 및 보증) 신용대출의 경우 별도 담보 없이 신용으로 실행합니다.</div>
+      <div class="section">금융상품 설명서</div>
+      <div class="terms-box">■ 상품명: {{ s.selectedProduct ? s.selectedProduct.productName : '' }}
+■ 상품 유형: 신용대출
+■ 대출 대상: 재직기간 1년 이상 직장인
+■ 대출 한도: 최대 1억원 이내
+■ 금리 유형: 고정금리 / 변동금리 선택 가능
+■ 상환 방식: 원리금균등, 원금균등, 만기일시 중 선택
+■ 중도상환 수수료: 3년 이내 중도상환 시 수수료 부과</div>
+      <div class="section">채권 전자약정서</div>
+      <div class="terms-box">채권양도양수 동의서
+
+본인은 아래와 같이 채권 관련 전자약정에 동의합니다.
+
+1. 대출약정서: 대출 조건 및 상환 계획에 관한 약정
+2. 근보증서: 해당 없음 (신용대출)
+3. 개인정보 활용 동의: 대출 실행을 위한 정보 활용에 동의
+
+위 내용을 충분히 이해하고 동의합니다.</div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="go('REPAYMENT_METHOD')">확인했습니다</button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       31. 대출 상환방식 선택
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'REPAYMENT_METHOD'">
+    <div class="content">
+      <div class="sub">상환 방식을 선택해 주세요.</div>
+      <div class="card" :class="{sel: f.repaymentType==='원리금균등'}" @click="f.repaymentType='원리금균등'">
+        <div class="card-title">원리금균등상환</div>
+        <div class="card-sub" style="margin-top:4px">매월 동일한 금액(원금+이자) 상환</div>
+      </div>
+      <div class="card" :class="{sel: f.repaymentType==='원금균등'}" @click="f.repaymentType='원금균등'">
+        <div class="card-title">원금균등상환</div>
+        <div class="card-sub" style="margin-top:4px">매월 동일한 원금 상환, 이자는 점차 감소</div>
+      </div>
+      <div class="card" :class="{sel: f.repaymentType==='만기일시'}" @click="f.repaymentType='만기일시'">
+        <div class="card-title">만기일시상환</div>
+        <div class="card-sub" style="margin-top:4px">매월 이자만 납부, 만기 시 원금 일시 상환</div>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="go('PREFERENTIAL_SELECT')">다음</button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       32. 우대금리 항목 선택
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'PREFERENTIAL_SELECT'">
+    <div class="content">
+      <div class="sub">해당하는 우대금리 항목을 선택하세요.</div>
+      <div v-if="s.preferentialRates && s.preferentialRates.length > 0">
+        <div class="chk-row" v-for="r in s.preferentialRates" :key="r.preferentialId" @click="togglePref(r.preferentialId)">
+          <input type="checkbox" :checked="f.prefIds.includes(r.preferentialId)" readonly>
+          <div class="chk-label">
+            <div style="font-weight:600">{{ r.conditionName }} <span style="color:#0052CC">-{{ r.rateValue }}%</span></div>
+            <div style="font-size:12px;color:#888;margin-top:2px">{{ r.description }}</div>
+          </div>
+        </div>
+      </div>
+      <div v-else class="info-box" style="color:#888;text-align:center">
+        해당 상품의 우대금리 항목이 없습니다.
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="go('LOAN_CONDITIONS')">다음</button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       33. 대출 조건 입력
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'LOAN_CONDITIONS'">
+    <div class="content">
+      <div class="form-group">
+        <label class="label">신청 금액</label>
+        <input class="input" type="number" v-model="f.loanAmtMan" :max="Math.floor(s.maxLimitAmt/10000)" min="100" placeholder="1000">
+        <div style="font-size:12px;color:#888;margin-top:4px">{{ fmtMoney((f.loanAmtMan||0)*10000) }} / 최대 {{ fmtMoney(s.maxLimitAmt) }}</div>
+      </div>
+      <div class="form-group">
+        <label class="label">금리 유형</label>
+        <div class="toggle-group">
+          <button class="toggle-btn" :class="{on:f.rateTypeCode==='F'}" @click="f.rateTypeCode='F'">고정금리</button>
+          <button class="toggle-btn" :class="{on:f.rateTypeCode==='V'}" @click="f.rateTypeCode='V'">변동금리</button>
+        </div>
+      </div>
+      <div class="form-group" v-if="f.rateTypeCode==='V'">
+        <label class="label">리프라이싱 주기</label>
+        <select class="select" v-model="f.rateChangeCycle">
+          <option value="3개월">3개월</option>
+          <option value="6개월">6개월</option>
+          <option value="12개월">12개월</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="label">대출 기간</label>
+        <select class="select" v-model="f.loanPeriod">
+          <option value="12개월">12개월</option>
+          <option value="24개월">24개월</option>
+          <option value="36개월">36개월</option>
+          <option value="48개월">48개월</option>
+          <option value="60개월">60개월</option>
+        </select>
+      </div>
+      <div class="info-box" style="font-size:13px">
+        기준금리: <strong style="color:#0052CC">{{ s.appliedBaseRate }}%</strong>
+        <span v-if="f.prefIds.length > 0"> | 선택 우대금리: -{{ calcPrefSum() }}%</span>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="go('DEPOSIT_INFO')">다음</button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       34. 입금계좌 및 자금용도
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'DEPOSIT_INFO'">
+    <div class="content">
+      <div class="form-group">
+        <label class="label">대출금 입금 계좌</label>
+        <input class="input" :value="fmtAccount(s.accountNo)" readonly>
+        <div style="font-size:12px;color:#888;margin-top:4px">가입 시 생성된 계좌로 자동 설정됩니다.</div>
+      </div>
+      <div class="form-group">
+        <label class="label">자금 용도</label>
+        <select class="select" v-model="f.fundPurpose">
+          <option value="생활비">생활비</option>
+          <option value="주택 구입">주택 구입</option>
+          <option value="사업 자금">사업 자금</option>
+          <option value="교육비">교육비</option>
+          <option value="의료비">의료비</option>
+          <option value="기타">기타</option>
+        </select>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="submitConditions" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '처리 중...' : '다음' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       35. 신청정보 확인 및 약정 진행
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'CONFIRM_INFO'">
+    <div class="content">
+      <div class="sub">신청 정보를 최종 확인해 주세요.</div>
+      <div v-if="s.confirmData" class="card sel" style="cursor:default">
+        <div class="row"><span class="rk">상품명</span><span class="rv">{{ s.confirmData.productName }}</span></div>
+        <div class="row"><span class="rk">고객명</span><span class="rv">{{ s.confirmData.customerName }}</span></div>
+        <div class="row"><span class="rk">대출금액</span><span class="rv blue">{{ fmtMoney(s.confirmData.loanAmount) }}</span></div>
+        <div class="row"><span class="rk">적용금리</span><span class="rv blue">{{ s.confirmData.finalRate }}%</span></div>
+        <div class="row"><span class="rk">상환방식</span><span class="rv">{{ s.confirmData.repaymentType }}</span></div>
+        <div class="row"><span class="rk">만기일</span><span class="rv">{{ s.confirmData.maturityDate }}</span></div>
+        <div class="row"><span class="rk">입금계좌</span><span class="rv">{{ fmtAccount(s.confirmData.depositAccountNo) }}</span></div>
+        <div class="row"><span class="rk">자금용도</span><span class="rv">{{ s.confirmData.fundPurpose }}</span></div>
+        <template v-if="s.confirmData.preferentialRates && s.confirmData.preferentialRates.length > 0">
+          <div class="row" v-for="pr in s.confirmData.preferentialRates" :key="pr.conditionName">
+            <span class="rk">우대금리({{ pr.conditionName }})</span>
+            <span class="rv green">-{{ pr.rateValue }}%</span>
+          </div>
+        </template>
+      </div>
+      <div v-else class="info-box" style="color:#888;text-align:center">정보 불러오는 중...</div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="go('CONTRACT_SIGN')">약정 진행</button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       36. 약정 본인확인 (전자서명)
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'CONTRACT_SIGN'">
+    <div class="content">
+      <div class="sub">전자서명으로 약정 본인확인을 진행합니다.</div>
+      <div class="doc-box">전자서명 동의서
+
+본인은 대출 약정서의 모든 내용을 확인하고 동의하며,
+전자서명으로 약정에 동의합니다.
+
+서명 일시: {{ new Date().toLocaleString('ko-KR') }}</div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="doContractSign" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '서명 중...' : '전자서명' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       37. 채권서류 전자약정
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'BOND_CONTRACT'">
+    <div class="content">
+      <div class="sub">채권 관련 서류에 전자약정합니다.</div>
+      <div class="doc-box">채권서류 전자약정
+
+본인은 아래 채권서류에 전자서명으로 약정합니다.
+
+■ 대출약정서
+   - 대출금액, 금리, 상환방식에 관한 약정
+
+■ 개인정보 활용 동의서
+   - 대출 실행을 위한 개인정보 활용에 동의
+
+■ 상환 계획서
+   - 월 상환 스케줄에 관한 확인서
+
+위 내용을 충분히 이해하고 동의합니다.</div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="go('FINAL_AUTH')">전자약정 완료</button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       38. 최종 본인인증
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'FINAL_AUTH'">
+    <div class="content">
+      <div class="sub">대출 실행을 위한 최종 본인인증입니다.</div>
+      <div class="warn-box">⚠️ 대출이 실행되면 즉시 취소할 수 없습니다.<br>신중하게 확인 후 진행해 주세요.</div>
+      <div class="form-group">
+        <label class="label">간편인증 비밀번호 (6자리)</label>
+        <input class="input" type="password" v-model="f.finalPwd" placeholder="••••••" maxlength="6" inputmode="numeric" @keyup.enter="executeLoan">
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-danger" @click="executeLoan" :disabled="loading">
+        <span class="spinner" v-if="loading"></span>{{ loading ? '실행 중...' : '대출 실행' }}
+      </button>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       홈 (MY_PAGE)
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'MY_PAGE'">
+    <div class="content">
+      <!-- 진행 중 신청서 배너 -->
+      <div v-if="inProgressLoans.length > 0"
+           style="background:#FFF8E6;border:1.5px solid #FFB300;border-radius:12px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer"
+           @click="goToMyLoans">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#795600">📋 작성 중인 대출 신청이 있습니다</div>
+          <div style="font-size:12px;color:#9A6E00;margin-top:2px">{{ inProgressLoans[0].productName }} · {{ inProgressLoans[0].statusName }}</div>
+        </div>
+        <div style="font-size:13px;font-weight:600;color:#0052CC;white-space:nowrap;margin-left:12px">이어하기 →</div>
+      </div>
+
+      <!-- 계좌 카드 -->
+      <div v-if="s.myAccount" style="background:linear-gradient(135deg,#0052CC,#0073E6);border-radius:16px;padding:24px;color:#fff;margin-bottom:20px">
+        <div style="font-size:13px;opacity:.8;margin-bottom:4px">{{ s.myAccount.customerName }}님의 입출금 계좌</div>
+        <div style="font-size:17px;font-weight:600;margin-bottom:14px;letter-spacing:1px">{{ s.myAccount.accountNo }}</div>
+        <div style="font-size:12px;opacity:.7;margin-bottom:2px">현재 잔액</div>
+        <div style="font-size:32px;font-weight:800;letter-spacing:-1px">{{ fmtMoney(s.myAccount.balance) }}</div>
+      </div>
+      <div v-else class="info-box" style="text-align:center;color:#888">계좌 정보 불러오는 중...</div>
+
+      <!-- 빠른 메뉴 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+        <div class="card" style="text-align:center;padding:20px 12px" @click="goToApply">
+          <div style="font-size:32px;margin-bottom:8px">💳</div>
+          <div style="font-size:14px;font-weight:600;color:#111">대출 신청</div>
+          <div style="font-size:12px;color:#888;margin-top:2px">새 대출 신청하기</div>
+        </div>
+        <div class="card" style="text-align:center;padding:20px 12px" @click="goToMyLoans">
+          <div style="font-size:32px;margin-bottom:8px">📋</div>
+          <div style="font-size:14px;font-weight:600;color:#111">대출 현황</div>
+          <div style="font-size:12px;color:#888;margin-top:2px">신청·실행 내역 보기</div>
+        </div>
+      </div>
+
+      <!-- 최근 대출 요약 -->
+      <div v-if="s.myLoans.length > 0">
+        <div class="section">최근 대출</div>
+        <div v-for="loan in s.myLoans.slice(0,3)" :key="loan.loanAccountNo"
+             class="card" @click="goToLoanDetail(loan.loanAccountNo)">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div class="card-title">{{ loan.productName }}</div>
+              <div class="card-sub" style="margin-top:4px">{{ loan.loanAccountNo }}</div>
+            </div>
+            <span :style="statusBadgeStyle(loan.statusCode)"
+                  style="font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;margin-left:8px">
+              {{ loan.statusName }}
+            </span>
+          </div>
+          <div v-if="loan.loanAmount" style="margin-top:10px;padding-top:10px;border-top:1px solid #F0F0F0;display:flex;justify-content:space-between;font-size:13px">
+            <span style="color:#666">대출금액</span>
+            <span style="font-weight:600;color:#0052CC">{{ fmtMoney(loan.loanAmount) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-secondary" @click="resetAll">로그아웃</button>
+      <div style="text-align:center;margin-top:12px">
+        <button class="link-btn" style="font-size:13px;color:#888" @click="goToAiSummaryAdmin">
+          🤖 AI 요약 관리 (관리자)
+        </button>
+      </div>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       내 대출 목록 (MY_LOANS)
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'MY_LOANS'">
+    <div class="content">
+      <div v-if="loading" style="text-align:center;padding:40px;color:#888">불러오는 중...</div>
+      <div v-else-if="s.myLoans.length === 0" class="info-box" style="text-align:center;color:#888">
+        신청한 대출이 없습니다.
+      </div>
+      <div v-else v-for="loan in s.myLoans" :key="loan.loanAccountNo" class="card">
+        <div @click="goToLoanDetail(loan.loanAccountNo)" style="cursor:pointer">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div style="flex:1">
+              <div class="card-title">{{ loan.productName }}</div>
+              <div class="card-sub" style="margin-top:3px">{{ loan.loanAccountNo }}</div>
+              <div class="card-sub" style="margin-top:3px">신청일 {{ fmtDateShort(loan.appliedAt) }}</div>
+            </div>
+            <span :style="statusBadgeStyle(loan.statusCode)"
+                  style="font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;margin-left:8px">
+              {{ loan.statusName }}
+            </span>
+          </div>
+          <div v-if="loan.loanAmount" style="margin-top:10px;padding-top:10px;border-top:1px solid #F0F0F0;display:flex;justify-content:space-between;font-size:13px">
+            <span style="color:#666">대출금액 / 금리</span>
+            <span style="font-weight:600">{{ fmtMoney(loan.loanAmount) }} / {{ loan.finalRate }}%</span>
+          </div>
+          <div v-if="loan.maturityDate" style="display:flex;justify-content:space-between;font-size:13px;margin-top:6px">
+            <span style="color:#666">만기일</span>
+            <span>{{ loan.maturityDate }}</span>
+          </div>
+        </div>
+        <!-- 진행 중 신청서 이어하기 버튼 -->
+        <div v-if="isInProgress(loan.statusCode)"
+             style="margin-top:12px;padding-top:12px;border-top:1px solid #EEF3FF">
+          <button class="btn btn-primary" style="padding:10px;font-size:14px"
+                  @click.stop="doResumeLoanDirect(loan)" :disabled="loading">
+            <span class="spinner" v-if="loading"></span>이어서 작성하기 →
+          </button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       대출 상세 (LOAN_DETAIL)
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'LOAN_DETAIL'">
+    <div class="content" v-if="s.loanDetail">
+      <!-- 상태 배지 -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="font-size:16px;font-weight:700;color:#111">{{ s.loanDetail.productName }}</div>
+        <span :style="statusBadgeStyle(s.loanDetail.statusCode)"
+              style="font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px">
+          {{ s.loanDetail.statusName }}
+        </span>
+      </div>
+
+      <!-- 기본 정보 -->
+      <div class="card" style="cursor:default">
+        <div class="row"><span class="rk">대출 번호</span><span class="rv" style="font-size:12px">{{ s.loanDetail.loanAccountNo }}</span></div>
+        <div class="row"><span class="rk">신청일시</span><span class="rv">{{ fmtDateShort(s.loanDetail.appliedAt) }}</span></div>
+        <div class="row" v-if="s.loanDetail.statusCode !== '9' && s.loanDetail.statusCode !== 'X' && s.loanDetail.statusCode !== 'R'">
+          <span class="rk">만료일시</span><span class="rv">{{ fmtDateShort(s.loanDetail.expireAt) }}</span>
+        </div>
+      </div>
+
+      <!-- 계약 상세 (실행 완료 시) -->
+      <template v-if="s.loanDetail.contract">
+        <div class="section">대출 계약 상세</div>
+        <div style="background:linear-gradient(135deg,#0052CC,#0073E6);border-radius:14px;padding:20px;color:#fff;margin-bottom:16px;text-align:center">
+          <div style="font-size:13px;opacity:.8;margin-bottom:4px">대출 실행 금액</div>
+          <div style="font-size:36px;font-weight:800;letter-spacing:-1px">{{ fmtMoney(s.loanDetail.contract.loanAmount) }}</div>
+          <div style="font-size:14px;margin-top:8px;opacity:.9">적용금리 <strong>{{ s.loanDetail.contract.finalRate }}%</strong></div>
+        </div>
+        <div class="card" style="cursor:default">
+          <div class="row"><span class="rk">상환 방식</span><span class="rv">{{ s.loanDetail.contract.repaymentType }}</span></div>
+          <div class="row"><span class="rk">금리 유형</span><span class="rv">{{ s.loanDetail.contract.rateTypeCode === 'F' ? '고정금리' : '변동금리' }}</span></div>
+          <div class="row"><span class="rk">대출 기간</span><span class="rv">{{ s.loanDetail.contract.loanPeriod }}</span></div>
+          <div class="row"><span class="rk">만기일</span><span class="rv">{{ s.loanDetail.contract.maturityDate }}</span></div>
+          <div class="row"><span class="rk">입금 계좌</span><span class="rv">{{ s.loanDetail.contract.depositAccountNo }}</span></div>
+          <div class="row"><span class="rk">자금 용도</span><span class="rv">{{ s.loanDetail.contract.fundPurpose }}</span></div>
+          <div class="row"><span class="rk">실행 일시</span><span class="rv" style="font-size:12px">{{ fmtDateShort(s.loanDetail.contract.executionDate) }}</span></div>
+        </div>
+        <template v-if="s.loanDetail.contract.preferentialRates && s.loanDetail.contract.preferentialRates.length > 0">
+          <div class="section">적용 우대금리</div>
+          <div class="card" style="cursor:default">
+            <div class="row" v-for="pr in s.loanDetail.contract.preferentialRates" :key="pr.conditionName">
+              <span class="rk">{{ pr.conditionName }}</span>
+              <span class="rv green">-{{ pr.rateValue }}%</span>
+            </div>
+          </div>
+        </template>
+      </template>
+
+      <!-- 진행 중인 신청서 -->
+      <template v-else>
+        <div class="warn-box">이 신청서는 현재 진행 중입니다.<br>대출 실행 완료 후 계약 상세를 확인할 수 있습니다.</div>
+      </template>
+    </div>
+    <div class="content" v-else style="text-align:center;padding-top:40px;color:#888">불러오는 중...</div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       AI 요약 관리 (관리자)
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'AI_SUMMARY_ADMIN'">
+    <div class="content">
+      <div class="sub">각 상품의 AI 요약을 Claude로 자동 생성하거나 직접 입력할 수 있습니다.</div>
+
+      <div v-if="loading" style="text-align:center;padding:40px;color:#888">상품 불러오는 중...</div>
+
+      <div v-for="p in s.adminProducts" :key="p.productId"
+           style="border:1.5px solid #DDE3ED;border-radius:12px;padding:16px;margin-bottom:16px">
+
+        <!-- 상품 헤더 -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div style="font-size:15px;font-weight:600;color:#111">{{ p.productName }}</div>
+            <div style="font-size:12px;color:#888;margin-top:2px">기준금리 {{ p.baseRate }}% | {{ p.loanPeriod }}</div>
+          </div>
+          <span :style="p.status==='SALE'?'background:#E6F4EA;color:#1B7F3B':'background:#F5F5F5;color:#888'"
+                style="font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px">
+            {{ p.status }}
+          </span>
+        </div>
+
+        <!-- 현재 AI 요약 -->
+        <div v-if="p.currentSummary"
+             style="background:#F0F4FF;border-radius:8px;padding:12px;font-size:13px;color:#333;line-height:1.6;margin-bottom:12px">
+          <div style="font-size:11px;color:#0052CC;font-weight:600;margin-bottom:4px">현재 AI 요약</div>
+          {{ p.currentSummary }}
+        </div>
+        <div v-else
+             style="background:#F8F9FB;border-radius:8px;padding:10px;font-size:13px;color:#999;margin-bottom:12px;text-align:center">
+          AI 요약 없음
+        </div>
+
+        <!-- Claude 자동 생성 -->
+        <button class="btn btn-primary" style="padding:11px;font-size:14px;margin-bottom:10px"
+                @click="autoGenerateSummary(p.productId)" :disabled="p.loading">
+          <span class="spinner" v-if="p.loading"></span>
+          {{ p.loading ? 'Claude 생성 중...' : '🤖 Claude 자동 생성' }}
+        </button>
+
+        <!-- 수동 입력 -->
+        <div>
+          <label class="label" style="font-size:13px">직접 입력</label>
+          <textarea v-model="p.manualText"
+                    style="width:100%;box-sizing:border-box;border:1.5px solid #DDE3ED;border-radius:10px;padding:10px;font-size:13px;color:#111;resize:vertical;min-height:72px;outline:none;font-family:inherit;line-height:1.5"
+                    placeholder="수동으로 요약 텍스트를 입력하세요..."></textarea>
+          <button class="btn btn-secondary" style="padding:10px;font-size:13px;margin-top:6px"
+                  @click="manualSaveSummary(p.productId, p.manualText)"
+                  :disabled="!p.manualText || p.loading">
+            저장
+          </button>
+        </div>
+
+        <!-- 결과 메시지 -->
+        <div v-if="p.resultMsg"
+             :style="p.resultOk
+               ? 'background:#F0FFF4;border:1px solid #B7EBCE;color:#00875A'
+               : 'background:#FFF0F0;border:1px solid #FFCCCC;color:#CC0000'"
+             style="border-radius:8px;padding:10px;font-size:13px;margin-top:10px;line-height:1.5">
+          {{ p.resultMsg }}
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ══════════════════════════════════════
+       39. 대출 실행 완료
+  ══════════════════════════════════════ -->
+  <template v-if="step === 'LOAN_DONE'">
+    <div style="padding:60px 20px 24px;display:flex;flex-direction:column;align-items:center;flex:1">
+      <div class="big-check">
+        <svg viewBox="0 0 24 24" fill="none" width="40" height="40">
+          <path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="done-title">대출 실행 완료!</div>
+      <div class="done-sub">지정 계좌로 대출금이 입금되었습니다.</div>
+      <div class="card" style="width:100%;cursor:default;border-color:#0052CC" v-if="s.execResult">
+        <div class="row"><span class="rk">대출번호</span><span class="rv" style="font-size:13px">{{ s.execResult.loanAccountNo }}</span></div>
+        <div class="row"><span class="rk">대출금액</span><span class="rv blue">{{ fmtMoney(s.execResult.loanAmount) }}</span></div>
+        <div class="row"><span class="rk">적용금리</span><span class="rv blue">{{ s.execResult.finalRate }}%</span></div>
+        <div class="row"><span class="rk">만기일</span><span class="rv">{{ s.execResult.maturityDate }}</span></div>
+        <div class="row"><span class="rk">입금계좌</span><span class="rv">{{ fmtAccount(s.execResult.depositAccountNo) }}</span></div>
+        <div class="row"><span class="rk">실행일시</span><span class="rv" style="font-size:13px">{{ s.execResult.executionDate }}</span></div>
+      </div>
+    </div>
+    <div class="bottom">
+      <button class="btn btn-primary" @click="goToMyPage">내 계좌 확인</button>
+      <button class="btn btn-secondary" style="margin-top:10px" @click="resetAll">처음으로 (로그아웃)</button>
+    </div>
+  </template>
+
+</div>
+
+<script>
+const { createApp, ref, reactive, computed } = Vue;
+axios.defaults.withCredentials = true;
+
+createApp({
+  setup() {
+    const step = ref('REGISTER_EMAIL');
+    const hist = ref([]);
+    const err  = ref('');
+    const loading = ref(false);
+    const showResumeModal = ref(false);
+    const inProgressLoan  = ref(null);
+
+    // 전역 상태
+    const s = reactive({
+      email: '', name: '', phoneNo: '', birthDate: '', address: '',
+      simplePassword: '', accountPassword: '', signaturePassword: '',
+      customerId: null, accountNo: '',
+      products: [], selectedProduct: null,
+      loanAccountNo: '', expireAt: '',
+      tokenId: '',
+      maxLimitAmt: 0, appliedBaseRate: 0, screeningResult: '',
+      mydataResult: null,
+      productDescriptions: [], preferentialRates: [],
+      confirmData: null, execResult: null,
+      myAccount: null, myLoans: [], loanDetail: null,
+      adminProducts: [],
+    });
+
+    // 폼 로컬 상태
+    const f = reactive({
+      code: '', p1: '', p2: '', a1: '', a2: '', s1: '', s2: '',
+      verifyPwd: '', certPwd: '', finalPwd: '',
+      consent1: true, consent2: true,
+      docAdminAgree: false, docPersonalAgree: false,
+      mobileTerms: false,
+      signType: 'COMMON_CERT',
+      loanPurpose: '생활비', repayMethod: '원리금균등', assetScale: '1억 이하', annualIncome: '3천~5천만원',
+      companyName: '', jobType: '금융업', employmentType: '정규직', incomeMan: 4500,
+      termProduct: false, termDesc: false, termBond: false,
+      repaymentType: '원리금균등',
+      prefIds: [],
+      loanAmtMan: 1000, rateTypeCode: 'F', rateChangeCycle: '6개월', loanPeriod: '36개월',
+      fundPurpose: '생활비',
+    });
+
+    const titles = {
+      REGISTER_EMAIL: '이메일 인증', REGISTER_EMAIL_VERIFY: '인증코드 확인',
+      REGISTER_BASIC: '기본정보 입력', REGISTER_SIMPLE_PWD: '간편비밀번호 설정',
+      REGISTER_ACCOUNT_PWD: '계좌비밀번호 설정', REGISTER_SIGN_PWD: '전자서명비밀번호 설정',
+      MY_PAGE: '홈', MY_LOANS: '내 대출 현황', LOAN_DETAIL: '대출 상세',
+      AI_SUMMARY_ADMIN: 'AI 요약 관리',
+      LOGIN: '로그인', PRODUCT_LIST: '대출상품 선택', LOAN_APPLY_CONFIRM: '대출 신청',
+      SUITABILITY_FORM: '적합성·적정성 확인서', VERIFY_SUITABILITY: '본인인증',
+      SUITABILITY_DONE: '확인 완료', MYDATA_CONSENT: '마이데이터 이용 동의',
+      DOC_ADMIN_VIEW: '행정정보 제공 요구서', DOC_ADMIN_AGREE: '행정정보 제공 요구서',
+      DOC_PERSONAL_VIEW: '개인신용정보 동의서', DOC_PERSONAL_AGREE: '개인신용정보 동의서',
+      PRE_SIGN: '전자서명', MOBILE_AUTH_TERMS: '휴대폰 본인인증 약관',
+      TOKEN_SELECT: '인증수단 선택', TOKEN_CERT_PWD: '전자서명',
+      INCOME_INPUT: '직장·소득정보 입력', MYDATA_VIEW: '공공마이데이터 확인',
+      BETTER_LIMIT: '더 높은 한도', SCREENING_RESULT: '대출 한도 조회 결과',
+      PRODUCT_DESC_1: '금융상품 중요사항 설명', PRODUCT_DESC_2: '금융상품 중요사항 설명',
+      CONTRACT_TERMS_1: '약관 확인 및 동의', CONTRACT_TERMS_2: '약관 상세 내용',
+      REPAYMENT_METHOD: '상환방식 선택', PREFERENTIAL_SELECT: '우대금리 선택',
+      LOAN_CONDITIONS: '대출 조건 입력', DEPOSIT_INFO: '입금계좌 및 자금용도',
+      CONFIRM_INFO: '신청정보 확인', CONTRACT_SIGN: '본인확인',
+      BOND_CONTRACT: '채권서류 전자약정', FINAL_AUTH: '최종 본인인증',
+    };
+    const title = computed(() => titles[step.value] || '');
+    const inProgressLoans = computed(() => s.myLoans.filter(l => isInProgress(l.statusCode)));
+
+    function go(s2) { hist.value.push(step.value); step.value = s2; err.value = ''; }
+    function goBack() { if (hist.value.length) { step.value = hist.value.pop(); err.value = ''; } }
+
+    function setErr(e) {
+      const msg = e?.response?.data?.message || e?.response?.data?.code || e?.message || '오류가 발생했습니다.';
+      err.value = msg;
+    }
+
+    function fmtPhone() {
+      const v = s.phoneNo.replace(/\D/g, '');
+      if (v.length <= 3) s.phoneNo = v;
+      else if (v.length <= 7) s.phoneNo = v.slice(0,3)+'-'+v.slice(3);
+      else s.phoneNo = v.slice(0,3)+'-'+v.slice(3,7)+'-'+v.slice(7,11);
+    }
+    function fmtBirth() {
+      const v = s.birthDate.replace(/\D/g, '');
+      if (v.length <= 4) s.birthDate = v;
+      else if (v.length <= 6) s.birthDate = v.slice(0,4)+'-'+v.slice(4);
+      else s.birthDate = v.slice(0,4)+'-'+v.slice(4,6)+'-'+v.slice(6,8);
+    }
+    function fmtAccount(no) {
+      if (!no) return '';
+      const v = no.replace(/-/g,'');
+      if (v.length >= 10) return v.slice(0,3)+'-'+v.slice(3,6)+'-'+v.slice(6);
+      return no;
+    }
+    function fmtMoney(amt) {
+      if (!amt && amt !== 0) return '0원';
+      const n = Number(amt);
+      if (n >= 100000000) return (n/100000000).toFixed(n%100000000===0?0:1)+'억원';
+      if (n >= 10000) return Math.floor(n/10000).toLocaleString()+'만원';
+      return n.toLocaleString()+'원';
+    }
+    function calcPrefSum() {
+      if (!s.preferentialRates || !f.prefIds.length) return 0;
+      const sum = s.preferentialRates.filter(r=>f.prefIds.includes(r.preferentialId)).reduce((a,r)=>a+parseFloat(r.rateValue),0);
+      return sum.toFixed(2);
+    }
+    function togglePref(id) {
+      const i = f.prefIds.indexOf(id);
+      if (i >= 0) f.prefIds.splice(i,1); else f.prefIds.push(id);
+    }
+
+    // ── API 함수들 ──────────────────────────────
+
+    async function sendCode() {
+      if (!s.email) { err.value='이메일을 입력해 주세요'; return; }
+      loading.value = true; err.value = '';
+      try {
+        await axios.post('/api/v1/auth/email/send', { email: s.email });
+        go('REGISTER_EMAIL_VERIFY');
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function verifyCode() {
+      if (!f.code) { err.value='인증코드를 입력해 주세요'; return; }
+      loading.value = true; err.value = '';
+      try {
+        await axios.post('/api/v1/auth/email/verify', { email: s.email, code: f.code });
+        f.code = '';
+        go('REGISTER_BASIC');
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    function setSimplePwd() {
+      if (!f.p1 || f.p1.length < 6) { err.value='6자리를 입력해 주세요'; return; }
+      if (f.p1 !== f.p2) { err.value='비밀번호가 일치하지 않습니다'; return; }
+      s.simplePassword = f.p1; f.p1=''; f.p2='';
+      go('REGISTER_ACCOUNT_PWD');
+    }
+
+    function setAccountPwd() {
+      if (!f.a1 || f.a1.length < 4) { err.value='4자리를 입력해 주세요'; return; }
+      if (f.a1 !== f.a2) { err.value='비밀번호가 일치하지 않습니다'; return; }
+      s.accountPassword = f.a1; f.a1=''; f.a2='';
+      go('REGISTER_SIGN_PWD');
+    }
+
+    async function doRegister() {
+      if (!f.s1 || f.s1.length < 6) { err.value='6자리를 입력해 주세요'; return; }
+      if (f.s1 !== f.s2) { err.value='비밀번호가 일치하지 않습니다'; return; }
+      s.signaturePassword = f.s1; f.s1=''; f.s2='';
+      loading.value = true; err.value = '';
+      try {
+        const res = await axios.post('/api/v1/auth/register', {
+          name: s.name, phoneNo: s.phoneNo, birthDate: s.birthDate,
+          address: s.address, email: s.email,
+          simplePassword: s.simplePassword, accountPassword: s.accountPassword,
+          signaturePassword: s.signaturePassword,
+        });
+        s.customerId = res.data.data.customerId;
+        s.accountNo  = res.data.data.accountNo;
+        go('REGISTER_DONE');
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function doLogin() {
+      if (!s.email || !s.simplePassword) { err.value='이메일과 비밀번호를 입력해 주세요'; return; }
+      loading.value = true; err.value = '';
+      try {
+        const res = await axios.post('/api/v1/auth/login', { email: s.email, simplePassword: s.simplePassword });
+        const d = res.data.data;
+        s.customerId = d.customer.customerId;
+        s.accountNo  = d.accountNo;
+        s.name       = d.customer.name;
+        hist.value = [];
+        go('MY_PAGE');
+        loadMyPage();
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    // ── 날짜 포맷 (yyyy-MM-ddTHH:mm:ss → MM-dd HH:mm)
+    function fmtDateShort(dt) {
+      if (!dt) return '-';
+      return dt.toString().slice(0,16).replace('T', ' ');
+    }
+
+    // ── 상태 배지 스타일
+    function statusBadgeStyle(code) {
+      const map = {
+        '9': 'background:#E6F4EA;color:#1B7F3B',
+        'X': 'background:#F5F5F5;color:#888',
+        'R': 'background:#FFF0F0;color:#CC2200',
+      };
+      return map[code] || 'background:#EEF3FF;color:#0052CC';
+    }
+
+    // ── 홈 로드 (계좌 + 대출 목록 동시)
+    async function loadMyPage() {
+      try {
+        const [acctRes, loansRes] = await Promise.all([
+          axios.get('/api/v1/customers/me/account'),
+          axios.get('/api/v1/customers/me/loans'),
+        ]);
+        s.myAccount = acctRes.data.data;
+        s.myLoans   = loansRes.data.data || [];
+      } catch(e) { setErr(e); }
+    }
+
+    // ── 내 대출 목록
+    async function loadMyLoans() {
+      loading.value = true; err.value = '';
+      try {
+        const res = await axios.get('/api/v1/customers/me/loans');
+        s.myLoans = res.data.data || [];
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    // ── 대출 상세
+    async function loadLoanDetail(loanAccountNo) {
+      loading.value = true; err.value = '';
+      try {
+        const res = await axios.get(`/api/v1/customers/me/loans/${loanAccountNo}`);
+        s.loanDetail = res.data.data;
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    // ── 네비게이션 헬퍼
+    function goToMyPage() {
+      hist.value = [];
+      step.value = 'MY_PAGE';
+      err.value = '';
+      loadMyPage();
+    }
+
+    function goToApply() {
+      go('PRODUCT_LIST');
+      loadProducts();
+    }
+
+    function goToMyLoans() {
+      go('MY_LOANS');
+      loadMyLoans();
+    }
+
+    async function goToLoanDetail(loanAccountNo) {
+      s.loanDetail = null;
+      go('LOAN_DETAIL');
+      await loadLoanDetail(loanAccountNo);
+    }
+
+    // ── 진행 중 여부 판단
+    function isInProgress(code) {
+      return !['9','X','R'].includes(code);
+    }
+
+    // ── statusCode → 재진입 화면 매핑
+    const RESUME_STEP = {
+      '1': 'SUITABILITY_FORM',
+      '2': 'MYDATA_CONSENT',
+      '3': 'DOC_ADMIN_VIEW',
+      '4': 'MOBILE_AUTH_TERMS',
+      '5': 'MYDATA_VIEW',
+      '6': 'PRODUCT_DESC_1',
+      '7': 'CONFIRM_INFO',
+      '8': 'BOND_CONTRACT',
+    };
+
+    // ── 상품 정보 복원 (이어하기 공통)
+    async function restoreProduct(productId) {
+      const res = await axios.get(`/api/v1/products/${productId}`);
+      const p = res.data.data;
+      s.selectedProduct   = p;
+      s.preferentialRates = p.preferentialRates || [];
+    }
+
+    // ── 이어하기 실제 수행 (loan 객체 받아서 화면 복원)
+    async function resumeLoanTo(loan) {
+      loading.value = true; err.value = '';
+      try {
+        s.loanAccountNo = loan.loanAccountNo;
+        await restoreProduct(loan.productId);
+
+        const code = loan.statusCode;
+        const target = RESUME_STEP[code] || 'SUITABILITY_FORM';
+
+        // 추가 데이터 복원 (statusCode에 따라)
+        if (code === '5') {
+          const r = await axios.get(`/api/v1/loans/applications/${loan.loanAccountNo}/mydata`);
+          s.mydataResult = r.data.data;
+        }
+        if (code === '6' || code === '7') {
+          const r = await axios.get(`/api/v1/loans/applications/${loan.loanAccountNo}/screening`);
+          s.maxLimitAmt     = r.data.data.maxLimitAmt;
+          s.appliedBaseRate = r.data.data.appliedBaseRate;
+          s.screeningResult = r.data.data.result;
+        }
+        if (code === '7') {
+          const r = await axios.get(`/api/v1/loans/applications/${loan.loanAccountNo}/contract/confirm`);
+          s.confirmData = r.data.data;
+        }
+        if (code === '6') {
+          const r = await axios.get(`/api/v1/products/${loan.productId}/descriptions`);
+          s.productDescriptions = r.data.data || [];
+        }
+
+        hist.value = ['MY_PAGE'];
+        step.value = target;
+        err.value = '';
+        showResumeModal.value = false;
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    // ── 모달: 이어서 작성하기 클릭
+    async function doResumeLoan() {
+      if (!inProgressLoan.value) return;
+      await resumeLoanTo(inProgressLoan.value);
+    }
+
+    // ── 모달: 새로 시작하기 클릭 (취소 후 재신청)
+    async function doStartFresh() {
+      if (!inProgressLoan.value) return;
+      loading.value = true; err.value = '';
+      try {
+        await axios.patch(`/api/v1/loans/applications/${inProgressLoan.value.loanAccountNo}/cancel`);
+        showResumeModal.value = false;
+        inProgressLoan.value = null;
+        // 상품 선택 후 재신청
+        await applyLoan();
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    // ── 목록에서 직접 이어하기
+    async function doResumeLoanDirect(loan) {
+      await resumeLoanTo(loan);
+    }
+
+    // ── AI 요약 관리 ────────────────────────────────────────
+
+    async function goToAiSummaryAdmin() {
+      go('AI_SUMMARY_ADMIN');
+      await loadAdminProducts();
+    }
+
+    async function loadAdminProducts() {
+      loading.value = true; err.value = '';
+      try {
+        const res = await axios.get('/api/v1/admin/products');
+        const all = res.data.data || [];
+
+        // 각 상품의 현재 AI_SUMMARY 조회 (병렬)
+        const detailed = await Promise.all(all.map(async p => {
+          try {
+            const detail = await axios.get(`/api/v1/products/${p.productId}`);
+            const aiDesc = (detail.data.data.descriptions || []).find(d => d.attrKey === 'AI_SUMMARY');
+            return { ...p, currentSummary: aiDesc ? aiDesc.attrValue : null, manualText: '', resultMsg: '', resultOk: false, loading: false };
+          } catch {
+            return { ...p, currentSummary: null, manualText: '', resultMsg: '', resultOk: false, loading: false };
+          }
+        }));
+
+        s.adminProducts = detailed;
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function autoGenerateSummary(productId) {
+      const p = s.adminProducts.find(x => x.productId === productId);
+      if (!p) return;
+      p.loading = true; p.resultMsg = '';
+      try {
+        const res = await axios.post(`/api/v1/admin/products/${productId}/ai-summary`, {});
+        p.currentSummary = res.data.data.attrValue;
+        p.resultMsg = '✓ AI 요약이 자동 생성되었습니다.';
+        p.resultOk = true;
+      } catch(e) {
+        p.resultMsg = '✗ ' + (e?.response?.data?.message || 'AI 생성 실패. ANTHROPIC_API_KEY를 확인하세요.');
+        p.resultOk = false;
+      } finally { p.loading = false; }
+    }
+
+    async function manualSaveSummary(productId, summary) {
+      if (!summary || !summary.trim()) return;
+      const p = s.adminProducts.find(x => x.productId === productId);
+      if (!p) return;
+      p.loading = true; p.resultMsg = '';
+      try {
+        const res = await axios.post(`/api/v1/admin/products/${productId}/ai-summary`, { summary: summary.trim() });
+        p.currentSummary = res.data.data.attrValue;
+        p.manualText = '';
+        p.resultMsg = '✓ 수동 저장이 완료되었습니다.';
+        p.resultOk = true;
+      } catch(e) {
+        p.resultMsg = '✗ ' + (e?.response?.data?.message || '저장에 실패했습니다.');
+        p.resultOk = false;
+      } finally { p.loading = false; }
+    }
+
+    async function loadProducts() {
+      loading.value = true;
+      try {
+        const res = await axios.get('/api/v1/products');
+        s.products = res.data.data || [];
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function selectProduct(p) {
+      s.selectedProduct = p;
+      const res = await axios.get(`/api/v1/products/${p.productId}`);
+      s.preferentialRates = res.data.data.preferentialRates || [];
+      go('LOAN_APPLY_CONFIRM');
+    }
+
+    async function applyLoan() {
+      loading.value = true; err.value = '';
+      try {
+        const res = await axios.post('/api/v1/loans/applications', { productId: s.selectedProduct.productId });
+        s.loanAccountNo = res.data.data.loanAccountNo;
+        s.expireAt      = res.data.data.expireAt;
+        go('SUITABILITY_FORM');
+      } catch(e) {
+        const code = e?.response?.data?.code;
+        if (code === 'LOAN002') {
+          // 진행 중 신청서 조회 후 모달 표시
+          try {
+            const loansRes = await axios.get('/api/v1/customers/me/loans');
+            const all = loansRes.data.data || [];
+            inProgressLoan.value = all.find(l => isInProgress(l.statusCode)) || null;
+            s.myLoans = all;
+          } catch(_) {}
+          showResumeModal.value = true;
+        } else {
+          setErr(e);
+        }
+      } finally { loading.value = false; }
+    }
+
+    async function submitSuitability() {
+      loading.value = true; err.value = '';
+      try {
+        await axios.post(`/api/v1/loans/applications/${s.loanAccountNo}/suitability`, {
+          responses: [
+            { questionCode: 'LOAN_PURPOSE',     question: '대출 목적은?',   answer: f.loanPurpose },
+            { questionCode: 'REPAYMENT_METHOD', question: '상환 방법은?',   answer: f.repayMethod },
+            { questionCode: 'ASSET_SCALE',      question: '자산 규모는?',   answer: f.assetScale },
+            { questionCode: 'ANNUAL_INCOME',    question: '연간 소득은?',   answer: f.annualIncome },
+          ]
+        });
+        go('VERIFY_SUITABILITY');
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function verifySuitability() {
+      if (!f.verifyPwd) { err.value='비밀번호를 입력해 주세요'; return; }
+      loading.value = true; err.value = '';
+      try {
+        await axios.post(`/api/v1/loans/applications/${s.loanAccountNo}/verification/suitability`, { simplePassword: f.verifyPwd });
+        f.verifyPwd = '';
+        go('SUITABILITY_DONE');
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function submitConsent() {
+      if (!f.consent1 || !f.consent2) { err.value='필수 항목에 모두 동의해 주세요'; return; }
+      loading.value = true; err.value = '';
+      try {
+        await axios.post(`/api/v1/loans/applications/${s.loanAccountNo}/mydata-consent`, {
+          consents: [
+            { consentType: 'ADMIN_INFO', dataProvider: '행정안전부' },
+            { consentType: 'MYDATA_USE', dataProvider: '공공마이데이터포털' },
+          ]
+        });
+        go('DOC_ADMIN_VIEW');
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function viewDoc(docType, nextStep) {
+      loading.value = true; err.value = '';
+      try {
+        await axios.post(`/api/v1/loans/applications/${s.loanAccountNo}/documents/${docType}/view?productId=${s.selectedProduct.productId}`);
+        go(nextStep);
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function agreeDoc(docType, nextStep) {
+      loading.value = true; err.value = '';
+      try {
+        await axios.post(`/api/v1/loans/applications/${s.loanAccountNo}/documents/${docType}/agree`);
+        go(nextStep);
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function doPreSign() {
+      loading.value = true; err.value = '';
+      try {
+        await axios.post(`/api/v1/loans/applications/${s.loanAccountNo}/signatures`, {
+          signStep: 'PRE_PROCESS', signType: 'SIMPLE_CERT',
+          tokenId: 'SIMPLE_TOKEN_PRE', originalValue: '사전절차 전자서명 동의',
+        });
+        go('MOBILE_AUTH_TERMS');
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function agreeMobileTerms() {
+      if (!f.mobileTerms) { err.value='약관에 동의해 주세요'; return; }
+      loading.value = true; err.value = '';
+      try {
+        await axios.post(`/api/v1/loans/applications/${s.loanAccountNo}/documents/MOBILE_AUTH_TERMS/view?productId=${s.selectedProduct.productId}`);
+        await axios.post(`/api/v1/loans/applications/${s.loanAccountNo}/documents/MOBILE_AUTH_TERMS/agree`);
+        go('TOKEN_SELECT');
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function issueToken() {
+      if (!f.certPwd) { err.value='비밀번호를 입력해 주세요'; return; }
+      loading.value = true; err.value = '';
+      try {
+        const res = await axios.post(`/api/v1/loans/applications/${s.loanAccountNo}/signatures/token`, { signType: f.signType });
+        s.tokenId = res.data.data.tokenId;
+        f.certPwd = '';
+        go('INCOME_INPUT');
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function submitIncome() {
+      if (!f.companyName) { err.value='회사명을 입력해 주세요'; return; }
+      if (!f.incomeMan || f.incomeMan <= 0) { err.value='연간소득을 입력해 주세요'; return; }
+      loading.value = true; err.value = '';
+      try {
+        await axios.post(`/api/v1/loans/applications/${s.loanAccountNo}/income`, {
+          companyName: f.companyName, jobType: f.jobType,
+          employmentType: f.employmentType, annualIncome: f.incomeMan * 10000,
+        });
+        const res = await axios.get(`/api/v1/loans/applications/${s.loanAccountNo}/mydata`);
+        s.mydataResult = res.data.data;
+        go('MYDATA_VIEW');
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function doScreening() {
+      loading.value = true; err.value = '';
+      try {
+        const res = await axios.post(`/api/v1/loans/applications/${s.loanAccountNo}/screening`);
+        s.maxLimitAmt      = res.data.data.maxLimitAmt;
+        s.appliedBaseRate  = res.data.data.appliedBaseRate;
+        s.screeningResult  = res.data.data.result;
+        go('SCREENING_RESULT');
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function loadDescriptions() {
+      loading.value = true; err.value = '';
+      try {
+        const res = await axios.get(`/api/v1/products/${s.selectedProduct.productId}/descriptions`);
+        s.productDescriptions = res.data.data || [];
+        go('PRODUCT_DESC_1');
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function submitContractTerms() {
+      if (!f.termProduct || !f.termDesc || !f.termBond) { err.value='필수 약관에 모두 동의해 주세요'; return; }
+      loading.value = true; err.value = '';
+      try {
+        await axios.post(`/api/v1/loans/applications/${s.loanAccountNo}/contract/terms`, {
+          documentTypes: ['PRODUCT_TERMS', 'PRODUCT_DESCRIPTION', 'BOND_CONTRACT'],
+        });
+        go('CONTRACT_TERMS_2');
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function submitConditions() {
+      const amt = (f.loanAmtMan || 0) * 10000;
+      if (amt <= 0) { err.value='신청 금액을 입력해 주세요'; return; }
+      if (amt > s.maxLimitAmt) { err.value=`최대 한도(${fmtMoney(s.maxLimitAmt)})를 초과했습니다`; return; }
+      loading.value = true; err.value = '';
+      try {
+        await axios.post(`/api/v1/loans/applications/${s.loanAccountNo}/contract/conditions`, {
+          repaymentType: f.repaymentType,
+          rateTypeCode: f.rateTypeCode,
+          rateChangeCycle: f.rateTypeCode === 'V' ? f.rateChangeCycle : null,
+          loanPeriod: f.loanPeriod,
+          depositAccountNo: s.accountNo,
+          fundPurpose: f.fundPurpose,
+          loanAmount: amt,
+          preferentialIds: f.prefIds,
+        });
+        const res2 = await axios.get(`/api/v1/loans/applications/${s.loanAccountNo}/contract/confirm`);
+        s.confirmData = res2.data.data;
+        go('CONFIRM_INFO');
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function doContractSign() {
+      loading.value = true; err.value = '';
+      try {
+        await axios.post(`/api/v1/loans/applications/${s.loanAccountNo}/verification/contract`, {
+          signStep: 'CONTRACT', signType: f.signType,
+          tokenId: s.tokenId, originalValue: '약정 전자서명',
+        });
+        go('BOND_CONTRACT');
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    async function executeLoan() {
+      if (!f.finalPwd) { err.value='비밀번호를 입력해 주세요'; return; }
+      loading.value = true; err.value = '';
+      try {
+        const res = await axios.post(`/api/v1/loans/applications/${s.loanAccountNo}/execute`, { simplePassword: f.finalPwd });
+        s.execResult = res.data.data;
+        f.finalPwd = '';
+        hist.value = [];
+        step.value = 'LOAN_DONE';
+        err.value = '';
+      } catch(e) { setErr(e); } finally { loading.value = false; }
+    }
+
+    function resetAll() {
+      Object.assign(s, {
+        email:'', name:'', phoneNo:'', birthDate:'', address:'',
+        simplePassword:'', accountPassword:'', signaturePassword:'',
+        customerId:null, accountNo:'', products:[], selectedProduct:null,
+        loanAccountNo:'', expireAt:'', tokenId:'',
+        maxLimitAmt:0, appliedBaseRate:0, screeningResult:'',
+        mydataResult:null, productDescriptions:[], preferentialRates:[],
+        confirmData:null, execResult:null,
+      myAccount:null, myLoans:[], loanDetail:null, adminProducts:[],
+      });
+      Object.assign(f, {
+        code:'', p1:'', p2:'', a1:'', a2:'', s1:'', s2:'',
+        verifyPwd:'', certPwd:'', finalPwd:'',
+        consent1:true, consent2:true, docAdminAgree:false, docPersonalAgree:false,
+        mobileTerms:false, signType:'COMMON_CERT',
+        loanPurpose:'생활비', repayMethod:'원리금균등', assetScale:'1억 이하', annualIncome:'3천~5천만원',
+        companyName:'', jobType:'금융업', employmentType:'정규직', incomeMan:4500,
+        termProduct:false, termDesc:false, termBond:false,
+        repaymentType:'원리금균등', prefIds:[], loanAmtMan:1000,
+        rateTypeCode:'F', rateChangeCycle:'6개월', loanPeriod:'36개월', fundPurpose:'생활비',
+      });
+      hist.value = [];
+      err.value = '';
+      step.value = 'LOGIN';
+    }
+
+    return {
+      step, hist, err, loading, s, f, title,
+      go, goBack, fmtPhone, fmtBirth, fmtAccount, fmtMoney, fmtDateShort, calcPrefSum, togglePref,
+      statusBadgeStyle, isInProgress, inProgressLoans,
+      showResumeModal, inProgressLoan,
+      doResumeLoan, doStartFresh, doResumeLoanDirect,
+      sendCode, verifyCode, setSimplePwd, setAccountPwd, doRegister,
+      doLogin, loadMyPage, loadMyLoans, loadLoanDetail,
+      goToMyPage, goToApply, goToMyLoans, goToLoanDetail,
+      goToAiSummaryAdmin, loadAdminProducts, autoGenerateSummary, manualSaveSummary,
+      loadProducts, selectProduct, applyLoan,
+      submitSuitability, verifySuitability, submitConsent,
+      viewDoc, agreeDoc, doPreSign, agreeMobileTerms, issueToken,
+      submitIncome, doScreening, loadDescriptions,
+      submitContractTerms, submitConditions, doContractSign, executeLoan, resetAll,
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
