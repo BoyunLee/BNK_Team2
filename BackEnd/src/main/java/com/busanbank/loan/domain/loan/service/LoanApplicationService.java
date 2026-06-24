@@ -1,0 +1,133 @@
+package com.busanbank.loan.domain.loan.service;
+
+import com.busanbank.loan.domain.loan.dto.request.MydataConsentRequest;
+import com.busanbank.loan.domain.loan.entity.LoanApplication;
+import com.busanbank.loan.domain.loan.entity.MydataConsent;
+import com.busanbank.loan.domain.loan.repository.LoanApplicationRepository;
+import com.busanbank.loan.domain.loan.repository.MydataConsentRepository;
+import com.busanbank.loan.domain.product.repository.LoanProductRepository;
+import com.busanbank.loan.global.error.code.ErrorCode;
+import com.busanbank.loan.global.error.exception.BusinessException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+
+@Service
+@RequiredArgsConstructor
+public class LoanApplicationService {
+
+    private final LoanApplicationRepository loanApplicationRepository;
+    private final LoanProductRepository loanProductRepository;
+    private final MydataConsentRepository mydataConsentRepository;
+
+    private final AtomicLong loanSeq = new AtomicLong(0);
+
+    @Transactional
+    public LoanApplication createApplication(Long customerId, Long productId) {
+        loanProductRepository.findById(productId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        boolean inProgress = loanApplicationRepository
+                .existsByCustomerIdAndStatusCodeNotIn(customerId, List.of("9", "X", "R"));
+        if (inProgress) {
+            throw new BusinessException(ErrorCode.LOAN_ALREADY_IN_PROGRESS);
+        }
+
+        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String loanAccountNo = LoanApplication.nextAccountNo(date, loanSeq.incrementAndGet());
+
+        LoanApplication application = LoanApplication.builder()
+                .loanAccountNo(loanAccountNo)
+                .customerId(customerId)
+                .productId(productId)
+                .statusCode("1")
+                .expireAt(LocalDateTime.now().plusDays(1))
+                .build();
+
+        return loanApplicationRepository.save(application);
+    }
+
+    @Transactional(readOnly = true)
+    public LoanApplication findAndValidate(String loanAccountNo, String expectedStatus) {
+        LoanApplication application = loanApplicationRepository.findByLoanAccountNo(loanAccountNo)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOAN_NOT_FOUND));
+
+        if (application.isExpired()) {
+            throw new BusinessException(ErrorCode.LOAN_EXPIRED);
+        }
+
+        if (!application.getStatusCode().equals(expectedStatus)) {
+            throw new BusinessException(ErrorCode.INVALID_STEP);
+        }
+
+        return application;
+    }
+
+    @Transactional(readOnly = true)
+    public LoanApplication findAndValidateAtLeast(String loanAccountNo, String minStatus) {
+        LoanApplication application = loanApplicationRepository.findByLoanAccountNo(loanAccountNo)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOAN_NOT_FOUND));
+
+        if (application.isExpired()) {
+            throw new BusinessException(ErrorCode.LOAN_EXPIRED);
+        }
+
+        if (application.getStatusCode().compareTo(minStatus) < 0) {
+            throw new BusinessException(ErrorCode.INVALID_STEP);
+        }
+
+        return application;
+    }
+
+    @Transactional(readOnly = true)
+    public LoanApplication findApplication(String loanAccountNo) {
+        LoanApplication application = loanApplicationRepository.findByLoanAccountNo(loanAccountNo)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOAN_NOT_FOUND));
+
+        if (application.isExpired()) {
+            throw new BusinessException(ErrorCode.LOAN_EXPIRED);
+        }
+
+        return application;
+    }
+
+    @Transactional
+    public void cancelApplication(String loanAccountNo, Long customerId) {
+        LoanApplication application = loanApplicationRepository.findByLoanAccountNo(loanAccountNo)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOAN_NOT_FOUND));
+
+        if (!application.getCustomerId().equals(customerId)) {
+            throw new BusinessException(ErrorCode.LOAN_NOT_FOUND);
+        }
+
+        if (List.of("9", "X", "R").contains(application.getStatusCode())) {
+            throw new BusinessException(ErrorCode.INVALID_STEP);
+        }
+
+        application.updateStatus("R");
+    }
+
+    @Transactional
+    public void saveMydataConsent(String loanAccountNo, List<MydataConsentRequest.ConsentItem> consents) {
+        LoanApplication application = findAndValidate(loanAccountNo, "2");
+
+        List<MydataConsent> consentEntities = consents.stream()
+                .map(item -> MydataConsent.builder()
+                        .loanAccountNo(loanAccountNo)
+                        .consentType(item.consentType())
+                        .dataProvider(item.dataProvider())
+                        .consentYn("Y")
+                        .consentAt(LocalDateTime.now())
+                        .build())
+                .toList();
+
+        mydataConsentRepository.saveAll(consentEntities);
+        application.updateStatus("3");
+    }
+}

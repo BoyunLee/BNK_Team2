@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.busanbank.loan.domain.customer.AccountServiceTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-06-24T04:33:25" hostname="DESKTOP-TH449U4" time="1.894">
+  <properties/>
+  <testcase name="대출 상세 조회 - 타인 신청서 접근 불가" classname="com.busanbank.loan.domain.customer.AccountServiceTest" time="1.806"/>
+  <testcase name="대출 상세 조회 - 진행 중인 신청서 (contract null)" classname="com.busanbank.loan.domain.customer.AccountServiceTest" time="0.013"/>
+  <testcase name="대출 상세 조회 - 실행 완료 건 (contract 포함)" classname="com.busanbank.loan.domain.customer.AccountServiceTest" time="0.022"/>
+  <testcase name="내 대출 목록 - 성공 (실행 완료 1건)" classname="com.busanbank.loan.domain.customer.AccountServiceTest" time="0.017"/>
+  <testcase name="내 대출 목록 - 빈 목록" classname="com.busanbank.loan.domain.customer.AccountServiceTest" time="0.004"/>
+  <testcase name="내 계좌 조회 - 성공" classname="com.busanbank.loan.domain.customer.AccountServiceTest" time="0.013"/>
+  <testcase name="내 계좌 조회 - 고객 없음" classname="com.busanbank.loan.domain.customer.AccountServiceTest" time="0.009"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (C:\Users\gusrb\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.14.19\154da3a65b4f4a909d3e5bdec55d1b2b4cbb6ce1\byte-buddy-agent-1.14.19.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>
