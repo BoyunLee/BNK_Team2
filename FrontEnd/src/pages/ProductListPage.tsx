@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { ProductCategory, ProductIndexItem } from '../types/product';
-import { loadIndex } from '../lib/data';
+import type { ProductCategory } from '../types/product';
+import { fetchProducts, type BeProductListItem } from '../lib/products';
 import { formatRateRange } from '../lib/rate';
 import bnkLogo from '../assets/bnk-logo.png';
+import { AuthBadge } from '../components/AuthBadge';
 import '../styles/shell.css';
 import './ProductListPage.css';
+import './auth/auth.css';
 
 const CATEGORIES: ProductCategory[] = [
   '신용대출',
@@ -17,13 +19,14 @@ const CATEGORIES: ProductCategory[] = [
 type Filter = ProductCategory | '전체';
 
 export function ProductListPage() {
-  const [index, setIndex] = useState<ProductIndexItem[] | null>(null);
+  const [index, setIndex] = useState<BeProductListItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('전체');
   const [query, setQuery] = useState('');
 
   useEffect(() => {
-    loadIndex()
+    // 상품 목록은 비로그인도 열람 가능(BE 인증 예외)
+    fetchProducts()
       .then(setIndex)
       .catch((e) => setError(e instanceof Error ? e.message : String(e)));
   }, []);
@@ -45,7 +48,9 @@ export function ProductListPage() {
     return index.filter((p) => {
       if (filter !== '전체' && p.category !== filter) return false;
       if (!q) return true;
-      const hay = `${p.name}${p.catchphrase}`.toLowerCase().replace(/\s+/g, '');
+      const hay = `${p.productName}${p.catchphrase ?? ''}`
+        .toLowerCase()
+        .replace(/\s+/g, '');
       return hay.includes(q);
     });
   }, [index, filter, query]);
@@ -64,6 +69,7 @@ export function ProductListPage() {
   return (
     <div className="app-shell">
       <header className="list-head">
+        <AuthBadge />
         <img className="list-head__logo" src={bnkLogo} alt="BNK 부산은행" />
         <h1 className="list-head__title">여신상품몰</h1>
         <p className="list-head__sub">부산은행 대출상품을 한눈에</p>
@@ -136,13 +142,10 @@ export function ProductListPage() {
         ) : (
           <ul className="cards">
             {filtered.map((p) => (
-              <li key={p.mkpd_cd}>
-                <Link
-                  className="card"
-                  to={`/product/${encodeURIComponent(p.mkpd_cd)}`}
-                >
+              <li key={p.productId}>
+                <Link className="card" to={`/product/${p.productId}`}>
                   <span className="card__cat">{p.category}</span>
-                  <span className="card__name">{p.name}</span>
+                  <span className="card__name">{p.productName}</span>
                   {p.catchphrase && (
                     <span className="card__pitch">{p.catchphrase}</span>
                   )}

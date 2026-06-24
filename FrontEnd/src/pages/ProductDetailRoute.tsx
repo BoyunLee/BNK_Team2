@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import type { Product } from '../types/product';
-import { findByCode, loadIndex, loadProduct } from '../lib/data';
+import { fetchProductDetail, toProduct } from '../lib/products';
 import { ProductDetailPage } from './ProductDetailPage';
 import '../styles/shell.css';
 
 /**
- * /product/:mkpdCd 라우트.
- * index.json 에서 mkpd_cd 로 항목을 찾아(카테고리/이름 필요) product.web.json 을 로드한다.
+ * /product/:productId 라우트.
+ * 백엔드 GET /products/{productId} 를 불러와 기존 Product 형태로 매핑한다.
  */
 export function ProductDetailRoute() {
-  const { mkpdCd } = useParams<{ mkpdCd: string }>();
+  const { productId } = useParams<{ productId: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,12 +20,8 @@ export function ProductDetailRoute() {
     setError(null);
     (async () => {
       try {
-        const index = await loadIndex();
-        const item = findByCode(index, mkpdCd ?? '');
-        if (!item)
-          throw new Error(`상품을 찾을 수 없습니다 (mkpd_cd=${mkpdCd}).`);
-        const p = await loadProduct(item);
-        if (alive) setProduct(p);
+        const detail = await fetchProductDetail(productId ?? '');
+        if (alive) setProduct(toProduct(detail));
       } catch (e) {
         if (alive) setError(e instanceof Error ? e.message : String(e));
       }
@@ -33,7 +29,7 @@ export function ProductDetailRoute() {
     return () => {
       alive = false;
     };
-  }, [mkpdCd]);
+  }, [productId]);
 
   if (error) {
     return (

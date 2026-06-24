@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/bnk3?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://34.47.80.185:3306/bnk3?createDatabaseIfNotExist=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
-    password: "!skdlxm12"
+    password: "4510471"
 
   jpa:
     hibernate:

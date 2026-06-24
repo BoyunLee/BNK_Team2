@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BottomSheet, type SheetOption } from '../../components/BottomSheet';
 import { AlertModal } from '../../components/AlertModal';
+import { useApply } from '../../auth/ApplyContext';
+import { createApplication, cancelApplication } from '../../lib/loan';
+import { ApiError } from '../../lib/api';
 import '../../styles/shell.css';
 import './apply.css';
 
@@ -95,9 +98,11 @@ function Group({
 export function EligibilityPage() {
   const { mkpdCd } = useParams<{ mkpdCd: string }>();
   const navigate = useNavigate();
+  const { loanAccountNo, setApplication } = useApply();
   const [form, setForm] = useState<Form>(EMPTY);
   const [sheet, setSheet] = useState<null | 'purpose' | 'repay'>(null);
   const [showCreditWarn, setShowCreditWarn] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const set =
     <K extends keyof Form>(key: K) =>
@@ -113,8 +118,33 @@ export function EligibilityPage() {
   const complete = Object.values(form).every((v) => v != null);
   // 신용점수 조회 미동의 시 대출 심사 불가 → 제출 차단
   const creditDeclined = form.credit === '동의안함';
-  const canSubmit = complete && !creditDeclined;
+  const canSubmit = complete && !creditDeclined && !busy;
   const productCd = mkpdCd ?? '';
+
+  // 적합성 진단 제출 → 대출 신청서 생성(status 1) → 본인인증(PIN)
+  async function onSubmit() {
+    if (!canSubmit) return;
+    setBusy(true);
+    try {
+      // 이전에 만들다 만 신청서가 있으면 취소 후 새로 생성(재진입 대비)
+      if (loanAccountNo) {
+        try {
+          await cancelApplication(loanAccountNo);
+        } catch {
+          /* 이미 만료/취소된 경우 무시 */
+        }
+      }
+      const res = await createApplication(Number(productCd));
+      setApplication(res.loanAccountNo, productCd);
+      navigate(`/apply/${productCd}/auth`);
+    } catch (e) {
+      alert(
+        e instanceof ApiError ? e.message : '신청서 생성에 실패했습니다. 다시 시도해주세요.',
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <div className="app-shell">
@@ -242,11 +272,9 @@ export function EligibilityPage() {
           type="button"
           className="flow-submit"
           disabled={!canSubmit}
-          onClick={() =>
-            navigate(`/apply/${encodeURIComponent(productCd)}/auth`)
-          }
+          onClick={onSubmit}
         >
-          적합성 진단 제출
+          {busy ? '신청서 생성 중…' : '적합성 진단 제출'}
         </button>
       </div>
 

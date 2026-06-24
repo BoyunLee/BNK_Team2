@@ -1,9 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import '../../styles/shell.css';
 import './apply.css';
 
-const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'];
+/** Fisher-Yates 셔플 */
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 /**
  * 간편비밀번호(6자리) 로그인. 캡쳐가 없어 표준 키패드로 구성.
@@ -14,6 +22,11 @@ export function PinAuthPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const [pin, setPin] = useState('');
+  // 보안 키패드 — 진입 시 숫자 위치 무작위 배치(빈칸 1개 + ⌫ 우하단 고정)
+  const keys = useMemo(() => {
+    const cells = shuffle([...'0123456789'.split(''), '']);
+    return [...cells, '⌫'];
+  }, []);
   const productCd = mkpdCd ?? '';
   // 인증 후 이동지(없으면 기본: 적합성 진단결과)
   const next =
@@ -61,7 +74,7 @@ export function PinAuthPage() {
         </div>
 
         <div className="keypad">
-          {KEYS.map((k, i) => (
+          {keys.map((k, i) => (
             <button
               key={i}
               type="button"

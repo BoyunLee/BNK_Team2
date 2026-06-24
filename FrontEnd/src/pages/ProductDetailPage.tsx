@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import type { Product } from '../types/product';
 import { ProductHeader } from '../components/ProductHeader';
 import { ProductTabs, type TabKey } from '../components/ProductTabs';
@@ -16,6 +16,7 @@ import '../styles/shell.css';
 export function ProductDetailPage({ product }: { product: Product }) {
   const [tab, setTab] = useState<TabKey>('info');
   const navigate = useNavigate();
+  const { productId } = useParams<{ productId: string }>();
 
   return (
     <div className="app-shell">
@@ -34,11 +35,7 @@ export function ProductDetailPage({ product }: { product: Product }) {
         {tab === 'terms' && <DocumentList documents={product.documents} />}
       </main>
 
-      <ActionBar
-        onApply={() =>
-          navigate(`/apply/${encodeURIComponent(product.meta.mkpd_cd)}`)
-        }
-      />
+      <ActionBar onApply={() => navigate(`/apply/${productId}`)} />
     </div>
   );
 }

@@ -32,12 +32,33 @@ public class LoanProduct extends BaseTimeEntity {
     @Column(name = "status", length = 20)
     private String status = "SALE";
 
+    @Column(name = "category", length = 20)
+    private String category;
+
+    @Column(name = "mkpd_cd", length = 20)
+    private String mkpdCd;
+
+    @Column(name = "catchphrase", length = 300)
+    private String catchphrase;
+
+    @Column(name = "rate_min", length = 50)
+    private String rateMin;
+
+    @Column(name = "rate_max", length = 50)
+    private String rateMax;
+
     @Builder
-    public LoanProduct(String productName, BigDecimal baseRate, String loanPeriod, String status) {
+    public LoanProduct(String productName, BigDecimal baseRate, String loanPeriod, String status,
+                       String category, String mkpdCd, String catchphrase, String rateMin, String rateMax) {
         this.productName = productName;
         this.baseRate = baseRate;
         this.loanPeriod = loanPeriod;
         this.status = (status != null) ? status : "SALE";
+        this.category = category;
+        this.mkpdCd = mkpdCd;
+        this.catchphrase = catchphrase;
+        this.rateMin = rateMin;
+        this.rateMax = rateMax;
     }
 
     public void discontinue() {

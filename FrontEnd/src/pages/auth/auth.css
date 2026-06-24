@@ -1,0 +1,177 @@
+/* 로그인 / 회원가입 공용 스타일 */
+.auth-body {
+  padding: 8px 22px 120px;
+}
+.auth-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin: 8px 0 6px;
+}
+.auth-sub {
+  font-size: 14px;
+  color: var(--ink-faint);
+  margin: 0 0 28px;
+  word-break: keep-all;
+}
+
+.auth-field {
+  margin-bottom: 20px;
+}
+.auth-field__label {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+.auth-input {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  padding: 14px 14px;
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--bg);
+}
+.auth-input::placeholder {
+  color: var(--ink-faint);
+}
+.auth-input:focus {
+  outline: none;
+  border-color: var(--bnk-red);
+}
+.auth-input:disabled {
+  background: var(--bg-soft);
+  color: var(--ink-faint);
+}
+
+/* 인풋 + 우측 버튼(인증코드 발송 등) */
+.auth-inline {
+  display: flex;
+  gap: 8px;
+}
+.auth-inline .auth-input {
+  flex: 1;
+}
+.auth-inline__btn {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 12px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  background: var(--gray-700, #333);
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.auth-inline__btn:disabled {
+  background: var(--gray-200);
+  color: var(--gray-500);
+  cursor: not-allowed;
+}
+
+.auth-hint {
+  margin: 8px 2px 0;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  word-break: keep-all;
+}
+.auth-hint--ok {
+  color: var(--bnk-red);
+  font-weight: 700;
+}
+.auth-error {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--second-50, #ffe6e6);
+  color: var(--bnk-red-deep);
+  font-size: 13.5px;
+  word-break: keep-all;
+}
+
+.auth-submit {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 17px 0;
+  font-size: 17px;
+  font-weight: 800;
+  font-family: inherit;
+  color: #fff;
+  background: var(--bnk-red);
+  cursor: pointer;
+  margin-top: 8px;
+}
+.auth-submit:disabled {
+  background: var(--gray-200);
+  color: var(--gray-500);
+  cursor: not-allowed;
+}
+
+.auth-row2 {
+  display: flex;
+  gap: 12px;
+}
+.auth-row2 .auth-field {
+  flex: 1;
+}
+
+.auth-foot {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+.auth-foot button {
+  border: 0;
+  background: transparent;
+  color: var(--bnk-red);
+  font-weight: 700;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* ===== 우측 상단 인증 배지 ===== */
+.list-head {
+  position: relative;
+}
+.authbadge {
+  position: absolute;
+  top: 22px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.authbadge__name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.authbadge__btn {
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+.authbadge__btn--primary {
+  border-color: var(--bnk-red);
+  background: var(--bnk-red);
+  color: #fff;
+}

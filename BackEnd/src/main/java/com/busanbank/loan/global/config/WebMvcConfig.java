@@ -21,6 +21,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/v1/auth/email/**",
                         "/api/v1/auth/register",
                         "/api/v1/auth/login",
+                        // 상품 목록/상세는 비로그인 열람 허용 (관리자 /admin/products 는 보호 유지)
+                        "/api/v1/products",
+                        "/api/v1/products/**",
                         "/swagger-ui/**",
                         "/v3/api-docs/**"
                 );

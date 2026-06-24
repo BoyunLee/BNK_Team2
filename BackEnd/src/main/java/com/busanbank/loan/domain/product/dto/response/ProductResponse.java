@@ -9,7 +9,12 @@ public record ProductResponse(
         String productName,
         BigDecimal baseRate,
         String loanPeriod,
-        String status
+        String status,
+        String category,
+        String mkpdCd,
+        String catchphrase,
+        String rateMin,
+        String rateMax
 ) {
 
     public static ProductResponse from(LoanProduct product) {
@@ -18,7 +23,12 @@ public record ProductResponse(
                 product.getProductName(),
                 product.getBaseRate(),
                 product.getLoanPeriod(),
-                product.getStatus()
+                product.getStatus(),
+                product.getCategory(),
+                product.getMkpdCd(),
+                product.getCatchphrase(),
+                product.getRateMin(),
+                product.getRateMax()
         );
     }
 }

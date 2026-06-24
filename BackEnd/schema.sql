@@ -55,6 +55,11 @@ CREATE TABLE IF NOT EXISTS LOAN_PRODUCT (
     base_rate    DECIMAL(5, 2)  NOT NULL COMMENT '기준금리(%)',
     loan_period  VARCHAR(100)   COMMENT '대출 기간 (예: 최대 5년)',
     status       VARCHAR(20)    NOT NULL DEFAULT 'SALE' COMMENT 'SALE / DISCONTINUED / SUSPENDED',
+    category     VARCHAR(20)    COMMENT '상품 분류 (신용대출/담보대출/서민금융/보증서대출)',
+    mkpd_cd      VARCHAR(20)    COMMENT '프론트 크롤링 상품코드 (FE 매핑용)',
+    catchphrase  VARCHAR(300)   COMMENT '한 줄 소개 문구',
+    rate_min     VARCHAR(50)    COMMENT '최저금리 (숫자 또는 수식형 문자열)',
+    rate_max     VARCHAR(50)    COMMENT '최고금리 (숫자 또는 수식형 문자열)',
     created_at   DATETIME       NOT NULL,
     updated_at   DATETIME       NOT NULL,
     PRIMARY KEY (product_id)

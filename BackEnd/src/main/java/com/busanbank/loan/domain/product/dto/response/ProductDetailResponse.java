@@ -13,6 +13,11 @@ public record ProductDetailResponse(
         BigDecimal baseRate,
         String loanPeriod,
         String status,
+        String category,
+        String mkpdCd,
+        String catchphrase,
+        String rateMin,
+        String rateMax,
         List<DescriptionDto> descriptions,
         List<PreferentialRateDto> preferentialRates
 ) {
@@ -53,6 +58,11 @@ public record ProductDetailResponse(
                 product.getBaseRate(),
                 product.getLoanPeriod(),
                 product.getStatus(),
+                product.getCategory(),
+                product.getMkpdCd(),
+                product.getCatchphrase(),
+                product.getRateMin(),
+                product.getRateMax(),
                 descDtos,
                 rateDtos
         );
