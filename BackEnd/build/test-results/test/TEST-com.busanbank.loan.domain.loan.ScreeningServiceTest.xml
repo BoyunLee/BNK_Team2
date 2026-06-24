@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.busanbank.loan.domain.loan.ScreeningServiceTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-06-24T04:33:41" hostname="DESKTOP-TH449U4" time="0.141">
-  <properties/>
-  <testcase name="심사 계산 - 연소득 2억5천만원 → 한도 1억원 (상한 적용)" classname="com.busanbank.loan.domain.loan.ScreeningServiceTest" time="0.138"/>
-  <testcase name="심사 계산 - 연소득 4500만원 → 한도 2250만원 (50% 적용)" classname="com.busanbank.loan.domain.loan.ScreeningServiceTest" time="0.003"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
