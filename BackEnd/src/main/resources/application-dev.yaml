@@ -1,0 +1,21 @@
+# 개발용 프로파일 (기본). 실행: ./gradlew bootRun  (별도 지정 없으면 dev 사용)
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/busanbank_loan?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true
+    username: root
+    password: "1234"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+  thymeleaf:
+    cache: false
+
+logging:
+  level:
+    org.hibernate.SQL: debug

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>부산은행 비대면 대출 - 인증 API 테스트</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, "Apple SD Gothic Neo", sans-serif; margin: 0; background: #f4f6f9; color: #222; }
+        .wrap { display: flex; gap: 20px; max-width: 1100px; margin: 0 auto; padding: 24px; align-items: flex-start; }
+        .col { flex: 1; }
+        h1 { font-size: 20px; margin: 0 0 4px; }
+        .sub { color: #777; font-size: 13px; margin-bottom: 20px; }
+        .card { background: #fff; border: 1px solid #e3e7ee; border-radius: 10px; padding: 16px 18px; margin-bottom: 16px; }
+        .card h2 { font-size: 15px; margin: 0 0 12px; color: #0b4ea2; }
+        label { display: block; font-size: 12px; color: #555; margin: 8px 0 3px; }
+        input { width: 100%; padding: 8px 10px; border: 1px solid #ccd2dc; border-radius: 6px; font-size: 13px; }
+        button { margin-top: 12px; width: 100%; padding: 10px; background: #0b4ea2; color: #fff; border: 0; border-radius: 6px; font-size: 14px; cursor: pointer; }
+        button:hover { background: #093f82; }
+        .hint { font-size: 11px; color: #b06a00; margin-top: 6px; }
+        #result { position: sticky; top: 24px; }
+        pre { background: #0f172a; color: #e2e8f0; padding: 14px; border-radius: 8px; font-size: 12px; white-space: pre-wrap; word-break: break-all; max-height: 70vh; overflow: auto; }
+        .status { font-weight: 600; font-size: 13px; margin-bottom: 8px; }
+        .ok { color: #16a34a; } .err { color: #dc2626; }
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="col">
+        <h1>인증(Auth) API 테스트</h1>
+        <p class="sub">API-SPEC 1.1 ~ 1.5 · 세션은 브라우저 쿠키로 유지됩니다.</p>
+
+        <div class="card">
+            <h2>1.1 이메일 인증코드 발송</h2>
+            <label>이메일</label>
+            <input id="send-email" type="email" value="test@email.com"/>
+            <button onclick="sendCode()">코드 발송</button>
+            <p class="hint">※ Mock 발송: 인증코드는 <b>서버 콘솔 로그</b>에 출력됩니다. ([EMAIL][MOCK] ...)</p>
+        </div>
+
+        <div class="card">
+            <h2>1.2 이메일 인증코드 확인</h2>
+            <label>이메일</label>
+            <input id="verify-email" type="email" value="test@email.com"/>
+            <label>인증코드 (6자리)</label>
+            <input id="verify-code" type="text" placeholder="콘솔에서 확인한 코드"/>
+            <button onclick="verifyCode()">코드 확인</button>
+        </div>
+
+        <div class="card">
+            <h2>1.3 회원가입 (계좌 자동 생성)</h2>
+            <div class="grid2">
+                <div><label>이름</label><input id="reg-name" value="홍길동"/></div>
+                <div><label>휴대전화</label><input id="reg-phone" value="010-1234-5678"/></div>
+                <div><label>생년월일</label><input id="reg-birth" type="date" value="1990-01-01"/></div>
+                <div><label>이메일</label><input id="reg-email" type="email" value="test@email.com"/></div>
+            </div>
+            <label>주소</label>
+            <input id="reg-address" value="부산시 중구"/>
+            <div class="grid2">
+                <div><label>간편비밀번호 (6자리)</label><input id="reg-simple" value="123456"/></div>
+                <div><label>계좌비밀번호 (4자리)</label><input id="reg-account" value="1234"/></div>
+            </div>
+            <label>전자서명 비밀번호 (6자리)</label>
+            <input id="reg-signature" value="654321"/>
+            <button onclick="register()">회원가입</button>
+        </div>
+
+        <div class="card">
+            <h2>1.4 로그인</h2>
+            <label>이메일</label>
+            <input id="login-email" type="email" value="test@email.com"/>
+            <label>간편비밀번호</label>
+            <input id="login-simple" value="123456"/>
+            <button onclick="login()">로그인</button>
+        </div>
+
+        <div class="card">
+            <h2>1.5 로그아웃</h2>
+            <button onclick="logout()">로그아웃</button>
+        </div>
+    </div>
+
+    <div class="col">
+        <div id="result" class="card">
+            <h2>응답 결과</h2>
+            <div id="status" class="status">요청을 보내면 결과가 표시됩니다.</div>
+            <pre id="output">—</pre>
+        </div>
+    </div>
+</div>
+
+<script>
+    const $ = (id) => document.getElementById(id);
+
+    async function call(method, url, body) {
+        const status = $('status');
+        const output = $('output');
+        status.textContent = `${method} ${url} ...`;
+        status.className = 'status';
+        try {
+            const res = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: body ? JSON.stringify(body) : undefined
+            });
+            const text = await res.text();
+            let json;
+            try { json = JSON.parse(text); } catch (e) { json = text; }
+            status.textContent = `HTTP ${res.status} · ${method} ${url}`;
+            status.className = 'status ' + (res.ok ? 'ok' : 'err');
+            output.textContent = typeof json === 'string' ? json : JSON.stringify(json, null, 2);
+        } catch (e) {
+            status.textContent = '요청 실패: ' + e.message;
+            status.className = 'status err';
+            output.textContent = String(e);
+        }
+    }
+
+    const sendCode = () => call('POST', '/api/v1/auth/email/send', { email: $('send-email').value });
+    const verifyCode = () => call('POST', '/api/v1/auth/email/verify', { email: $('verify-email').value, code: $('verify-code').value });
+    const register = () => call('POST', '/api/v1/auth/register', {
+        name: $('reg-name').value,
+        phoneNo: $('reg-phone').value,
+        birthDate: $('reg-birth').value,
+        address: $('reg-address').value,
+        email: $('reg-email').value,
+        simplePassword: $('reg-simple').value,
+        accountPassword: $('reg-account').value,
+        signaturePassword: $('reg-signature').value
+    });
+    const login = () => call('POST', '/api/v1/auth/login', { email: $('login-email').value, simplePassword: $('login-simple').value });
+    const logout = () => call('POST', '/api/v1/auth/logout');
+</script>
+</body>
+</html>
