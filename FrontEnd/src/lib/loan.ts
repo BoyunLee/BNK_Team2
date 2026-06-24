@@ -19,3 +19,10 @@ export const cancelApplication = (loanAccountNo: string) =>
     `/api/v1/loans/applications/${loanAccountNo}/cancel`,
     { method: 'PATCH' },
   );
+
+/** 2) 본인인증 (적합성·적정성 완료 처리) — 간편비밀번호 (status 1→2) */
+export const verifySuitability = (loanAccountNo: string, simplePassword: string) =>
+  apiFetch<void>(
+    `/api/v1/loans/applications/${loanAccountNo}/verification/suitability`,
+    { method: 'POST', body: JSON.stringify({ simplePassword }) },
+  );

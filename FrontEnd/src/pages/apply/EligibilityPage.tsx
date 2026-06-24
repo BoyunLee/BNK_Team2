@@ -136,7 +136,7 @@ export function EligibilityPage() {
       }
       const res = await createApplication(Number(productCd));
       setApplication(res.loanAccountNo, productCd);
-      navigate(`/apply/${productCd}/auth`);
+      navigate(`/apply/${productCd}/auth?action=suitability`);
     } catch (e) {
       alert(
         e instanceof ApiError ? e.message : '신청서 생성에 실패했습니다. 다시 시도해주세요.',
