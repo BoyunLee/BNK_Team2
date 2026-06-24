@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { Product } from '../types/product';
 import { ProductHeader } from '../components/ProductHeader';
 import { ProductTabs, type TabKey } from '../components/ProductTabs';
@@ -15,6 +15,7 @@ import '../styles/shell.css';
  */
 export function ProductDetailPage({ product }: { product: Product }) {
   const [tab, setTab] = useState<TabKey>('info');
+  const navigate = useNavigate();
 
   return (
     <div className="app-shell">
@@ -32,7 +33,11 @@ export function ProductDetailPage({ product }: { product: Product }) {
         {tab === 'terms' && <DocumentList documents={product.documents} />}
       </main>
 
-      <ActionBar onApply={() => alert('대출신청 플로우 연결 예정')} />
+      <ActionBar
+        onApply={() =>
+          navigate(`/apply/${encodeURIComponent(product.meta.mkpd_cd)}`)
+        }
+      />
     </div>
   );
 }

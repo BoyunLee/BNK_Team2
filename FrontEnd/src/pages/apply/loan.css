@@ -1,0 +1,156 @@
+/* ===== 사업자 정보 입력 ===== */
+.biz-field {
+  position: relative;
+  margin-bottom: 28px;
+}
+.biz-input {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--line-strong);
+  background: transparent;
+  padding: 8px 0 14px;
+  font-size: 17px;
+  font-family: inherit;
+  text-align: left;
+  color: var(--ink);
+  cursor: text;
+}
+.biz-input::placeholder {
+  color: var(--ink-faint);
+}
+.biz-input:focus {
+  border-color: var(--bnk-red);
+}
+.biz-field--search .biz-input {
+  padding-right: 32px;
+}
+.biz-search {
+  position: absolute;
+  right: 2px;
+  top: 6px;
+  color: var(--ink-faint);
+  pointer-events: none;
+}
+
+/* ===== 한도/금리 조회 로딩 ===== */
+.loan-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px 24px 40px;
+  min-height: calc(100vh - 60px);
+}
+.loan-loading__title {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.4;
+  margin: 56px 0 0;
+}
+.loan-loading__title strong {
+  font-weight: 800;
+}
+.loan-loading__art {
+  font-size: 92px;
+  margin: 56px 0 40px;
+  line-height: 1;
+}
+.loan-loading__pct {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ink-faint);
+}
+.loan-loading__msg {
+  margin-top: 6px;
+  font-size: 17px;
+  color: var(--ink-soft);
+}
+
+/* ===== 대출 조건 결과 ===== */
+.loan-result__lead {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.4;
+  margin: 16px 0 24px;
+}
+.loan-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--line);
+}
+.loan-tab {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  padding: 14px 0;
+  font-size: 17px;
+  font-weight: 700;
+  font-family: inherit;
+  color: var(--ink-faint);
+  cursor: pointer;
+}
+.loan-tab[aria-selected='true'] {
+  color: var(--ink);
+  font-weight: 800;
+  box-shadow: inset 0 -3px 0 var(--ink);
+}
+
+.loan-card {
+  margin-top: 20px;
+  padding: 22px 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+.loan-card__row {
+  display: flex;
+}
+.loan-card__col {
+  flex: 1;
+  text-align: center;
+}
+.loan-card__k {
+  font-size: 17px;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+.loan-card__limit {
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--bnk-red);
+}
+.loan-card__limit span {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-left: 2px;
+}
+.loan-card__rate {
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--ink);
+}
+.loan-card__rate span {
+  font-size: 17px;
+  font-weight: 700;
+  margin-left: 2px;
+}
+.loan-card__interest {
+  margin: 22px 0 16px;
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+.loan-card__apply {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  padding: 16px 0;
+  font-size: 17px;
+  font-weight: 800;
+  font-family: inherit;
+  color: #fff;
+  background: var(--bnk-red);
+  cursor: pointer;
+}
