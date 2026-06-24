@@ -18,6 +18,53 @@ export function ChatWidget() {
   const [loading, setLoading] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
+  // FAB 드래그 위치 (null = 기본 우하단). col 기준 left/top(px).
+  const colRef = useRef<HTMLDivElement>(null);
+  const [fabPos, setFabPos] = useState<{ x: number; y: number } | null>(null);
+  const dragRef = useRef<{
+    startX: number;
+    startY: number;
+    origX: number;
+    origY: number;
+    moved: boolean;
+  } | null>(null);
+
+  function onFabPointerDown(e: React.PointerEvent<HTMLButtonElement>) {
+    const col = colRef.current;
+    if (!col) return;
+    const colRect = col.getBoundingClientRect();
+    const btnRect = e.currentTarget.getBoundingClientRect();
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      origX: btnRect.left - colRect.left,
+      origY: btnRect.top - colRect.top,
+      moved: false,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
+
+  function onFabPointerMove(e: React.PointerEvent<HTMLButtonElement>) {
+    const ds = dragRef.current;
+    const col = colRef.current;
+    if (!ds || !col) return;
+    const dx = e.clientX - ds.startX;
+    const dy = e.clientY - ds.startY;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) ds.moved = true;
+    const colRect = col.getBoundingClientRect();
+    const SIZE = 56;
+    const PAD = 8;
+    const x = Math.max(PAD, Math.min(ds.origX + dx, colRect.width - SIZE - PAD));
+    const y = Math.max(PAD, Math.min(ds.origY + dy, colRect.height - SIZE - PAD));
+    setFabPos({ x, y });
+  }
+
+  function onFabPointerUp() {
+    const ds = dragRef.current;
+    dragRef.current = null;
+    if (ds && !ds.moved) setOpen(true); // 이동 없이 탭하면 열기
+  }
+
   useEffect(() => {
     if (open) endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading, open]);
@@ -58,13 +105,20 @@ export function ChatWidget() {
 
   return (
     <div className="chat-root" aria-live="polite">
-      <div className="chat-root__col">
+      <div className="chat-root__col" ref={colRef}>
         {!open && (
           <button
             className="chat-fab"
             type="button"
-            onClick={() => setOpen(true)}
-            aria-label="상품 도우미 열기"
+            style={
+              fabPos
+                ? { left: fabPos.x, top: fabPos.y, right: 'auto', bottom: 'auto' }
+                : undefined
+            }
+            onPointerDown={onFabPointerDown}
+            onPointerMove={onFabPointerMove}
+            onPointerUp={onFabPointerUp}
+            aria-label="상품 도우미 열기 (드래그로 이동)"
           >
             <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
               <path
