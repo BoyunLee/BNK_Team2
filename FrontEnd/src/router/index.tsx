@@ -10,6 +10,7 @@ import { LimitDonePage } from '../pages/apply/LimitDonePage';
 import { LoanApplyPage } from '../pages/apply/LoanApplyPage';
 import { BusinessInfoPage } from '../pages/apply/BusinessInfoPage';
 import { LoanResultPage } from '../pages/apply/LoanResultPage';
+import { ImportantNoticePage } from '../pages/apply/ImportantNoticePage';
 
 /** 라우트: / 목록, /product/:mkpdCd 상세, /apply/:mkpdCd 대출신청 플로우. 공통 레이아웃에 전역 챗봇 포함. */
 export const router = createBrowserRouter([
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
       { path: '/apply/:mkpdCd/loan', element: <LoanApplyPage /> },
       { path: '/apply/:mkpdCd/business', element: <BusinessInfoPage /> },
       { path: '/apply/:mkpdCd/loan-result', element: <LoanResultPage /> },
+      { path: '/apply/:mkpdCd/notice', element: <ImportantNoticePage /> },
     ],
   },
 ]);

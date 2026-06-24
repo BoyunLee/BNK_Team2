@@ -48,3 +48,14 @@
 .topbar__back:hover {
   color: var(--bnk-red);
 }
+.topbar__back--red {
+  color: var(--bnk-red);
+}
+
+/* 상세 페이지 헤더 타이틀 */
+.page-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin: 6px 20px 8px;
+}

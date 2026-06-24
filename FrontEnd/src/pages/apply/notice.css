@@ -1,0 +1,405 @@
+/* 금융상품에 대한 중요사항 설명 — 위저드 */
+.ntitle {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 6px 0 10px;
+}
+.ntitle-sub {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin-bottom: 22px;
+  word-break: keep-all;
+}
+.nbody {
+  min-height: 320px;
+}
+.nfootnote {
+  margin-top: 28px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-faint);
+  word-break: keep-all;
+}
+
+/* 인트로/완료 중앙 정렬 */
+.ncenter {
+  text-align: center;
+}
+.nlead {
+  font-size: 23px;
+  font-weight: 800;
+  line-height: 1.4;
+  margin: 16px 0 14px;
+}
+.nsub {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  word-break: keep-all;
+}
+.nnote {
+  margin-top: 40px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-faint);
+  word-break: keep-all;
+}
+
+/* 아트(이모지) */
+.nart {
+  font-size: 56px;
+  text-align: center;
+  margin: 28px 0;
+  line-height: 1.2;
+}
+.nart--big {
+  font-size: 64px;
+  margin: 40px 0;
+}
+.nart--row {
+  font-size: 44px;
+  letter-spacing: 6px;
+}
+
+/* 이미지 / Lottie 애니메이션 */
+.nimg {
+  display: block;
+  margin: 24px auto;
+  max-width: 220px;
+  width: 100%;
+  height: auto;
+}
+.nimg--big {
+  max-width: 240px;
+  margin: 36px auto;
+}
+.nlottie {
+  margin: 8px auto 4px;
+  width: auto !important;
+}
+.ncard .nlottie {
+  margin: 4px auto 0;
+}
+
+.ntext {
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink);
+  word-break: keep-all;
+}
+.nem {
+  color: var(--bnk-red);
+  font-weight: 700;
+}
+
+/* 경고 박스 */
+.nwarn {
+  background: var(--second-50, #ffe6e6);
+  border-radius: 14px;
+  padding: 26px 20px;
+  text-align: center;
+}
+.nwarn__icon {
+  font-size: 30px;
+  margin-bottom: 14px;
+}
+.nwarn p {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink);
+  word-break: keep-all;
+}
+.nwarn p + p {
+  margin-top: 16px;
+}
+
+/* 콘텐츠 카드 */
+.ncard {
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 22px 18px;
+  text-align: center;
+}
+.ncard__title {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0 0 12px;
+}
+.ncard__desc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  word-break: keep-all;
+  margin-bottom: 18px;
+}
+.ncaption {
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--ink-faint);
+  word-break: keep-all;
+}
+
+/* 상환방식 용어 설명 (애니메이션 하단) */
+.ncard__terms {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 14px;
+}
+.ncard__terms li {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  word-break: keep-all;
+}
+.ncard__terms b {
+  color: var(--ink);
+  font-weight: 800;
+}
+
+/* 라인 차트 */
+.nline {
+  position: relative;
+  padding: 10px 6px 22px;
+}
+.nline__svg {
+  width: 100%;
+  height: 90px;
+}
+.nline__y {
+  position: absolute;
+  left: 2px;
+  top: 4px;
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+.nline__x {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+
+/* 막대 차트 */
+.nbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 12px;
+  height: 140px;
+  padding: 0 4px;
+}
+.nbar__col {
+  width: 28px;
+  height: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+}
+.nbar__seg {
+  width: 100%;
+}
+.nbar__seg--p {
+  background: #f4cf6a;
+  border-radius: 0 0 3px 3px;
+}
+.nbar__seg--i {
+  background: #b9a7e8;
+  border-radius: 3px 3px 0 0;
+}
+.nbar__legend {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.nbar__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.sw {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.sw--i {
+  background: #b9a7e8;
+}
+.sw--p {
+  background: #f4cf6a;
+}
+
+/* 중도상환 타임라인 */
+.ntimeline {
+  position: relative;
+  margin: 28px 8px 0;
+  height: 40px;
+}
+.ntimeline__track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 8px;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--gray-200), var(--bnk-red));
+}
+.ntimeline__knob {
+  position: absolute;
+  right: 0;
+  top: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bnk-red);
+}
+.ntimeline__labels {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 20px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+/* 청약철회 스테퍼 */
+.nstepper {
+  text-align: center;
+  margin: 20px 0 28px;
+}
+.nstepper__pill {
+  display: inline-block;
+  background: var(--gray-700);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.nstepper__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nstepper__dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--gray-200);
+  color: var(--gray-700);
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nstepper__line {
+  width: 80px;
+  height: 2px;
+  background: var(--gray-200);
+}
+
+/* 완료 — 상담 */
+.nconsult {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0 24px;
+}
+.nconsult__btn {
+  border: 0;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.nconsult__btn span {
+  color: var(--ink-faint);
+}
+.nendnote {
+  background: var(--bg-soft);
+  border-radius: 12px;
+  padding: 18px 16px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  text-align: left;
+  word-break: keep-all;
+}
+
+/* 꼭! 확인하세요 시트 */
+.notice-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+.notice-sheet__dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+.notice-sheet__panel {
+  position: relative;
+  width: 100%;
+  max-width: var(--app-maxw);
+  background: var(--bg);
+  border-radius: 20px 20px 0 0;
+  padding: 22px 20px calc(18px + env(safe-area-inset-bottom));
+  text-align: center;
+  animation: notice-up 0.24s ease;
+}
+@keyframes notice-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+.notice-sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.notice-sheet__head h3 {
+  font-size: 21px;
+  font-weight: 800;
+  margin: 0;
+}
+.notice-sheet__close {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--gray-100);
+  color: var(--ink-soft);
+  font-size: 20px;
+  cursor: pointer;
+}
+.notice-sheet__text {
+  margin: 14px 0 4px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  word-break: keep-all;
+}

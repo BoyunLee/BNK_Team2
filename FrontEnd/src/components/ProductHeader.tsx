@@ -1,5 +1,7 @@
 import type { ProductSummary, ProductMeta } from '../types/product';
 import { formatRate } from '../lib/rate';
+import bnkLogo from '../assets/bnk-logo.png';
+import loanHero from '../assets/img-loan-hero.png';
 import './ProductHeader.css';
 
 /**
@@ -25,34 +27,36 @@ export function ProductHeader({
 
   return (
     <header className="hero">
-      <div className="hero__brand">
-        <b>BNK</b>
-        <span>부산은행</span>
-      </div>
+      <img className="hero__logo" src={bnkLogo} alt="BNK 부산은행" />
 
       <div className="hero__tag">{meta.name}</div>
       <h1 className="hero__pitch">{summary.catchphrase}</h1>
 
-      <div className="hero__asof">기준일자 : {meta.baseDate}</div>
+      <div className="hero__rateblock">
+        <div className="hero__ratetext">
+          <div className="hero__asof">기준일자 : {meta.baseDate}</div>
 
-      {showRange && (
-        <div className="hero__rates">
-          {singleRate ? (
-            <span>
-              <em>{formatRate(singleValue)}</em>
-            </span>
-          ) : (
-            <>
-              <span>
-                최저 <em>{formatRate(rateMin as string)}</em>
-              </span>
-              <span>
-                최고 <em>{formatRate(rateMax as string)}</em>
-              </span>
-            </>
+          {showRange && (
+            <div className="hero__rates">
+              {singleRate ? (
+                <span>
+                  <em>{formatRate(singleValue)}</em>
+                </span>
+              ) : (
+                <>
+                  <span>
+                    최저 <em>{formatRate(rateMin as string)}</em>
+                  </span>
+                  <span>
+                    최고 <em>{formatRate(rateMax as string)}</em>
+                  </span>
+                </>
+              )}
+            </div>
           )}
         </div>
-      )}
+        <img className="hero__illust" src={loanHero} alt="" aria-hidden="true" />
+      </div>
 
       <div className="hero__meta">
         <div className="hero__col">

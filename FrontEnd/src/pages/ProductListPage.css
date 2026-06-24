@@ -2,21 +2,11 @@
 .list-head {
   padding: 24px 20px 16px;
 }
-.list-head__brand {
-  display: flex;
-  align-items: center;
-  gap: 7px;
+.list-head__logo {
+  display: block;
+  height: 22px;
+  width: auto;
   margin-bottom: 14px;
-}
-.list-head__brand b {
-  color: var(--bnk-red);
-  font-weight: 900;
-  font-size: 15px;
-  letter-spacing: -0.3px;
-}
-.list-head__brand span {
-  font-weight: 700;
-  font-size: 15px;
 }
 .list-head__title {
   font-size: 28px;

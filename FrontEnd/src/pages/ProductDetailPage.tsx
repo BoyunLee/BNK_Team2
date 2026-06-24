@@ -19,11 +19,12 @@ export function ProductDetailPage({ product }: { product: Product }) {
 
   return (
     <div className="app-shell">
-      <div className="topbar">
-        <Link className="topbar__back" to="/" aria-label="목록으로">
-          ‹ 목록
+      <div className="topbar topbar--detail">
+        <Link className="topbar__back topbar__back--red" to="/" aria-label="목록으로">
+          ‹ 뒤로가기
         </Link>
       </div>
+      <h1 className="page-title">대출상세</h1>
       <ProductHeader meta={product.meta} summary={product.summary} />
       <ProductTabs active={tab} onChange={setTab} />
 

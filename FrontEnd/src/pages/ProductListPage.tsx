@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type { ProductCategory, ProductIndexItem } from '../types/product';
 import { loadIndex } from '../lib/data';
 import { formatRateRange } from '../lib/rate';
+import bnkLogo from '../assets/bnk-logo.png';
 import '../styles/shell.css';
 import './ProductListPage.css';
 
@@ -63,10 +64,7 @@ export function ProductListPage() {
   return (
     <div className="app-shell">
       <header className="list-head">
-        <div className="list-head__brand">
-          <b>BNK</b>
-          <span>부산은행</span>
-        </div>
+        <img className="list-head__logo" src={bnkLogo} alt="BNK 부산은행" />
         <h1 className="list-head__title">여신상품몰</h1>
         <p className="list-head__sub">부산은행 대출상품을 한눈에</p>
       </header>

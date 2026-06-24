@@ -125,10 +125,7 @@ export function LoanResultPage() {
           <button
             type="button"
             className="loan-card__apply"
-            onClick={() => {
-              alert('대출 신청이 완료되었습니다 (데모)');
-              navigate(`/product/${encodeURIComponent(productCd)}`);
-            }}
+            onClick={() => navigate(`/apply/${encodeURIComponent(productCd)}/notice`)}
           >
             대출 신청하기
           </button>
