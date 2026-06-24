@@ -430,10 +430,9 @@ export function ImportantNoticePage() {
             <button
               type="button"
               className="flow-2btn__ok"
-              onClick={() => {
-                alert('대출 신청이 완료되었습니다 (데모)');
-                exit();
-              }}
+              onClick={() =>
+                navigate(`/apply/${encodeURIComponent(productCd)}/form`)
+              }
             >
               확인
             </button>

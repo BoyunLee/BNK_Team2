@@ -1,0 +1,534 @@
+/* 대출신청 폼(아코디언 4단계 + 약정 확인) */
+
+.flow-head--col {
+  padding-bottom: 0;
+}
+
+/* ===== 아코디언 섹션 ===== */
+.acc {
+  width: 100%;
+  margin-bottom: 14px;
+  border-radius: 16px;
+  text-align: left;
+  font-family: inherit;
+}
+.acc--active {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.06);
+  padding: 22px 18px;
+}
+.acc--collapsed {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-soft);
+  border: 0;
+  padding: 22px 18px;
+  cursor: default;
+}
+.acc--done {
+  cursor: pointer;
+}
+.acc__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.acc__no {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 800;
+  background: var(--gray-200);
+  color: var(--gray-500);
+}
+.acc__no--on,
+.acc__no--done {
+  background: var(--bnk-red);
+  color: #fff;
+}
+.acc__title {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.acc--collapsed:not(.acc--done) .acc__title {
+  color: var(--ink-faint);
+}
+.acc__summary {
+  margin-left: auto;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--bnk-red);
+}
+
+/* ===== 섹션1 — 상환방식 ===== */
+.lf-subhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.lf-subhead > span:first-child {
+  font-size: 16px;
+  font-weight: 700;
+}
+.lf-chip {
+  font-size: 12px;
+  color: var(--ink-soft);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+.lf-radio {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+.lf-radio li + li {
+  border-top: 1px solid var(--line);
+}
+.lf-radio__btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 16px 2px;
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+.lf-radio__mark {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 900;
+}
+.lf-radio__btn[aria-pressed='true'] .lf-radio__mark {
+  background: var(--bnk-red);
+  border-color: var(--bnk-red);
+  color: #fff;
+}
+.lf-radio__btn[aria-pressed='true'] {
+  font-weight: 700;
+}
+
+/* 미니 한도/금리 박스 */
+.lf-mini {
+  background: var(--bg-soft);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 15px;
+  color: var(--ink-soft);
+  text-align: center;
+}
+.lf-mini + .lf-mini {
+  margin-top: 0;
+  border-radius: 0 0 10px 10px;
+}
+.lf-mini:first-of-type {
+  border-radius: 10px 10px 0 0;
+}
+.lf-mini b {
+  color: var(--bnk-red);
+  font-size: 18px;
+  margin: 0 2px;
+}
+.lf-rate {
+  color: var(--bnk-red);
+}
+
+/* ===== 나의 한도/금리 요약 카드 ===== */
+.lf-summary {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 16px 14px;
+  margin-bottom: 18px;
+}
+.lf-summary__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 5px 0;
+}
+.lf-summary__row--sub {
+  padding-top: 0;
+}
+.lf-summary__k {
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+.lf-summary__v {
+  font-size: 16px;
+  color: var(--ink);
+}
+.lf-summary__v b {
+  font-size: 21px;
+  font-weight: 800;
+}
+.lf-summary__v b.lf-rate {
+  color: var(--bnk-red);
+}
+.lf-summary__v--accent {
+  color: var(--info-color, #2f6df6);
+  font-weight: 700;
+}
+.lf-summary__sub {
+  font-size: 13px;
+  color: var(--ink-faint);
+}
+
+/* 우대금리 합계 */
+.lf-prefsum {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2px 18px;
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+.lf-prefsum b {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.lf-h3 {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 4px 0 6px;
+}
+.lf-max {
+  color: var(--bnk-red);
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+.lf-help {
+  color: var(--ink-faint);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 14px;
+  word-break: keep-all;
+}
+
+/* 우대금리 체크 목록 */
+.lf-check {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+.lf-check li {
+  border-bottom: 1px solid var(--line);
+}
+.lf-check__btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 16px 2px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.lf-check__mark {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 900;
+  margin-top: 1px;
+}
+.lf-check__btn[aria-pressed='true'] .lf-check__mark {
+  background: var(--bnk-red);
+  border-color: var(--bnk-red);
+  color: #fff;
+}
+.lf-check__label {
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--ink);
+  word-break: keep-all;
+}
+
+.lf-redinfo {
+  margin-bottom: 8px;
+}
+.lf-redinfo p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  word-break: keep-all;
+}
+.lf-redinfo__em {
+  color: var(--bnk-red);
+  font-weight: 700;
+}
+
+/* ===== 섹션3 — 입력 필드 ===== */
+.lf-field {
+  margin-bottom: 22px;
+}
+.lf-q {
+  color: var(--ink-faint);
+}
+.lf-amount {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--line-strong);
+  padding: 8px 2px 12px;
+}
+.lf-amount__input {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  font-size: 19px;
+  font-family: inherit;
+  text-align: right;
+  color: var(--ink);
+}
+.lf-amount__input::placeholder {
+  color: var(--ink-faint);
+  font-size: 16px;
+}
+.lf-amount__input:focus {
+  outline: none;
+}
+.lf-amount__unit {
+  font-size: 16px;
+  font-weight: 700;
+}
+.lf-payday {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.lf-payday__chip {
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+/* ===== 섹션4 — 입금정보 요약 ===== */
+.lf-deposit {
+  background: var(--bg-soft);
+  border-radius: 12px;
+  padding: 20px 16px 14px;
+  margin-bottom: 22px;
+}
+.lf-deposit__top {
+  text-align: center;
+  padding-bottom: 16px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.lf-deposit__k {
+  font-size: 15px;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+.lf-deposit__amt {
+  font-size: 18px;
+}
+.lf-deposit__amt b {
+  font-size: 24px;
+  font-weight: 800;
+}
+.lf-deposit__list > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 5px 0;
+  font-size: 15px;
+}
+.lf-deposit__list dt {
+  color: var(--ink-soft);
+}
+.lf-deposit__list dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 600;
+  color: var(--ink);
+}
+.lf-deposit__sub {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--ink-faint);
+}
+.lf-deposit__note {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+}
+
+/* 추천직원 검색 */
+.lf-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--line-strong);
+  padding: 8px 2px 12px;
+}
+.lf-search__input {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--ink);
+}
+.lf-search__input::placeholder {
+  color: var(--ink-faint);
+}
+.lf-search__input:focus {
+  outline: none;
+}
+
+.lf-next {
+  margin-top: 8px;
+}
+
+/* ===== 약정 확인 ===== */
+.agree__lead {
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  margin: 24px 0 24px;
+}
+.agree__lead b {
+  font-weight: 800;
+}
+.agree__list {
+  margin: 0;
+  padding: 18px 0;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--line);
+}
+.agree__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 7px 0;
+}
+.agree__row dt {
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+.agree__row dd {
+  margin: 0;
+  text-align: right;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.agree__strong {
+  color: var(--bnk-red) !important;
+  font-weight: 800 !important;
+}
+.agree__sub {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--ink-faint);
+}
+.agree__note {
+  margin: 22px 0 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  word-break: keep-all;
+}
+
+/* ===== 대출실행 완료 ===== */
+.lc {
+  text-align: center;
+}
+.lc__check {
+  color: var(--bnk-red);
+  margin: 56px 0 24px;
+  display: flex;
+  justify-content: center;
+}
+.lc__title {
+  font-size: 25px;
+  font-weight: 800;
+  line-height: 1.4;
+  margin: 0 0 48px;
+}
+
+.lc-info {
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 16px;
+  background: var(--bg);
+}
+.lc-info__head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.lc-info__i {
+  color: var(--ink-faint);
+}
+.lc-info__sub {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 18px 0 10px;
+}
+.lc-info__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.lc-info__list li {
+  position: relative;
+  padding-left: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  word-break: keep-all;
+}
+.lc-info__list li + li {
+  margin-top: 6px;
+}
+.lc-info__list li::before {
+  content: '-';
+  position: absolute;
+  left: 2px;
+  top: 0;
+}
