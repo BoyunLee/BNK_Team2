@@ -249,6 +249,39 @@
 .adm-login__box h1 b { color: var(--adm-red); }
 .adm-login__box p { color: var(--adm-muted); font-size: 13px; margin: 0 0 20px; }
 
+/* ----- Dashboard ----- */
+.adm-kpi .delta { font-size: 12px; color: var(--adm-muted); margin-top: 2px; }
+.adm-kpi .value.accent { color: var(--adm-red); }
+
+.adm-dash-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+/* 막대 차트(의존성 없는 CSS 바) */
+.adm-bars { display: flex; flex-direction: column; gap: 12px; }
+.adm-bar__top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+.adm-bar__label { color: var(--adm-ink); }
+.adm-bar__val { color: var(--adm-muted); font-variant-numeric: tabular-nums; font-weight: 700; }
+.adm-bar__track { height: 9px; background: #eef0f2; border-radius: 999px; overflow: hidden; }
+.adm-bar__fill { height: 100%; border-radius: 999px; background: var(--adm-red); transition: width 0.4s ease; min-width: 2px; }
+
+/* 미니 리스트(최근 이력) */
+.adm-mini { display: flex; flex-direction: column; }
+.adm-mini__item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 2px; border-bottom: 1px solid var(--adm-line); cursor: pointer; font-size: 13px;
+}
+.adm-mini__item:last-child { border-bottom: none; }
+.adm-mini__item:hover { background: #fafbfc; }
+.adm-mini__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.adm-mini__time { color: var(--adm-muted); font-size: 12px; white-space: nowrap; }
+
+@media (max-width: 900px) {
+  .adm-dash-grid { grid-template-columns: 1fr; }
+}
 @media (max-width: 720px) {
   .adm-side { display: none; }
   .adm-kpis { grid-template-columns: repeat(2, 1fr); }

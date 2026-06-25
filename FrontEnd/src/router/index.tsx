@@ -21,6 +21,7 @@ import { AdminRoot } from '../pages/admin/AdminRoot';
 import { AdminLoginPage } from '../pages/admin/AdminLoginPage';
 import { RequireAdmin } from '../pages/admin/RequireAdmin';
 import { AdminLayout } from '../pages/admin/AdminLayout';
+import { DashboardPage } from '../pages/admin/DashboardPage';
 import { ChangeRequestListPage } from '../pages/admin/ChangeRequestListPage';
 import { ProductFormPage } from '../pages/admin/ProductFormPage';
 import { ChangeRequestDetailPage } from '../pages/admin/ChangeRequestDetailPage';
@@ -73,7 +74,8 @@ export const router = createBrowserRouter([
           {
             element: <AdminLayout />,
             children: [
-              { index: true, element: <Navigate to="/admin/requests" replace /> },
+              { index: true, element: <Navigate to="/admin/dashboard" replace /> },
+              { path: 'dashboard', element: <DashboardPage /> },
               { path: 'requests', element: <ChangeRequestListPage /> },
               { path: 'requests/new', element: <ProductFormPage /> },
               { path: 'requests/:id', element: <ChangeRequestDetailPage /> },

@@ -37,6 +37,8 @@ export function AdminLayout() {
           BNK <b>여신</b> 관리자
         </div>
         <nav className="adm-nav">
+          <div className="adm-nav__sec">개요</div>
+          <NavLink to="/admin/dashboard">대시보드</NavLink>
           <div className="adm-nav__sec">상품 결재</div>
           <NavLink to="/admin/requests" end={false}>
             상품 변경 신청
