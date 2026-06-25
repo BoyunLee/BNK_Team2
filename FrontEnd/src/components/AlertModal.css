@@ -59,3 +59,22 @@
   background: var(--bnk-red);
   cursor: pointer;
 }
+.modal__actions {
+  display: flex;
+  gap: 10px;
+}
+.modal__actions .modal__confirm {
+  flex: 1;
+}
+.modal__cancel {
+  flex: 1;
+  border: 0;
+  border-radius: 12px;
+  padding: 14px 0;
+  font-size: 16px;
+  font-weight: 800;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--gray-200);
+  cursor: pointer;
+}

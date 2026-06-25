@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { useApply } from '../../auth/ApplyContext';
 import { completeLimitConsent } from '../../lib/loan';
 import { ApiError } from '../../lib/api';
+import { LimitDoneSheet } from './LimitDonePage';
+import { useApplyExit } from './useApplyExit';
 import '../../styles/shell.css';
 import './apply.css';
 import './LoanLimitConsentPage.css';
@@ -90,9 +92,12 @@ const ITEMS: Doc[] = [
 export function LoanLimitConsentPage() {
   const { mkpdCd } = useParams<{ mkpdCd: string }>();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const showDone = params.get('result') === '1'; // PIN 인증 후 한도조회완료 오버레이
   const { loanAccountNo } = useApply();
+  const { requestExit, exitModal } = useApplyExit(mkpdCd ?? '');
   const productCd = mkpdCd ?? '';
-  const back = () => navigate(`/product/${encodeURIComponent(productCd)}`);
+  const back = requestExit;
 
   const [agreed, setAgreed] = useState<Set<string>>(new Set());
   const [openId, setOpenId] = useState<string | null>(null);
@@ -110,7 +115,8 @@ export function LoanLimitConsentPage() {
     setBusy(true);
     try {
       await completeLimitConsent(loanAccountNo, Number(productCd));
-      const after = `/apply/${encodeURIComponent(productCd)}/done`;
+      // 인증 후 한도조회 동의 페이지로 복귀하며 완료 시트 오버레이 표시
+      const after = `/apply/${encodeURIComponent(productCd)}/limit?result=1`;
       navigate(
         `/apply/${encodeURIComponent(productCd)}/auth?action=presign&next=${encodeURIComponent(after)}`,
       );
@@ -282,6 +288,13 @@ export function LoanLimitConsentPage() {
           </div>
         </div>
       )}
+
+      {showDone && (
+        <LimitDoneSheet
+          onConfirm={() => navigate(`/apply/${encodeURIComponent(productCd)}/loan`)}
+        />
+      )}
+      {exitModal}
     </div>
   );
 }

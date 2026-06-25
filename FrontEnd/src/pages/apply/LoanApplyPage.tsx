@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { BottomSheet } from '../../components/BottomSheet';
 import { INCOME_TREE, nodeAtPath, type IncomeNode } from '../../data/incomeTree';
 import { useApply } from '../../auth/ApplyContext';
+import { useApplyExit } from './useApplyExit';
 import { saveIncome, annualIncomeFor } from '../../lib/loan';
 import { ApiError } from '../../lib/api';
 import '../../styles/shell.css';
@@ -24,8 +25,9 @@ export function LoanApplyPage() {
   const { mkpdCd } = useParams<{ mkpdCd: string }>();
   const navigate = useNavigate();
   const { loanAccountNo } = useApply();
+  const { requestExit, exitModal } = useApplyExit(mkpdCd ?? '');
   const productCd = mkpdCd ?? '';
-  const back = () => navigate(-1);
+  const back = requestExit;
 
   const [path, setPath] = useState<string[]>([]);
   const [openLevel, setOpenLevel] = useState<number | null>(null);
@@ -156,6 +158,7 @@ export function LoanApplyPage() {
           onClose={() => setOpenLevel(null)}
         />
       )}
+      {exitModal}
     </div>
   );
 }

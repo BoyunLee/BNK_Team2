@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useApply } from '../../auth/ApplyContext';
-import { verifySuitability, signPreProcess } from '../../lib/loan';
+import { useApplyExit } from './useApplyExit';
+import { verifySuitability, signPreProcess, executeLoan } from '../../lib/loan';
 import { ApiError } from '../../lib/api';
 import '../../styles/shell.css';
 import './apply.css';
@@ -24,7 +25,8 @@ export function PinAuthPage() {
   const { mkpdCd } = useParams<{ mkpdCd: string }>();
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const { loanAccountNo } = useApply();
+  const { loanAccountNo, reset } = useApply();
+  const { requestExit, exitModal } = useApplyExit(mkpdCd ?? '');
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -48,11 +50,15 @@ export function PinAuthPage() {
       setBusy(true);
       setError('');
       try {
-        if (action === 'suitability' || action === 'presign') {
+        if (action === 'suitability' || action === 'presign' || action === 'execute') {
           if (!loanAccountNo)
             throw new Error('신청서 정보가 없습니다. 처음부터 다시 진행해주세요.');
           if (action === 'suitability') await verifySuitability(loanAccountNo, pin);
-          else await signPreProcess(loanAccountNo);
+          else if (action === 'presign') await signPreProcess(loanAccountNo);
+          else {
+            await executeLoan(loanAccountNo, pin); // 대출 실행(8→9)
+            reset(); // 완료 — 신청 상태 정리
+          }
         }
         if (alive) navigate(next);
       } catch (e) {
@@ -89,11 +95,7 @@ export function PinAuthPage() {
     <div className="app-shell">
       <header className="flow-head">
         <span className="flow-head__title">간편비밀번호</span>
-        <button
-          type="button"
-          className="flow-head__close"
-          onClick={() => navigate(-1)}
-        >
+        <button type="button" className="flow-head__close" onClick={requestExit}>
           닫기
         </button>
       </header>
@@ -132,6 +134,7 @@ export function PinAuthPage() {
           ))}
         </div>
       </div>
+      {exitModal}
     </div>
   );
 }

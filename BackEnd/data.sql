@@ -959,3 +959,10 @@ INSERT INTO product_terms_base (product_id, terms_type, terms_path, active_yn, c
 -- 약관 이력 (각 base 당 seq=1)
 INSERT INTO product_terms_history (terms_id, terms_seq, terms_path, created_at)
 SELECT terms_id, 1, terms_path, NOW() FROM product_terms_base;
+
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE loan_application; TRUNCATE income_info; TRUNCATE loan_screening;
+TRUNCATE mydata_consent; TRUNCATE application_document_log;
+TRUNCATE signature; TRUNCATE customer_verification;
+TRUNCATE suitability_response; TRUNCATE loan_contract; TRUNCATE loan_preferential_applied;
+SET FOREIGN_KEY_CHECKS=1;

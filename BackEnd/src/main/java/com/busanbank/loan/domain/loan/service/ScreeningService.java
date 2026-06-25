@@ -85,7 +85,7 @@ public class ScreeningService {
 
     @Transactional(readOnly = true)
     public ScreeningResponse getScreeningResult(String loanAccountNo) {
-        LoanScreening screening = loanScreeningRepository.findByLoanAccountNo(loanAccountNo)
+        LoanScreening screening = loanScreeningRepository.findTopByLoanAccountNoOrderByScreeningIdDesc(loanAccountNo)
                 .orElseThrow(() -> new BusinessException(ErrorCode.SCREENING_NOT_FOUND));
 
         return new ScreeningResponse(screening.getMaxLimitAmt(), screening.getAppliedBaseRate(), screening.getResult());

@@ -3,9 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { BottomSheet } from '../../components/BottomSheet';
 import { useApply } from '../../auth/ApplyContext';
 import { useAuth } from '../../auth/AuthContext';
+import { useApplyExit } from './useApplyExit';
 import {
   agreeTerms,
   saveConditions,
+  verifyContractSignature,
   type ConditionsResult,
 } from '../../lib/loan';
 import { ApiError } from '../../lib/api';
@@ -119,7 +121,7 @@ export function LoanApplyFormPage() {
   const { loanAccountNo, screening } = useApply();
   const { accountNo } = useAuth();
   const productCd = mkpdCd ?? '';
-  const exit = () => navigate(`/product/${encodeURIComponent(productCd)}`);
+  const { requestExit, exitModal } = useApplyExit(productCd);
 
   // screening 결과(없으면 폴백)
   const effLimit = screening?.maxLimitAmt ?? MY_LIMIT;
@@ -207,6 +209,27 @@ export function LoanApplyFormPage() {
       setPhase('agreement');
     } catch (e) {
       alert(e instanceof ApiError ? e.message : '대출 조건 등록에 실패했습니다.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // 약정 및 실행하기 → 약정 전자서명(7→8) → PIN(대출 실행, 8→9)
+  async function submitContractSign() {
+    if (busy) return;
+    if (!loanAccountNo) {
+      alert('신청서 정보가 없습니다. 처음부터 다시 진행해주세요.');
+      return;
+    }
+    setBusy(true);
+    try {
+      await verifyContractSignature(loanAccountNo);
+      const after = `/apply/${encodeURIComponent(productCd)}/complete`;
+      navigate(
+        `/apply/${encodeURIComponent(productCd)}/auth?action=execute&next=${encodeURIComponent(after)}`,
+      );
+    } catch (e) {
+      alert(e instanceof ApiError ? e.message : '약정 처리에 실패했습니다.');
     } finally {
       setBusy(false);
     }
@@ -314,23 +337,19 @@ export function LoanApplyFormPage() {
         </div>
 
         <div className="flow-2btn">
-          <button type="button" className="flow-2btn__cancel" onClick={exit}>
+          <button type="button" className="flow-2btn__cancel" onClick={requestExit}>
             대출취소
           </button>
           <button
             type="button"
             className="flow-2btn__ok"
-            onClick={() =>
-              navigate(
-                `/apply/${encodeURIComponent(productCd)}/auth?next=${encodeURIComponent(
-                  `/apply/${encodeURIComponent(productCd)}/complete`,
-                )}`,
-              )
-            }
+            disabled={busy}
+            onClick={submitContractSign}
           >
-            약정 및 실행하기
+            {busy ? '처리 중…' : '약정 및 실행하기'}
           </button>
         </div>
+        {exitModal}
       </div>
     );
   }
@@ -339,7 +358,7 @@ export function LoanApplyFormPage() {
   return (
     <div className="app-shell">
       <header className="flow-head flow-head--col">
-        <button type="button" className="flow-head__back" onClick={exit}>
+        <button type="button" className="flow-head__back" onClick={requestExit}>
           ‹ 뒤로가기
         </button>
       </header>
@@ -639,6 +658,7 @@ export function LoanApplyFormPage() {
         onSelect={setPurpose}
         onClose={() => setSheet(null)}
       />
+      {exitModal}
     </div>
   );
 }

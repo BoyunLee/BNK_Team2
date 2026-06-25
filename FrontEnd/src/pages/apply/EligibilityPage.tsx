@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { BottomSheet, type SheetOption } from '../../components/BottomSheet';
 import { AlertModal } from '../../components/AlertModal';
+import { DiagnosisResultSheet } from './DiagnosisResultPage';
+import { useApplyExit } from './useApplyExit';
 import { useApply } from '../../auth/ApplyContext';
 import { createApplication, cancelApplication } from '../../lib/loan';
 import { ApiError } from '../../lib/api';
@@ -98,7 +100,10 @@ function Group({
 export function EligibilityPage() {
   const { mkpdCd } = useParams<{ mkpdCd: string }>();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const showResult = params.get('result') === '1'; // PIN 인증 후 진단결과 오버레이
   const { loanAccountNo, setApplication } = useApply();
+  const { requestExit, exitModal } = useApplyExit(mkpdCd ?? '');
   const [form, setForm] = useState<Form>(EMPTY);
   const [sheet, setSheet] = useState<null | 'purpose' | 'repay'>(null);
   const [showCreditWarn, setShowCreditWarn] = useState(false);
@@ -136,7 +141,11 @@ export function EligibilityPage() {
       }
       const res = await createApplication(Number(productCd));
       setApplication(res.loanAccountNo, productCd);
-      navigate(`/apply/${productCd}/auth?action=suitability`);
+      // 인증 후 적합성 페이지로 복귀하며 진단결과 오버레이 표시
+      const after = `/apply/${productCd}?result=1`;
+      navigate(
+        `/apply/${productCd}/auth?action=suitability&next=${encodeURIComponent(after)}`,
+      );
     } catch (e) {
       alert(
         e instanceof ApiError ? e.message : '신청서 생성에 실패했습니다. 다시 시도해주세요.',
@@ -148,16 +157,12 @@ export function EligibilityPage() {
 
   return (
     <div className="app-shell">
-      <header className="flow-head">
-        <span className="flow-head__title">적정성적합성확인</span>
-        <button
-          type="button"
-          className="flow-head__close"
-          onClick={() => navigate(`/product/${encodeURIComponent(productCd)}`)}
-        >
-          닫기
+      <header className="flow-head flow-head--col">
+        <button type="button" className="flow-head__back" onClick={requestExit}>
+          ‹ 뒤로가기
         </button>
       </header>
+      <h1 className="page-title">적정성적합성확인</h1>
 
       <main className="flow-body">
         <svg
@@ -298,6 +303,14 @@ export function EligibilityPage() {
         message="신용점수 조회 미동의 시 대출 심사가 불가합니다."
         onConfirm={() => setShowCreditWarn(false)}
       />
+
+      {exitModal}
+
+      {showResult && (
+        <DiagnosisResultSheet
+          onConfirm={() => navigate(`/apply/${encodeURIComponent(productCd)}/limit`)}
+        />
+      )}
     </div>
   );
 }

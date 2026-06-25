@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useApplyExit } from './useApplyExit';
 import LottieDefault from 'lottie-react';
 import imgFinancial from '../../assets/notice/img_financial.png';
 import imgComplete from '../../assets/notice/img_complete.png';
@@ -301,7 +302,7 @@ export function ImportantNoticePage() {
   const { mkpdCd } = useParams<{ mkpdCd: string }>();
   const navigate = useNavigate();
   const productCd = mkpdCd ?? '';
-  const exit = () => navigate(`/product/${encodeURIComponent(productCd)}`);
+  const { requestExit, exitModal } = useApplyExit(productCd);
 
   // step: 0 인트로 / 1..SLIDES.length 콘텐츠 / SLIDES.length+1 완료
   const [step, setStep] = useState(0);
@@ -322,7 +323,7 @@ export function ImportantNoticePage() {
     <div className="app-shell">
       <header className="flow-head">
         <span className="flow-head__title">금융상품에 대한 중요사항 설명</span>
-        <button type="button" className="flow-head__close" onClick={exit}>
+        <button type="button" className="flow-head__close" onClick={requestExit}>
           닫기
         </button>
       </header>
@@ -477,6 +478,7 @@ export function ImportantNoticePage() {
           </div>
         </div>
       )}
+      {exitModal}
     </div>
   );
 }

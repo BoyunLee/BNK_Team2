@@ -133,6 +133,37 @@ export const saveConditions = (loanAccountNo: string, req: ConditionsRequest) =>
     { method: 'POST', body: JSON.stringify(req) },
   );
 
+export interface ExecuteResult {
+  loanAccountNo: string;
+  loanAmount: number;
+  finalRate: number;
+  maturityDate: string;
+  depositAccountNo: string;
+  executionDate: string;
+}
+
+/** 8) 약정 본인확인 전자서명 (status 7→8). 토큰 검증 없음(placeholder). */
+export const verifyContractSignature = (loanAccountNo: string) =>
+  apiFetch<void>(
+    `/api/v1/loans/applications/${loanAccountNo}/verification/contract`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        signStep: 'CONTRACT',
+        signType: 'SIMPLE_CERT',
+        tokenId: `DEMO_${Date.now()}`,
+        originalValue: '대출 약정서 동의',
+      }),
+    },
+  );
+
+/** 9) 대출 실행 (status 8→9) — 간편비밀번호 검증 + 계좌 입금 */
+export const executeLoan = (loanAccountNo: string, simplePassword: string) =>
+  apiFetch<ExecuteResult>(
+    `/api/v1/loans/applications/${loanAccountNo}/execute`,
+    { method: 'POST', body: JSON.stringify({ simplePassword }) },
+  );
+
 export interface IncomeRequest {
   companyName: string;
   jobType: string;

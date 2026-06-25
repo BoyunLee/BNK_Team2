@@ -72,7 +72,7 @@ public class ContractService {
     public ConditionsResponse saveConditions(String loanAccountNo, Long customerId, ContractConditionsRequest data) {
         LoanApplication application = loanApplicationService.findAndValidate(loanAccountNo, "6");
 
-        LoanScreening screening = loanScreeningRepository.findByLoanAccountNo(loanAccountNo)
+        LoanScreening screening = loanScreeningRepository.findTopByLoanAccountNoOrderByScreeningIdDesc(loanAccountNo)
                 .orElseThrow(() -> new BusinessException(ErrorCode.SCREENING_NOT_FOUND));
 
         if (!"APPROVED".equals(screening.getResult())) {

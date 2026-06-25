@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApply } from '../../auth/ApplyContext';
+import { useApplyExit } from './useApplyExit';
 import { saveIncome, annualIncomeFor } from '../../lib/loan';
 import { ApiError } from '../../lib/api';
 import '../../styles/shell.css';
@@ -12,6 +13,7 @@ export function BusinessInfoPage() {
   const { mkpdCd } = useParams<{ mkpdCd: string }>();
   const navigate = useNavigate();
   const { loanAccountNo } = useApply();
+  const { requestExit, exitModal } = useApplyExit(mkpdCd ?? '');
   const productCd = mkpdCd ?? '';
 
   const [name, setName] = useState('');
@@ -46,7 +48,7 @@ export function BusinessInfoPage() {
   return (
     <div className="app-shell">
       <header className="flow-head">
-        <button type="button" className="flow-head__back" onClick={() => navigate(-1)}>
+        <button type="button" className="flow-head__back" onClick={requestExit}>
           ‹ 뒤로가기
         </button>
       </header>
@@ -95,7 +97,7 @@ export function BusinessInfoPage() {
       </main>
 
       <div className="flow-2btn">
-        <button type="button" className="flow-2btn__cancel" onClick={() => navigate(-1)}>
+        <button type="button" className="flow-2btn__cancel" onClick={requestExit}>
           취소
         </button>
         <button
@@ -107,6 +109,7 @@ export function BusinessInfoPage() {
           {busy ? '처리 중…' : '확인'}
         </button>
       </div>
+      {exitModal}
     </div>
   );
 }
