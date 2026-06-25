@@ -85,7 +85,10 @@ public class GeminiClient {
                 "contents", contents,
                 "generationConfig", Map.of(
                         "temperature", props.getTemperature(),
-                        "maxOutputTokens", props.getMaxOutputTokens()
+                        "maxOutputTokens", props.getMaxOutputTokens(),
+                        // gemini-2.5-flash 는 thinking 모델 — 기본값이면 추론 토큰이 maxOutputTokens 를
+                        // 소진해 답변이 잘린다. 상담 답변엔 추론이 불필요하므로 thinking 을 끈다.
+                        "thinkingConfig", Map.of("thinkingBudget", 0)
                 )
         );
 

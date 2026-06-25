@@ -30,8 +30,16 @@ public class VectorSearchService {
         this.props = props;
     }
 
-    /** 컬렉션이 없으면 코사인 거리로 생성한다(이미 있으면 Qdrant가 멱등 처리). */
+    /**
+     * 컬렉션이 없을 때만 코사인 거리로 생성한다(멱등).
+     * 기존 데이터는 보존 — 재인덱싱은 upsert 누적 방식이라, 임베딩이 레이트리밋으로
+     * 부분 실패해도 이전에 성공한 포인트가 유지되고 재실행 시 채워진다.
+     */
     public void ensureCollection(int vectorSize) {
+        if (collectionExists()) {
+            log.info("Qdrant 컬렉션 존재: {} — 유지", props.getCollection());
+            return;
+        }
         Map<String, Object> body = Map.of(
                 "vectors", Map.of("size", vectorSize, "distance", "Cosine")
         );
@@ -40,7 +48,41 @@ public class VectorSearchService {
                 .body(body)
                 .retrieve()
                 .toBodilessEntity();
-        log.info("Qdrant 컬렉션 준비 완료: {} (size={}, Cosine)", props.getCollection(), vectorSize);
+        log.info("Qdrant 컬렉션 생성 완료: {} (size={}, Cosine)", props.getCollection(), vectorSize);
+    }
+
+    /** Qdrant GET /collections/{name}/exists 로 존재 여부 확인. */
+    private boolean collectionExists() {
+        try {
+            JsonNode res = qdrantRestClient.get()
+                    .uri("/collections/{name}/exists", props.getCollection())
+                    .retrieve()
+                    .body(JsonNode.class);
+            return res != null && res.path("result").path("exists").asBoolean(false);
+        } catch (Exception e) {
+            log.warn("Qdrant 컬렉션 존재 확인 실패(없음으로 간주): {}", e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 현재 상품 id 목록에 없는 포인트(=과거/외부 stale)를 삭제한다.
+     * point id = productId 이므로, keepIds 에 없는 productId payload 를 가진 포인트를 제거.
+     */
+    public void pruneExcept(List<Long> keepIds) {
+        if (keepIds == null || keepIds.isEmpty()) return;
+        Map<String, Object> filter = Map.of(
+                "must_not", List.of(Map.of(
+                        "key", "productId",
+                        "match", Map.of("any", keepIds)
+                ))
+        );
+        qdrantRestClient.post()
+                .uri("/collections/{name}/points/delete?wait=true", props.getCollection())
+                .body(Map.of("filter", filter))
+                .retrieve()
+                .toBodilessEntity();
+        log.info("Qdrant stale 포인트 정리 완료(keep {}개)", keepIds.size());
     }
 
     /** 상품 한 건을 벡터로 upsert 한다. payload는 메타데이터 + 임베딩 원문(text). */

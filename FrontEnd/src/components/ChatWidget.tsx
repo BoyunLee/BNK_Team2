@@ -18,6 +18,7 @@ export function ChatWidget() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+  const sessionIdRef = useRef(''); // 서버가 발급/유지하는 세션ID(멀티턴 이력 키)
 
   // FAB 드래그 위치 (null = 기본 우하단). col 기준 left/top(px).
   const colRef = useRef<HTMLDivElement>(null);
@@ -73,12 +74,12 @@ export function ChatWidget() {
   async function handleSend() {
     const text = input.trim();
     if (!text || loading) return;
-    const next: ChatMessage[] = [...messages, { role: 'user', content: text }];
-    setMessages(next);
+    setMessages((m) => [...m, { role: 'user', content: text }]);
     setInput('');
     setLoading(true);
     try {
-      const res = await sendChat(text, next);
+      const res = await sendChat(text, sessionIdRef.current);
+      sessionIdRef.current = res.sessionId; // 다음 질문에 재전송 → 멀티턴 유지
       setMessages((m) => [
         ...m,
         { role: 'assistant', content: res.answer, sources: res.sources },
@@ -158,17 +159,22 @@ export function ChatWidget() {
                   <div className="msg__bubble">{m.content}</div>
                   {m.sources && m.sources.length > 0 && (
                     <div className="msg__sources">
-                      {m.sources.map((s) => (
-                        <Link
-                          key={s.mkpd_cd}
-                          className="msg__source"
-                          to={`/product/${encodeURIComponent(s.mkpd_cd)}`}
-                          onClick={() => setOpen(false)}
-                        >
-                          {s.productName}
-                          {s.sectionTitle ? ` · ${s.sectionTitle}` : ''}
-                        </Link>
-                      ))}
+                      {m.sources.map((s) =>
+                        s.productId != null ? (
+                          <Link
+                            key={s.productCode}
+                            className="msg__source"
+                            to={`/product/${s.productId}`}
+                            onClick={() => setOpen(false)}
+                          >
+                            {s.productName}
+                          </Link>
+                        ) : (
+                          <span key={s.productCode} className="msg__source">
+                            {s.productName}
+                          </span>
+                        ),
+                      )}
                     </div>
                   )}
                 </div>

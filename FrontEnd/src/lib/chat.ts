@@ -1,11 +1,15 @@
-// 챗봇 API 이음새. 백엔드(/api/chat) 연결 전에는 목업으로 동작한다.
-// .env 에 VITE_CHAT_API 를 지정하면 실제 백엔드를 호출한다.
+// 챗봇 API — 백엔드 /api/chat 연동 (CHATBOT_SPEC.md 계약).
+// 요청:  { sessionId, message }   (sessionId 비면 서버가 발급)
+// 응답:  ApiResponse<{ sessionId, answer, referencedProducts: string[], fallback }>
+// referencedProducts(상품코드 mkpd_cd)는 프론트에서 상품목록으로 이름/상세링크로 변환한다.
+
+import { apiFetch } from './api';
+import { fetchProducts } from './products';
 
 export interface ChatSource {
+  productCode: string; // mkpd_cd
   productName: string;
-  mkpd_cd: string;
-  category?: string;
-  sectionTitle?: string;
+  productId: number | null; // 상세 페이지 링크용 (목록에서 해석)
 }
 
 export interface ChatMessage {
@@ -14,42 +18,66 @@ export interface ChatMessage {
   sources?: ChatSource[];
 }
 
-export interface ChatResponse {
+/** sendChat 결과 — 위젯이 화면 갱신에 사용. */
+export interface ChatTurn {
+  sessionId: string;
   answer: string;
-  sources?: ChatSource[];
+  sources: ChatSource[];
+  fallback: boolean;
 }
 
-const CHAT_ENDPOINT = import.meta.env.VITE_CHAT_API ?? '/api/chat';
-/** 백엔드 미연결 시 목업. VITE_CHAT_API 지정되면 실제 호출. */
-const USE_MOCK = import.meta.env.VITE_CHAT_API == null;
+/** 백엔드 응답 data 형태. */
+interface ChatData {
+  sessionId: string;
+  answer: string;
+  referencedProducts: string[];
+  fallback: boolean;
+}
+
+// 상품코드(mkpd_cd) → { productId, productName } 캐시 (최초 1회만 목록 조회)
+let productMapPromise: Promise<Map<string, { productId: number; productName: string }>> | null = null;
+
+function productMap() {
+  if (!productMapPromise) {
+    productMapPromise = fetchProducts()
+      .then((list) => {
+        const m = new Map<string, { productId: number; productName: string }>();
+        for (const p of list) m.set(p.mkpdCd, { productId: p.productId, productName: p.productName });
+        return m;
+      })
+      .catch(() => new Map<string, { productId: number; productName: string }>());
+  }
+  return productMapPromise;
+}
 
 /**
  * 질문을 보내고 답변을 받는다.
- * 백엔드 RAG 가 준비되면 USE_MOCK 이 자동으로 false 가 되고
- * 동일한 시그니처로 /api/chat 을 호출한다(프론트 변경 불필요).
+ * @param message  사용자 질문
+ * @param sessionId  직전 응답에서 받은 세션ID(첫 호출은 빈 문자열)
  */
-export async function sendChat(
-  message: string,
-  history: ChatMessage[],
-): Promise<ChatResponse> {
-  if (USE_MOCK) return mockReply(message);
-
-  const res = await fetch(CHAT_ENDPOINT, {
+export async function sendChat(message: string, sessionId: string): Promise<ChatTurn> {
+  const data = await apiFetch<ChatData>('/api/chat', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, history }),
+    body: JSON.stringify({ sessionId: sessionId || '', message }),
   });
-  if (!res.ok) throw new Error(`채팅 API 오류: HTTP ${res.status}`);
-  return res.json();
-}
 
-/** 백엔드 연결 전 임시 응답. 실제 RAG 답변 형식(answer + sources)을 흉내낸다. */
-async function mockReply(message: string): Promise<ChatResponse> {
-  await new Promise((r) => setTimeout(r, 600));
+  let sources: ChatSource[] = [];
+  if (!data.fallback && data.referencedProducts?.length) {
+    const map = await productMap();
+    sources = data.referencedProducts.map((code) => {
+      const hit = map.get(code);
+      return {
+        productCode: code,
+        productName: hit?.productName ?? code,
+        productId: hit?.productId ?? null,
+      };
+    });
+  }
+
   return {
-    answer:
-      '지금은 챗봇 UI 데모예요. 백엔드(RAG)가 연결되면 부산은행 여신상품 정보를 바탕으로 ' +
-      '실제 답변과 근거 출처를 보여드릴게요.\n\n' +
-      `· 받은 질문: "${message}"`,
+    sessionId: data.sessionId,
+    answer: data.answer,
+    sources,
+    fallback: data.fallback,
   };
 }

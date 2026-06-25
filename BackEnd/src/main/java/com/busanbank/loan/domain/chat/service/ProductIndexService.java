@@ -44,28 +44,65 @@ public class ProductIndexService {
     private final GeminiProperties geminiProperties;
 
     /**
-     * 전체 상품을 재임베딩하여 Qdrant에 적재한다.
-     * @return 적재한 상품 수
+     * 전체 상품을 임베딩하여 Qdrant에 적재한다(upsert 누적).
+     * - 임베딩 호출은 재시도+백오프, 호출 간 간격을 둬 버스트 레이트리밋을 회피.
+     * - 부분 실패해도 이전 성공분은 유지되며, 재실행 시 빈 곳이 채워진다.
+     * - 마지막에 현재 상품에 없는 stale 포인트를 정리.
+     * @return 이번 호출에서 적재한 상품 수
      */
     public int reindexAll() {
         vectorSearchService.ensureCollection(geminiProperties.getEmbeddingDimension());
 
         List<LoanProduct> products = loanProductRepository.findAll();
+        List<Long> currentIds = products.stream().map(LoanProduct::getProductId).toList();
         int indexed = 0;
 
         for (LoanProduct product : products) {
             try {
                 String text = buildProductText(product);
-                float[] vector = geminiClient.embed(text);
+                float[] vector = embedWithRetry(text);
                 vectorSearchService.upsert(product.getProductId(), vector, buildPayload(product, text));
                 indexed++;
+                sleepQuietly(300); // 호출 간 간격(버스트 한도 회피)
             } catch (Exception e) {
                 log.error("상품 임베딩 실패: productId={}", product.getProductId(), e);
             }
         }
 
-        log.info("상품 벡터 인덱싱 완료 — 총 {}개 중 {}개 적재", products.size(), indexed);
+        try {
+            vectorSearchService.pruneExcept(currentIds);
+        } catch (Exception e) {
+            log.warn("stale 포인트 정리 실패: {}", e.getMessage());
+        }
+
+        log.info("상품 벡터 인덱싱 — 총 {}개 중 {}개 적재", products.size(), indexed);
         return indexed;
+    }
+
+    /** 임베딩을 재시도+지수백오프로 호출(레이트리밋/일시 오류 대응). */
+    private float[] embedWithRetry(String text) {
+        final int maxAttempts = 5;
+        long backoffMs = 1000;
+        RuntimeException last = null;
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                return geminiClient.embed(text);
+            } catch (RuntimeException e) {
+                last = e;
+                log.warn("임베딩 재시도 {}/{} (대기 {}ms, 사유: {})", attempt, maxAttempts, backoffMs, e.getMessage());
+                sleepQuietly(backoffMs);
+                backoffMs = Math.min(backoffMs * 2, 16000);
+            }
+        }
+        throw last;
+    }
+
+    private void sleepQuietly(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /** 상품명 + 캐치프레이즈 + 설명 항목들을 임베딩용 텍스트로 합친다. */
@@ -85,10 +122,26 @@ public class ProductIndexService {
             if ("AI_SUMMARY".equals(d.getAttrKey())) {
                 continue;
             }
+            String value = stripHtml(d.getAttrValue());
+            if (value.isBlank()) {
+                continue;
+            }
             String label = KEY_LABELS.getOrDefault(d.getAttrKey(), d.getAttrKey());
-            sb.append(label).append(": ").append(d.getAttrValue()).append('\n');
+            sb.append(label).append(": ").append(value).append('\n');
         }
-        return sb.toString().strip();
+        String text = sb.toString().strip();
+        // 임베딩 입력 토큰 한도(약 2048) 대비 길이 캡 — HTML 제거 후에도 긴 상품 보호
+        return text.length() > 8000 ? text.substring(0, 8000) : text;
+    }
+
+    /** HTML 태그/엔티티 제거 → 임베딩 입력을 깔끔하고 짧게(상품 설명이 HTML 본문임). */
+    private static String stripHtml(String s) {
+        if (s == null) return "";
+        return s.replace("&nbsp;", " ")
+                .replaceAll("<[^>]+>", " ")
+                .replaceAll("&[a-zA-Z]+;", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
     }
 
     /** Qdrant payload(메타데이터 + 임베딩 원문). null 값은 제외. (CHATBOT_SPEC.md 4.2) */
