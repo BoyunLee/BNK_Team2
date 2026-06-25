@@ -68,5 +68,25 @@ crypto:
 anthropic:
   api-key: ${ANTHROPIC_API_KEY:}    # Claude API 키. 미설정 시 AI 요약 비활성화
 
+# ── 상담 챗봇 (CHATBOT_SPEC.md) ──
+gemini:
+  api-key: ${GEMINI_API_KEY:}       # Gemini API 키. 미설정 시 챗봇 비활성화(CHAT_DISABLED)
+  base-url: https://generativelanguage.googleapis.com/v1beta
+  chat-model: gemini-2.5-flash
+  embedding-model: gemini-embedding-001
+  embedding-dimension: 768          # Qdrant 컬렉션 vector size와 반드시 일치(outputDimensionality)
+  temperature: 0.2
+  max-output-tokens: 1024
+
+qdrant:
+  base-url: ${QDRANT_URL:http://localhost:6333}
+  collection: loan-products
+  api-key: ${QDRANT_API_KEY:}       # Qdrant Cloud 사용 시에만. 로컬은 비움
+
+chat:
+  top-k: 3
+  similarity-threshold: 0.70        # 운영 중 0.65~0.80 범위에서 튜닝
+  history-limit: 5                  # 프롬프트에 포함할 직전 대화 턴 수
+
 logging:
   config: classpath:logback-spring.xml

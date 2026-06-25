@@ -49,6 +49,11 @@ public enum ErrorCode {
     SIGNATURE_TOKEN_INVALID("VERIFY003", "전자서명 토큰이 유효하지 않습니다.", HttpStatus.BAD_REQUEST),
     ALREADY_VERIFIED("VERIFY004", "이미 완료된 인증입니다.", HttpStatus.CONFLICT),
 
+    // ────── Chat (상담 챗봇) ──────
+    CHAT_LLM_UNAVAILABLE("CHAT001", "AI 응답 생성에 실패했습니다. 잠시 후 다시 시도해주세요.", HttpStatus.SERVICE_UNAVAILABLE),
+    CHAT_SEARCH_UNAVAILABLE("CHAT002", "상품 정보 검색에 실패했습니다. 잠시 후 다시 시도해주세요.", HttpStatus.SERVICE_UNAVAILABLE),
+    CHAT_DISABLED("CHAT003", "현재 상담 기능을 사용할 수 없습니다.", HttpStatus.SERVICE_UNAVAILABLE);
+  
     // ────── Admin (상품 결재) ──────
     ADMIN_NOT_FOUND("ADMIN001", "관리자 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     CHANGE_REQUEST_NOT_FOUND("ADMIN002", "변경 신청서를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
