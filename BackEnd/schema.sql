@@ -301,3 +301,20 @@ CREATE TABLE IF NOT EXISTS LOAN_CONTRACT (
     UNIQUE KEY uq_contract_loan (loan_account_no),
     INDEX idx_contract_customer (customer_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- ────────────────────────────────────────────────────────────
+-- 21. CHAT_MESSAGE
+--     상담 챗봇 대화 이력 (멀티턴 컨텍스트 + 컴플라이언스 로그)
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS CHAT_MESSAGE (
+    chat_message_id     BIGINT       NOT NULL AUTO_INCREMENT,
+    session_id          VARCHAR(100) NOT NULL COMMENT '대화 세션 식별자',
+    customer_id         BIGINT       COMMENT 'CUSTOMER.customer_id (비로그인 시 null)',
+    role                VARCHAR(20)  NOT NULL COMMENT 'USER / ASSISTANT',
+    content             TEXT         NOT NULL COMMENT '메시지 본문',
+    referenced_products VARCHAR(500) COMMENT '답변 근거 상품코드(쉼표 구분). USER 메시지는 null',
+    created_at          DATETIME     NOT NULL,
+    PRIMARY KEY (chat_message_id),
+    INDEX idx_chat_session (session_id, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
