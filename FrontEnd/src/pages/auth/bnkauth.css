@@ -78,7 +78,7 @@
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   border: 0;
   background: transparent;
   padding: 20px 0 20px 18px;
@@ -122,21 +122,36 @@
 .ba-terms__chev--open {
   transform: rotate(180deg);
 }
+/* 개별 동의서 목록(펼침) */
 .ba-terms__panel {
-  padding: 0 18px 18px;
-  font-size: 13.5px;
-  line-height: 1.6;
-  color: var(--ink-soft);
-  word-break: keep-all;
+  list-style: none;
+  margin: 0;
+  padding: 0 0 6px;
 }
-.ba-terms__item {
+.ba-consent {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 0;
+  gap: 12px;
+  width: 100%;
+  border: 0;
   border-top: 1px solid var(--line);
+  background: transparent;
+  padding: 14px 18px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
 }
-.ba-terms__item .ba-terms__check {
+.ba-consent__label {
+  flex: 1;
+  font-size: 15px;
+  color: var(--ink);
+  word-break: keep-all;
+}
+.ba-consent__chev {
+  color: var(--ink-faint);
+  font-size: 18px;
+}
+.ba-terms__check--sm {
   width: 22px;
   height: 22px;
   font-size: 13px;

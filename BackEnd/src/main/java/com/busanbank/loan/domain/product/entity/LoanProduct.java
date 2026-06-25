@@ -71,4 +71,17 @@ public class LoanProduct extends BaseTimeEntity {
         this.loanPeriod = loanPeriod;
         this.status = status;
     }
+
+    /** 상품 변경 결재(형상이행) 시 스냅샷의 모든 편집 가능한 컬럼을 반영하고 판매상태로 둔다. */
+    public void applyChange(String productName, String category, BigDecimal baseRate, String loanPeriod,
+                            String catchphrase, String rateMin, String rateMax) {
+        this.productName = productName;
+        this.category = category;
+        this.baseRate = baseRate;
+        this.loanPeriod = loanPeriod;
+        this.catchphrase = catchphrase;
+        this.rateMin = rateMin;
+        this.rateMax = rateMax;
+        this.status = "SALE";
+    }
 }

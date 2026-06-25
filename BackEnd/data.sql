@@ -14,12 +14,15 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- [1] 모바일 전월세보증금 대출 (담보대출)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
-(1, '모바일 전월세보증금 대출', 2.9, '6개월 ~ 36개월', 'SALE', '담보대출', '0300000140', '전월세보증금 대출도 모바일에서 간편하게', '4.3', '4.9', NOW(), NOW());
+(1, '모바일 전월세보증금 대출', 4.9, '6개월 ~ 36개월', 'SALE', '담보대출', '0300000140', '전월세보증금 대출도 모바일에서 간편하게', '4.3', '4.9', NOW(), NOW());
 INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES
 (1, 'BASE_RATE_RAW', '2.9', 4, NOW(), NOW()),
 (1, 'LOAN_LIMIT', '222백만원', 5, NOW(), NOW()),
 (1, 'LOAN_TERM', '6개월 ~ 36개월', 6, NOW(), NOW()),
 (1, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(1, 'OPT_RATE_TYPE', '신규취급액기준 COFIX', 9, NOW(), NOW()),
+(1, 'OPT_RATE_CYCLES', '6', 10, NOW(), NOW()),
+(1, 'OPT_TERMS', '6개월,1년,2년,3년', 11, NOW(), NOW()),
 (1, 'INFO:상품개요', '<p class="ssp-editor-p">서민의&nbsp;주거비용&nbsp;부담&nbsp;완화를&nbsp;위한&nbsp;비대면&nbsp;전월세보증금&nbsp;대출</p>', 100, NOW(), NOW()),
 (1, 'INFO:대출조건(자격)', '<ul class="info-list type-li-dot"><li>아래&nbsp;요건을&nbsp;모두&nbsp;충족하는&nbsp;고객<ul class="info-list type-li-dash-ed"><li>부동산&nbsp;중개업소를&nbsp;통해&nbsp;개인인&nbsp;임대인과&nbsp;전세계약을&nbsp;체결하고&nbsp;임차보증금의&nbsp;5%&nbsp;이상을&nbsp;지급한&nbsp;세대주<br>※&nbsp;세대주&nbsp;인정&nbsp;범위<br>&nbsp; 가. 배우자<br>&nbsp; 나. 직계존비속&nbsp;및&nbsp;그의&nbsp;배우자<br>&nbsp; 다. 신청인&nbsp;및&nbsp;배우자의&nbsp;형제자매<br>&nbsp; 라. 배우자의&nbsp;직계존비속&nbsp;및&nbsp;그의&nbsp;배우자</li><li><span>근로소득자(현 직장 1년 이상 재직) 또는 사업소득자로&nbsp;주택금융공사&nbsp;CSS&nbsp;1~6등급&nbsp;이내인&nbsp;자</span></li><li>본인과&nbsp;배우자&nbsp;현재&nbsp;무주택인&nbsp;자</li></ul></li><li><span>임차주택은 아래의 요건을 모두 충족하여야 함</span><ul class="info-list type-li-dash-ed"><li>임차보증금:&nbsp;수도권&nbsp;7억원 이하,&nbsp;지방&nbsp;5억원 이하</li><li>임차목적물: 아래의 어느 하나에 해당하는 경우<ul class="info-list type-li-gt"><li>KB 부동산시세가 있는 아파트</li><li>KB 부동산 시세가 있는 주거용 오피스텔</li></ul></li><li><span>공부상 건물 소유권에 권리침해가 없을 것</span></li></ul></li></ul>', 101, NOW(), NOW()),
 (1, 'INFO:대출한도', '<p class="ssp-editor-p">한국주택금융공사 보증한도 범위내에서 임차보증금의 80%이내(특례보증의 경우 100% 이내)로서 최고 222백만원 이내</p>', 102, NOW(), NOW()),
@@ -44,18 +47,28 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (1, 'RATE:가산금리', '<ul class="info-list type-li-dot"><li>기한연기 기간별 가산금리(※대출 만기 연장시 적용)<ul class="info-list type-li-dash-ed"><li><span>6개월 미만 1.50%</span></li><li><span>6개월 이상 1년 미만 1.00%</span></li><li><span>1년 이상 1년 6개월 미만 0.50%</span></li></ul></li></ul>', 302, NOW(), NOW()),
 (1, 'RATE:우대금리', '<ul class="info-list type-li-dot"><li>상품별대출&nbsp;거래실적연동&nbsp;옵션&nbsp;감면금리&nbsp;(최대&nbsp;0.50%)<br>*&nbsp;급여 및&nbsp;가맹점 결제대금 자동이체&nbsp;0.50%</li></ul><ul class="info-list type-li-dot"><li>신용평점별&nbsp;우대금리 (최대 0.10%)<br>*&nbsp;신용평점&nbsp;NICE 875점 이상,&nbsp;KCB 905점 이상 모두 충족하는 경우&nbsp;0.10%</li></ul>', 303, NOW(), NOW()),
 (1, 'RATE:최종금리', '최저 연 3.92% ~ 최고 연 4.52% ( 2025.11.13 신규취급액기준(COFIX) : 2.52%)<br>(최저금리는 최대 우대금리 0.60% 모두 적용하는 경우)', 304, NOW(), NOW()),
-(1, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(1, 'DOC:전세자금대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1256/3/2026-0101_전세자금대출 상품설명서(502901).pdf', 501, NOW(), NOW()),
-(1, 'DOC:상품공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/3047/2/(20251113)모바일전월세보증금대출.pdf', 502, NOW(), NOW());
+(1, 'DOC:여신거래 기본약관', '/terms/p1/0.pdf', 500, NOW(), NOW()),
+(1, 'DOC:전세자금대출 상품설명서', '/terms/p1/1.pdf', 501, NOW(), NOW()),
+(1, 'DOC:상품공시자료', '/terms/p1/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(1, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(1, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(1, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(1, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(1, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(1, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [2] BNK신탁자산(주택청약저축)담보대출 (담보대출)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
-(2, 'BNK신탁자산(주택청약저축)담보대출', 2.9, '~ 5년(상환방식에 따라 다름)', 'SALE', '담보대출', '0300000822', '급하게 여유자금이 필요할 때 신탁자산 해지 없이', '4.16', '5.16', NOW(), NOW());
+(2, 'BNK신탁자산(주택청약저축)담보대출', 5.16, '~ 5년(상환방식에 따라 다름)', 'SALE', '담보대출', '0300000822', '급하게 여유자금이 필요할 때 신탁자산 해지 없이', '4.16', '5.16', NOW(), NOW());
 INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES
 (2, 'BASE_RATE_RAW', '2.9', 4, NOW(), NOW()),
 (2, 'LOAN_LIMIT', '5천만원(상품별 담보비율의 90~100%까지)', 5, NOW(), NOW()),
 (2, 'LOAN_TERM', '~ 5년(상환방식에 따라 다름)', 6, NOW(), NOW()),
 (2, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(2, 'OPT_RATE_TYPE', '신규취급액기준 COFIX', 9, NOW(), NOW()),
+(2, 'OPT_RATE_CYCLES', '3,6', 10, NOW(), NOW()),
+(2, 'OPT_TERMS', '5년', 11, NOW(), NOW()),
 (2, 'INFO:상품개요', '<ul class="info-list type-li-dot"><li>본인 명의의 부산은행 특정금전신탁(기준가신탁포함), 주택청약저축을 담보로 한 대출</li><li>신탁 상품별로 대출한도를 차별화한 저금리 가계, 기업 공통대출</li><li>대면 채널(창구)과 비대면 채널(인터넷뱅킹, 모바일뱅킹) 모두 취급 가능</li></ul>', 100, NOW(), NOW()),
 (2, 'INFO:대출조건(자격)', '<p class="ssp-editor-p">만 19세 이상 본인 명의의 부산은행 특정금전신탁 및 연금신탁(신 개인연금신탁 포함) 또는 주택청약저축을 담보로 제공하는 개인 또는 기업고객</p><p class="ssp-editor-p">단, 비대면 채널은 개인 인터넷뱅킹 가입 고객에 한함</p>', 101, NOW(), NOW()),
 (2, 'INFO:대출한도', '<p class="ssp-editor-p">신탁 기준가격<sup>주)</sup>에서 회수인정비율(특정금전신탁 100%, 연금신탁 90%, 신 개인연금신탁 90%, 주택청약저축 95%) 범위 내 금액<br>(단, 최고 대출한도는 건당 50백만원 이내)<br>주) 신탁상품별 담보비율 적용</p>', 102, NOW(), NOW()),
@@ -81,17 +94,26 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (2, 'RATE:가산금리', '<p class="ssp-editor-p">종합통장대출 0.50%</p>', 302, NOW(), NOW()),
 (2, 'RATE:우대금리', '<p class="ssp-editor-p">인터넷 대출 0.50%</p>', 303, NOW(), NOW()),
 (2, 'RATE:최종금리', '최저 연 4.07% ~ 최고 연 5.07%(2025.12.17현재 신규COFIX : 2.81%)<br>(최저금리는 가산금리 미적용 및 우대금리 0.50%를 모두 적용하는 경우, 최고금리는 우대금리 미적용 및 가산금리 적용한 금리)', 304, NOW(), NOW()),
-(2, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(2, 'DOC:가계대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf', 501, NOW(), NOW()),
-(2, 'DOC:상품공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/3041/2/(2025.10.24)BNK신탁자산(주택청약저축)담보대출(4).pdf', 502, NOW(), NOW());
+(2, 'DOC:여신거래 기본약관', '/terms/p2/0.pdf', 500, NOW(), NOW()),
+(2, 'DOC:가계대출 상품설명서', '/terms/p2/1.pdf', 501, NOW(), NOW()),
+(2, 'DOC:상품공시자료', '/terms/p2/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(2, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(2, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(2, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(2, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(2, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(2, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [3] BNK인터넷예적금담보대출 (담보대출)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
-(3, 'BNK인터넷예적금담보대출', 0.00, '담보 상품 만기일까지', 'SALE', '담보대출', '0300000382', '긴급자금이 필요할 때 적립식/거치식 예금 해지없이', '수신금리+1.30', NULL, NOW(), NOW());
+(3, 'BNK인터넷예적금담보대출', 5.00, '담보 상품 만기일까지', 'SALE', '담보대출', '0300000382', '긴급자금이 필요할 때 적립식/거치식 예금 해지없이', '수신금리+1.30', NULL, NOW(), NOW());
 INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES
 (3, 'LOAN_LIMIT', '1억원(최저 10만원, 계좌 잔액 95%까지)', 5, NOW(), NOW()),
 (3, 'LOAN_TERM', '담보 상품 만기일까지', 6, NOW(), NOW()),
 (3, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(3, 'OPT_RATE_TYPE', '고정금리', 9, NOW(), NOW()),
+(3, 'OPT_TERMS', '6개월,1년,2년,3년,5년', 11, NOW(), NOW()),
 (3, 'INFO:상품개요', '<p class="ssp-editor-p">본인 명의의 예금, 적금, 장부가 방식신탁을 담보로 영업점 방문 없이 인터넷상에서 필요할 때 즉시 대출을 받을 수 있는 인터넷 전용상품</p>', 100, NOW(), NOW()),
 (3, 'INFO:대출조건(자격)', '<p class="ssp-editor-p">본인 명의의 부산은행 정기예금, 부금, 적금, 신탁(장부가 방식)상품을 담보로 제공하고 대출을 받고자 하는 고객</p>', 101, NOW(), NOW()),
 (3, 'INFO:대출한도', '예금(적금)불입액의 95%(단, 지수연동정기예금인경우 원금의 90%)이내로 대출 건별 최고 1억원이내
@@ -112,18 +134,28 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (3, 'INFO:마이너스통장(종합통장대출)가능여부', '<p>불가능</p>', 113, NOW(), NOW()),
 (3, 'RATE:기본금리', '<ul class="info-list type-li-dot"><li>예·적금:&nbsp; 수신금리 + 1.30%</li><li>지수연동정기예금 : 모집기간이율 + 1.30%</li></ul><ul class="info-list type-li-dot"><li>장부가 방식신탁:&nbsp; 수탁이율 + 1.00%</li></ul>', 300, NOW(), NOW()),
 (3, 'RATE:최종금리', '예.적금: 수신금리 + 1.30%<br>지수연동정기예금 : 모집기간이율 + 1.30%<br>장부가 방식신탁: 수탁이율 + 1.00%', 301, NOW(), NOW()),
-(3, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(3, 'DOC:가계대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf', 501, NOW(), NOW()),
-(3, 'DOC:상품공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/3044/4/(2026.04.01) BNK인터넷 예적금담보대출.pdf', 502, NOW(), NOW());
+(3, 'DOC:여신거래 기본약관', '/terms/p3/0.pdf', 500, NOW(), NOW()),
+(3, 'DOC:가계대출 상품설명서', '/terms/p3/1.pdf', 501, NOW(), NOW()),
+(3, 'DOC:상품공시자료', '/terms/p3/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(3, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(3, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(3, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(3, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(3, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(3, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [4] BNK인터넷펀드담보대출 (담보대출)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
-(4, 'BNK인터넷펀드담보대출', 2.9, '~ 5년(상환방식에 따라 다름)', 'SALE', '담보대출', '0300000831', '급하게 여유자금이 필요할 때 펀드 해지 없이', '5.8', '6.5', NOW(), NOW());
+(4, 'BNK인터넷펀드담보대출', 6.5, '~ 5년(상환방식에 따라 다름)', 'SALE', '담보대출', '0300000831', '급하게 여유자금이 필요할 때 펀드 해지 없이', '5.8', '6.5', NOW(), NOW());
 INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES
 (4, 'BASE_RATE_RAW', '2.9', 4, NOW(), NOW()),
 (4, 'LOAN_LIMIT', '5천만원(최저 10만원, 대출 당일 평가액의 50~90%까지)', 5, NOW(), NOW()),
 (4, 'LOAN_TERM', '~ 5년(상환방식에 따라 다름)', 6, NOW(), NOW()),
 (4, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(4, 'OPT_RATE_TYPE', '신규취급액기준 COFIX', 9, NOW(), NOW()),
+(4, 'OPT_RATE_CYCLES', '3,6', 10, NOW(), NOW()),
+(4, 'OPT_TERMS', '5년', 11, NOW(), NOW()),
 (4, 'INFO:상품개요', '<p>본인명의의 수익증권(펀드)를 담보로 영업점 방문 없이 인터넷상에서 필요할 때 즉시 대출을 받을 수 있는 인터넷 전용상품<br></p>', 100, NOW(), NOW()),
 (4, 'INFO:대출조건(자격)', '<p>부산은행에서 본인명의의 수익증권(펀드)상품을 담보로 제공하고 대출을 받고자 하는 고객<br>(단, 미성년자, 외국인 및 법인은 제외)<br></p>', 101, NOW(), NOW()),
 (4, 'INFO:대출한도', '<ul class="info-list type-li-dot"><li>수익증권(펀드)의 대출 당일 평가금액의 최대 90%까지 가능합니다.</li><li>대출신청금액은 최저 10만원, 최고 5천만 원까지 이며, 10만원 단위로 신청 가능합니다.</li></ul>', 102, NOW(), NOW()),
@@ -149,18 +181,28 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (4, 'RATE:가산금리', '<p>종합통장대출 0.50%<br></p>', 302, NOW(), NOW()),
 (4, 'RATE:우대금리', '<p>인터넷대출 0.20%<br></p>', 303, NOW(), NOW()),
 (4, 'RATE:최종금리', '최저 연 5.71% ~ 최대 연 6.41% (신규취급액기준 COFIX : 2.81%, 2025.12.17 현재)<br>(최저금리는 가산금리 미적용 및 우대금리 0.20%를 모두 적용하는 경우, 최고금리는 우대금리 미적용 및 가산금리 적용한 금리)', 304, NOW(), NOW()),
-(4, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(4, 'DOC:가계대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf', 501, NOW(), NOW()),
-(4, 'DOC:상품공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/3043/2/(2025.10.24)BNK인터넷펀드담보대출.pdf', 502, NOW(), NOW());
+(4, 'DOC:여신거래 기본약관', '/terms/p4/0.pdf', 500, NOW(), NOW()),
+(4, 'DOC:가계대출 상품설명서', '/terms/p4/1.pdf', 501, NOW(), NOW()),
+(4, 'DOC:상품공시자료', '/terms/p4/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(4, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(4, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(4, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(4, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(4, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(4, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [5] ONE주택담보대출 (담보대출)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
-(5, 'ONE주택담보대출', 4.15, '10년 ~ 40년', 'SALE', '담보대출', '0300010400', '내가 주도하는 금융 생활 고정금리기간 자율적으로 선택 가능한 주택담보대출', '3.11', '5.78', NOW(), NOW());
+(5, 'ONE주택담보대출', 5.78, '10년 ~ 40년', 'SALE', '담보대출', '0300010400', '내가 주도하는 금융 생활 고정금리기간 자율적으로 선택 가능한 주택담보대출', '3.11', '5.78', NOW(), NOW());
 INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES
 (5, 'BASE_RATE_RAW', '4.15', 4, NOW(), NOW()),
 (5, 'LOAN_LIMIT', '담보인정비율 80%', 5, NOW(), NOW()),
 (5, 'LOAN_TERM', '10년 ~ 40년', 6, NOW(), NOW()),
 (5, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(5, 'OPT_RATE_TYPE', '금융채', 9, NOW(), NOW()),
+(5, 'OPT_RATE_CYCLES', '3,6', 10, NOW(), NOW()),
+(5, 'OPT_TERMS', '10년,15년,20년,30년,40년', 11, NOW(), NOW()),
 (5, 'INFO:상품개요', '(대면) 일정기간(3년 ~ 10년) 고정금리 적용 후 남은 기간은 변동금리로 전환되어 중·단기 금리상승에 대한 위험을 회피할 수 있는
          금리 혼합형 (고정→변동) 주택담보대출 상품
 (비대면) 상품대출 옵션(거래실적연동)이 없는 단순한 금리 체계를 적용한 금리 혼합형 (고정→변동) 주택담보대출 상품
@@ -218,18 +260,28 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (5, 'RATE:가산금리', '<p class="ssp-editor-p">○先 고정금리(3년 ~10년)적용시(대면 적용금리)</p><p class="ssp-editor-p">-주택신보출연대상</p><p class="ssp-editor-p">&nbsp; &gt; 대출금액124.5백만원이하 0.01%</p><p class="ssp-editor-p">&nbsp; &gt; 대출금액124.5백만원초과 ~ 249백만원이하 0.03%</p><p class="ssp-editor-p">&nbsp; &gt; 대출금액249백만원초과 ~ 498백만원이하 0.17%</p><p class="ssp-editor-p">&nbsp; &gt; 대출금액498백만원초과 0.20%</p><p class="ssp-editor-p">-외부감정이용(공동주택가격자문확인서 및 정식감정) 0.10%</p><p class="ssp-editor-p">-LTV 60%초과 또는 주택담보대출 3건이상보유0.10%</p><p class="ssp-editor-p">-5년초과 7년이내 고정금리 0.20%</p><p class="ssp-editor-p">-7년초과 10년이내 고정금리 0.40%</p><p class="ssp-editor-p">&nbsp;</p><p class="ssp-editor-p">○後 변동금리 적용시(대면적용금리) </p><p class="ssp-editor-p">-주택신보출연대상</p><p class="ssp-editor-p">&nbsp; &gt; 대출금액124.5백만원이하 0.01%</p><p class="ssp-editor-p">&nbsp; &gt; 대출금액124.5백만원초과 ~ 249백만원이하 0.03%</p><p class="ssp-editor-p">&nbsp; &gt; &nbsp;대출금액 249백만원 초과 ~498백만원 이하 0.17%</p><p class="ssp-editor-p">&nbsp; &gt; &nbsp;대출금액 498백만원 초과 0.20%</p><p class="ssp-editor-p">-외부감정이용(공동주택가격자문확인서 및 정식감정) 0.10%</p><p class="ssp-editor-p">-LTV 60%초과 또는 주택담보대출 3건이상보유0.10%</p><p class="ssp-editor-p">-5년초과 7년이내 고정금리 0.20%</p><p class="ssp-editor-p">- 7년초과10년이내고정금리 0.40%</p><p class="ssp-editor-p">&nbsp;</p><p class="ssp-editor-p">○先 고정금리(3,5,7년)적용시(비대면 적용금리)</p><p class="ssp-editor-p">-주택신보출연대상</p><p class="ssp-editor-p">&nbsp; &gt; 대출금액124.5백만원이하 0.01%</p><p class="ssp-editor-p">&nbsp; &gt; 대출금액124.5백만원초과 ~ 249백만원이하 0.03%</p><p class="ssp-editor-p">&nbsp; &gt; 대출금액249백만원초과 ~ 498백만원이하 0.17%</p><p class="ssp-editor-p">&nbsp; &gt; 대출금액498백만원초과 0.20%</p><p class="ssp-editor-p">-LTV 60% 초과0.05%</p><p class="ssp-editor-p">-LTV 70% 초과 0.10%</p><p class="ssp-editor-p">-주택담보대출 보유건수3건 이상0.10%</p><p class="ssp-editor-p">- 신용평가등급별가산금리 AS 9등급또는 NICE 674점이하</p><p class="ssp-editor-p">&nbsp;  또는 KCB 624점이하 0.20%</p><p class="ssp-editor-p">&nbsp;</p><p class="ssp-editor-p">○ 後 변동금리 적용시(비대면 적용금리)</p><p class="ssp-editor-p">-주택신보출연대상</p><p class="ssp-editor-p">&nbsp; &gt; 대출금액124.5백만원이하 0.01%</p><p class="ssp-editor-p">&nbsp; &gt; 대출금액124.5백만원초과 ~ 249백만원이하 0.03%</p><p class="ssp-editor-p">&nbsp; &gt; &nbsp;대출금액 249백만원 초과 ~498백만원 이하 0.17%</p><p class="ssp-editor-p">&nbsp; &gt; &nbsp;대출금액 498백만원 초과 0.20%</p><p class="ssp-editor-p">-LTV 60% 초과 0.05%</p><p class="ssp-editor-p">-LTV 70% 초과 0.10%</p><p class="ssp-editor-p">-주택담보대출 보유건수3건 이상0.10%</p><p class="ssp-editor-p">- 신용평가등급별가산금리 AS 9등급또는 NICE 674점이하</p><p class="ssp-editor-p">&nbsp;  또는 KCB 624점이하 0.20%</p>', 302, NOW(), NOW()),
 (5, 'RATE:우대금리', '<p class="ssp-editor-p">○先 고정금리 적용시(대면 적용금리)(최대1.30%)</p><p class="ssp-editor-p">-거래실적에 따른 감면금리(최대0.60%)</p><p class="ssp-editor-p">&nbsp;①급여(연금) 및가맹점 결제대금(요양급여포함) 자동이체(배우자미포함) 0.20%</p><p class="ssp-editor-p">&nbsp;②예금평잔 기준(배우자미포함) 0.20%</p><p class="ssp-editor-p">&nbsp;③매3개월간신용카드사용금액 1백만원이상0.10%</p><p class="ssp-editor-p">&nbsp;④매3개월간신용카드사용금액 2백만원이상0.20%</p><p class="ssp-editor-p">-기타감면금리(최대 0.70%)</p><p class="ssp-editor-p">&nbsp; ①부동산 전자계약(구입목적限) 0.20%</p><p class="ssp-editor-p">&nbsp; ②구입목적 외 대출 0.20%</p><p class="ssp-editor-p">&nbsp; ③ 영업점장 우대금리 최대 0.30%</p><p class="ssp-editor-p">&nbsp;</p><p class="ssp-editor-p">○ 後 변동금리 적용시(대면 적용금리)(최대0.60%)</p><p class="ssp-editor-p">&nbsp;  ①급여(연금) 및가맹점 결제대금(요양급여포함)&nbsp;<span style="font-size: 14px">자동이체</span><span style="font-size: 14px">(</span><span style="font-size: 14px">배우자미포함</span><span style="font-size: 14px">) 0.20%</span></p><p class="ssp-editor-p">&nbsp;  ②예금평잔 기준(배우자미포함) 0.20%</p><p class="ssp-editor-p">&nbsp;  ③매3개월간신용카드사용금액 1백만원이상0.10%</p><p class="ssp-editor-p">&nbsp;  ④ 매3개월간 신용카드사용금액 2백만원이상0.20%</p><p class="ssp-editor-p">&nbsp;</p><p class="ssp-editor-p">○先 고정금리 적용시(비대면 적용금리)(최대 0.73%)</p><p class="ssp-editor-p">-부동산 전자계약 우대금리 0.20%</p><p class="ssp-editor-p">-마케팅 활용 동의 고객 0.03%</p><p class="ssp-editor-p">-비대면 신청 고객 최대 0.50%</p><p class="ssp-editor-p">&nbsp;  &gt; 구입목적인경우 0.20% 적용</p><p class="ssp-editor-p">&nbsp; &gt; 구입목적외(대환, 생활안정자금, 전(월)세보증금 반환)인&nbsp;<span style="font-size: 14px">경우 </span><span style="font-size: 14px">0.50%</span><span style="font-size: 14px">적용</span></p><p class="ssp-editor-p">&nbsp;</p><p class="ssp-editor-p">○ 後 변동금리 적용시(비대면 적용금리)(최대 0.43%)</p><p class="ssp-editor-p">-부동산 전자계약 우대금리 0.20%</p><p class="ssp-editor-p">-마케팅 활용 동의 고객 0.03%</p><p class="ssp-editor-p">-비대면신청 고객 0.20%</p>', 303, NOW(), NOW()),
 (5, 'RATE:최종금리', '○ 先 고정금리 적용시(대면 적용금리)<br>-고정금리 3년적용시 최저 연 3.96% ~ 최고 연5.86% (기준금리 3.66%, 2026.04.22 현재)<br>-고정금리 4년적용시 최저 연 4.04% ~ 최고 연5.94% (기준금리 3.74%, 2026.04.22 현재)<br>-고정금리 5년적용시 최저 연 4.12% ~ 최고 연6.02% (기준금리 3.82%, 2026.04.22 현재)<br>-고정금리 6년적용시 최저 연 4.15% ~ 최고 연6.05% (기준금리 3.85%, 2026.04.22 현재)<br>-고정금리 7년적용시 최저 연 4.17% ~ 최고 연6.07% (기준금리 3.87%, 2026.04.22 현재)<br>-고정금리 8년적용시 최저 연 4.25% ~ 최고 연6.15% (기준금리 3.95%, 2026.04.22 현재)<br>-고정금리 9년적용시 최저 연 4.33% ~ 최고 연6.23% (기준금리 4.03%, 2026.04.22 현재)<br>-고정금리 10년적용시 최저 연 4.41% ~최고 연6.31% (기준금리 4.11%, 2026.04.22 현재)<br>(최저금리는 가산금리 미적용 및 우대금리 1.30%를 모두 적용하는 경우, 최고금리는 출연료 미적용 및 외부감정이용 등을 적용한 금리)<br>○ 後 변동금리 적용시(대면 적용금리)<br>- 변동금리 3개월적용시 최저 연 4.17% ~ 최고 연5.37% (기준금리 2.77%, 2026.04.22 현재)<br>- 변동금리 6개월적용시 최저 연 4.24% ~ 최고 연5.44% (기준금리 2.84%, 2026.04.22 현재)<br>(최저금리는 가산금리 미적용 및 우대금리 0.60%를 모두 적용하는 경우, 최고금리는 출연료 미적용 및 외부감정이용 등을 적용한 금리)<br><br>○ 先 고정금리 적용시(비대면 적용금리)<br>-고정금리 3년적용시 최저 연 4.16% ~ 최고 연 5.29% (기준금리 3.66%, 2026.04.22 현재)<br>-고정금리 5년적용시 최저 연 4.32% ~ 최고 연 5.45% (기준금리 3.82%, 2026.04.22 현재)<br>-고정금리 7년적용시 최저 연 4.37% ~ 최고 연 5.50% (기준금리 3.87%, 2026.04.22 현재)<br>(최저금리는 가산금리 미적용 및 우대금리 0.73%를 모두 적용하는 경우, 최고금리는 출연료 미적용 및 LTV 70% 초과 등 가산금리 모두 적용한 금리)<br>○ 後 변동금리 적용시(비대면 적용금리)<br>- 신잔액COFIX: 2.45%(2026.04.22현재)<br>- 최저 연 3.93% ~ 최고 연 4.76% (2026.04.22 현재)', 304, NOW(), NOW()),
-(5, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(5, 'DOC:주택담보대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/2097/3/2026-0101_주택담보대출 상품설명서(502902).pdf', 501, NOW(), NOW()),
-(5, 'DOC:ONE주택담보대출 공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/8499/6/(2026.04.22)ONE주택담보대출.pdf', 502, NOW(), NOW());
+(5, 'DOC:여신거래 기본약관', '/terms/p5/0.pdf', 500, NOW(), NOW()),
+(5, 'DOC:주택담보대출 상품설명서', '/terms/p5/1.pdf', 501, NOW(), NOW()),
+(5, 'DOC:ONE주택담보대출 공시자료', '/terms/p5/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(5, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(5, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(5, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(5, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(5, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(5, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [6] 부산시 소상공인 3無 희망잇기 마이너스대출 (보증서대출)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
-(6, '부산시 소상공인 3無 희망잇기 마이너스대출', 2.5, '1년(최초 대출기간 포함 최장 4년 기한연장)', 'SALE', '보증서대출', '0300010832', '부산시 소상공인께 마이너스대출 한도를 드리는', '4.7', '4.7', NOW(), NOW());
+(6, '부산시 소상공인 3無 희망잇기 마이너스대출', 4.7, '1년(최초 대출기간 포함 최장 4년 기한연장)', 'SALE', '보증서대출', '0300010832', '부산시 소상공인께 마이너스대출 한도를 드리는', '4.7', '4.7', NOW(), NOW());
 INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES
 (6, 'BASE_RATE_RAW', '2.5', 4, NOW(), NOW()),
 (6, 'LOAN_LIMIT', '5백만원 또는 1천만원(고정)', 5, NOW(), NOW()),
 (6, 'LOAN_TERM', '1년(최초 대출기간 포함 최장 4년 기한연장)', 6, NOW(), NOW()),
 (6, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(6, 'OPT_RATE_TYPE', '신잔액기준 COFIX', 9, NOW(), NOW()),
+(6, 'OPT_RATE_CYCLES', '6', 10, NOW(), NOW()),
+(6, 'OPT_TERMS', '1년,2년,3년', 11, NOW(), NOW()),
 (6, 'INFO:상품개요', '부산광역시 소상공인의 경영안정과 자금부담 완화를 위한 상생금융의 일환으로 마이너스대출 지원', 100, NOW(), NOW()),
 (6, 'INFO:대출조건(자격)', '<p class="ssp-editor-p">1. 부산시소재&nbsp; 소상공인으로서 사업자 등록&nbsp; 후 가동(영업)중인&nbsp;개인기업( 법인, 외국인 제외)<br>2. 업력 6개월 이상,&nbsp; 대표자 개인 신용평점 595점이상<br>3. 당기매출액 12백만 원이상 또는 최근 3개월매출액 3백만원&nbsp;이상 발생</p><p class="ssp-editor-p">&nbsp;※공동 대표로 운영 중인 개인기업의&nbsp; 경우, 비대면 보증 진행 불가(사업장관할 신용보증재단 방문 시 대면 진행 가능)</p><p class="ssp-editor-p">&nbsp;<span style="font-family: Pretendard; font-size: 100%">※</span><span style="font-size: 100%">단</span><span style="font-size: 100%">,(</span><span style="font-size: 100%">재</span><span style="font-size: 100%">)</span><span style="font-size: 100%">보증제한업종</span><span style="font-size: 100%">(</span><span style="font-size: 100%">재단의보증금지기업 및 보증제한기업 포함</span><span style="font-size: 100%">) </span><span style="font-size: 100%">지원 </span><span style="font-size: 100%">제외</span></p>', 101, NOW(), NOW()),
 (6, 'INFO:대출한도', '5백만원 또는 1천만원(고정) ※단, 본건 포함 동일 기업당 재단 보증금액 2억원 초과시 취급불가', 102, NOW(), NOW()),
@@ -251,19 +303,29 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (6, 'RATE:기준금리', '<div class="rate-vary"><span class="vary-label">변동</span><ul class="info-list type-li-dot"><li>신 잔액기준 (COFIX) : 2.5%(2026-06-23현재)</li></ul></div>신잔액기준 COFIX : 전국은행연합회에서 매월 고시하는 신잔액 기준 자금조달비용지수를 기초로 은행에서 고시하는 금리.', 300, NOW(), NOW()),
 (6, 'RATE:기본금리', '<p>신잔액기준 COFIX + 2.20%</p>', 301, NOW(), NOW()),
 (6, 'RATE:최종금리', '최저 연 4.65 % ~최고 연 4.65 % (2026-04-16 신잔액기준 (COFIX) : 2.45 %)', 302, NOW(), NOW()),
-(6, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/393/2/은행여신거래약관(기업용).pdf', 500, NOW(), NOW()),
-(6, 'DOC:기업대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1273/2/기업대출상품설명서.pdf', 501, NOW(), NOW()),
-(6, 'DOC:(상품설명서)부산시소상공인3무희망잇기마이너스대출', 'https://www.busanbank.co.kr/SSPCTS/LN/8376/2/부산시 소상공인 3무 희망잇기 마이너스(개정).pdf', 502, NOW(), NOW());
+(6, 'DOC:여신거래 기본약관', '/terms/p6/0.pdf', 500, NOW(), NOW()),
+(6, 'DOC:기업대출 상품설명서', '/terms/p6/1.pdf', 501, NOW(), NOW()),
+(6, 'DOC:(상품설명서)부산시소상공인3무희망잇기마이너스대출', '/terms/p6/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(6, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(6, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(6, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(6, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(6, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(6, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [7] 새희망홀씨Ⅱ (서민금융)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
-(7, '새희망홀씨Ⅱ', 2.5, '6개월 ~ 7년(상환방식에 따라 다름)', 'SALE', '서민금융', '0300000161', '새로운 희망을 드리는 착한금융상품', '3.7', '10.5', NOW(), NOW());
+(7, '새희망홀씨Ⅱ', 10.5, '6개월 ~ 7년(상환방식에 따라 다름)', 'SALE', '서민금융', '0300000161', '새로운 희망을 드리는 착한금융상품', '3.7', '10.5', NOW(), NOW());
 INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES
 (7, 'BASE_RATE_RAW', '2.5', 4, NOW(), NOW()),
 (7, 'LOAN_LIMIT', '35백만원(최소 1백만원)', 5, NOW(), NOW()),
 (7, 'LOAN_TERM', '6개월 ~ 7년(상환방식에 따라 다름)', 6, NOW(), NOW()),
 (7, 'TARGET', '급여소득자, 개인사업자, 기타연금소득자', 7, NOW(), NOW()),
 (7, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(7, 'OPT_RATE_TYPE', '신잔액기준 COFIX', 9, NOW(), NOW()),
+(7, 'OPT_RATE_CYCLES', '3,6', 10, NOW(), NOW()),
+(7, 'OPT_TERMS', '6개월,1년,2년,3년,5년,7년', 11, NOW(), NOW()),
 (7, 'INFO:상품개요', '<p class="ssp-editor-p">저소득자, 저신용자 등 금융 거래 취약층을 위한 서민금융지원 상품</p><p class="ssp-editor-p">&nbsp;</p>', 100, NOW(), NOW()),
 (7, 'INFO:대출조건(자격)', '<ul class="info-list type-li-dot"><li>소득구분별 상세 자격요건은 다음과 같음</li></ul><table class="tbl-matrix" ><colgroup><col><col><col><col></colgroup><tbody><tr><th rowspan="2" scope="" >구분</th><th colspan="3" scope="" >소득구분</th></tr><tr><th class="" ><p class="ssp-editor-p" style="text-align: center">급여소득자</p></th><th class="" ><p class="ssp-editor-p" style="text-align: center">개인사업자</p></th><th class="" ><p class="ssp-editor-p" style="text-align: center">연금소득자<sup>주)</sup></p></th></tr><tr><th scope="" ><p class="ssp-editor-p">재직(사업)기간</p></th><td scope="" ><p class="ssp-editor-p" style="text-align: center">3개월 이상</p></td><td scope="" ><p class="ssp-editor-p" style="text-align: center">3개월 이상</p></td><td scope="" ><p class="ssp-editor-p" style="text-align: center">연금 1회 이상 수령</p></td></tr><tr><th scope="" ><p class="ssp-editor-p">연소득 및 CB평점</p></th><td colspan="3" scope="" >1) 연소득 40백만원 이하인자 또는<br>2) 연소득 40백만원 초과 ~ 50백만원 이하인 자 중 신용평점 NICE 749점 이하 또는&nbsp;KCB 700점 이하</td></tr></tbody></table><p><span style="font-size: 100%">주) 공적연금(국민연금, 공무원연금, 군인연금, 사학연금)만 가능하며, 기초연금은 불가. 단, 비대면 채널은 국민연금 限</span></p><p style="font-family: Pretendard; font-size: 12pt; line-height: 1.2; margin-top: 0px; margin-bottom: 0px"><span style="font-family: 굴림; color: rgb(0, 0, 0); font-size: 12pt"><span style="font-family: 돋움; color: rgb(102, 102, 102)"><span style="font-family: 굴림; color: rgb(0, 0, 0); font-size: 12pt"><span style="font-family: 돋움; color: rgb(102, 102, 102)"><span style="font-family: 굴림; color: rgb(0, 0, 0); font-size: 12pt">
  </span></span></span></span></span></p>', 101, NOW(), NOW()),
@@ -293,9 +355,16 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (7, 'RATE:가산금리', '<ul class="info-list type-li-dot"><li>신용평점에 따라 최대 연 1.80%</li><li>당행 내부등급에 따라 최대 연 1.20%</li></ul>', 302, NOW(), NOW()),
 (7, 'RATE:우대금리', '<p>1) 기본 감면금리</p><p class="ssp-editor-p">- 당행 급여이체 0.30%</p><p class="ssp-editor-p">- 새희망홀씨 서민금융상담행사 신청고객(비대면 채널 적용 불가) 0.50%</p><p class="ssp-editor-p">- 신용평점 하위10% 이하 또는 연소득 3천만원 이하 0.50%</p><p class="ssp-editor-p">2) 신용평점에 따라 최대 4.00%</p><p class="ssp-editor-p">3) 특별 감면금리(비대면 채널 적용 불가) : 최대 1.00%</p><p class="ssp-editor-p">- 미성년자 2자녀 이상 가구 0.20%</p><p class="ssp-editor-p">- 기초생활수급권자 0.20%</p><p class="ssp-editor-p">- 한부모 가정 0.20%</p><p class="ssp-editor-p">- 만 60세 이상 부모 부양자 0.20%</p><p class="ssp-editor-p">- 다문화 가정 0.20%</p><p class="ssp-editor-p">- 청년층(만 34세 이하) 0.20%</p><p class="ssp-editor-p">- 고령자(만 65세 이상) 0.20%</p><p class="ssp-editor-p">- 장애인 0.20%</p><p class="ssp-editor-p">- 금융교육 이수자 0.20%</p><p class="ssp-editor-p">4) 성실상환고객 감면금리 : 최대 1.00% (1회 감면금리, 최초 대출취급 후 1년간 연체가 없는 경우 적용하며 최대 2회까지 적용)</p><p class="ssp-editor-p">5) 포용특별우대금리 0.50%</p><p class="ssp-editor-p">단,포용 특별우대금리는 2026년 12월 31일까지 신규 실행건에 한하여 적용 가능하며, 감면적용계좌 기한연기 시 적용 불가함.</p>', 303, NOW(), NOW()),
 (7, 'RATE:최종금리', '최저 연 3.65% ~ 최고 연 10.50% (2026.04.29 신잔액기준 COFIX : 2.45%)<br>(최저금리는 새희망홀씨 서민금융상담행사 신청 대상자(단. 대면 가입 한정) 및 특별 감면금리 대상자(단, 대면 가입 한정)이고, 신잔액 COFIX 변동금리 적용, 최대 우대금리 모두 적용 및 가산금리 미적용하는 경우. 단, 성실상환고객 감면금리 미적용)<br>※ 최종금리는 기본금리에 가산금리 및 우대금리를 가감하여 산정됩니다.<br>※ 상기 적용금리에도 불구하고 신규 취급 시 대출금리는 상품별 최고금리 연 10.50%를 초과할 수 없습니다.', 304, NOW(), NOW()),
-(7, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(7, 'DOC:가계대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf', 501, NOW(), NOW()),
-(7, 'DOC:상품공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/1260/5/(2026.05.04)ONE신용대출새희망홀씨II공시자료.pdf', 502, NOW(), NOW());
+(7, 'DOC:여신거래 기본약관', '/terms/p7/0.pdf', 500, NOW(), NOW()),
+(7, 'DOC:가계대출 상품설명서', '/terms/p7/1.pdf', 501, NOW(), NOW()),
+(7, 'DOC:상품공시자료', '/terms/p7/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(7, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(7, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(7, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(7, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(7, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(7, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [8] 햇살론 특례보증 (서민금융)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
@@ -306,6 +375,8 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (8, 'LOAN_TERM', '3년 ~ 6년(거치기간 최대 1년)', 6, NOW(), NOW()),
 (8, 'TARGET', '서민금융진흥원 보증서 발급 가능 고객', 7, NOW(), NOW()),
 (8, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(8, 'OPT_RATE_TYPE', '고정금리', 9, NOW(), NOW()),
+(8, 'OPT_TERMS', '1년,2년,3년,5년', 11, NOW(), NOW()),
 (8, 'INFO:상품개요', '소득 증빙이 어렵거나 신용등급이 상대적으로 낮아 햇살론 일반보증을 이용하기 어려운 차주를 폭넓게 지원하기 위한 서민금융진흥원 보증부 정책 서민금융상품', 100, NOW(), NOW()),
 (8, 'INFO:대출조건(자격)', '<p class="ssp-editor-p">&#x2022;&nbsp;서민금융진흥원으로부터&nbsp;신용보증 결정 통보를 받은 자로써 소득증빙이 가능하며 아래 요건을 모두 충족하는 자</p><p class="ssp-editor-p">-소득 구분별 상세 요건</p><div class="table-box"><table class="tbl-matrix" ><colgroup><col><col><col><col></colgroup><tbody><tr><th ><p class="ssp-editor-p">구분</p></th><th ><p class="ssp-editor-p">근로소득</p></th><th ><p class="ssp-editor-p">사업소득</p></th><th class="" ><p class="ssp-editor-p">연금소득</p></th></tr><tr><td ><p class="ssp-editor-p" style="text-align: center">소득금액</p></td><td colspan="3" ><p class="ssp-editor-p" style="text-align: center">신용평점 NICE 749점 이하 또는&nbsp;KCB 700점 이하로 연소득 35백만원인 자</p></td></tr><tr><td ><p class="ssp-editor-p" style="text-align: center">재직(사업)기간</p></td><td ><p class="ssp-editor-p" style="text-align: center">3개월 이상</p></td><td ><p class="ssp-editor-p" style="text-align: center">3개월 이상</p></td><td class="" ><p class="ssp-editor-p" style="text-align: center">1회 이상 수령</p></td></tr></tbody></table></div><p class="ssp-editor-p">&#x2022;&nbsp;요건 (아래 요건 모두 충족)</p><p class="ssp-editor-p">-&nbsp;민법상 성년(만 19세 이하)</p><p class="ssp-editor-p">-&nbsp;국내에 거주하는 대한민국 국민(외국인, 재외국민, 해외이주신고자 등은 제외)</p><p class="ssp-editor-p">- 최근 6개월 내 연체 횟수 6회 미만 또는 최근 6개월간&nbsp;대출 최장 연체일이 60일을 초과한 경험이 없고, 현재 연체중이지 않은자</p>', 101, NOW(), NOW()),
 (8, 'INFO:대출한도', '최소 50만원 ~ 최대 1,000만원 이내 (10만원 단위)
@@ -334,19 +405,29 @@ EX) 거치기간 1년, 할부상환기간 5년 = 총 대출기간 6년
 (8, 'RATE:기준금리', '고정금리', 300, NOW(), NOW()),
 (8, 'RATE:기본금리', '<p>대출금리는 서민금융진흥원에서 정한 금리에 따름</p><p class="ssp-editor-p"><span style="font-size: 100%">· 채무자 부담이율 : 대출금리 + 보증료율</span></p><p class="ssp-editor-p">· 대출금리 : 연 6.00% 고정금리 적용 (2025.12.23 현재)<br></p><p class="ssp-editor-p">· 보증료율 : 최대 연 6.50%</p>', 301, NOW(), NOW()),
 (8, 'RATE:최종금리', '· 대출금리 : 연 6.00% 고정금리 적용 (2026.04.07 현재)<br>· 보증료율 : 최저 연 3.90% ~ 최고 연 6.50% 적용 (2026.04.07 현재)<br>· 최종 고객 부담이율 : 최저 연 9.90% ~ 최고 연 12.50% (2026.04.07 기준)<br>* 최종 고객 부담이율은 대출금리에 보증료율을 가산하여 산정합니다.', 302, NOW(), NOW()),
-(8, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(8, 'DOC:가계대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf', 501, NOW(), NOW()),
-(8, 'DOC:햇살론 특례보증 공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/9028/1/햇살론 특례보증 공시자료.pdf', 502, NOW(), NOW());
+(8, 'DOC:여신거래 기본약관', '/terms/p8/0.pdf', 500, NOW(), NOW()),
+(8, 'DOC:가계대출 상품설명서', '/terms/p8/1.pdf', 501, NOW(), NOW()),
+(8, 'DOC:햇살론 특례보증 공시자료', '/terms/p8/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(8, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(8, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(8, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(8, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(8, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(8, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [9] BNK 사잇돌 중금리대출 (서민금융)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
-(9, 'BNK 사잇돌 중금리대출', 2.5, '~5년', 'SALE', '서민금융', '0300000129', '급여소득자, 개인사업자를 위한 SGI보증서 대출', '5.8', '9.5', NOW(), NOW());
+(9, 'BNK 사잇돌 중금리대출', 9.5, '~5년', 'SALE', '서민금융', '0300000129', '급여소득자, 개인사업자를 위한 SGI보증서 대출', '5.8', '9.5', NOW(), NOW());
 INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES
 (9, 'BASE_RATE_RAW', '2.5', 4, NOW(), NOW()),
 (9, 'LOAN_LIMIT', '2천만원', 5, NOW(), NOW()),
 (9, 'LOAN_TERM', '~5년', 6, NOW(), NOW()),
 (9, 'TARGET', '서울보증보험 보험증권, 발급 가능 고객', 7, NOW(), NOW()),
 (9, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(9, 'OPT_RATE_TYPE', '신잔액기준 COFIX', 9, NOW(), NOW()),
+(9, 'OPT_RATE_CYCLES', '3,6,12', 10, NOW(), NOW()),
+(9, 'OPT_TERMS', '5년', 11, NOW(), NOW()),
 (9, 'INFO:상품개요', '<p class="ssp-editor-p">중신용자의 실질적 상환능력에 따라 적정 필요자금을 지원 및 고금리 대출을 받은 고객에게 낮은 금리로 전환을 위해 은행권 공동 출시하는 SGI서울보증보험 보증보험담보 대출</p>', 100, NOW(), NOW()),
 (9, 'INFO:대출조건(자격)', '<ul class="info-list type-li-dot"><li>서울보증보험 보험증권 발급 가능 고객으로 부산은행의 심사기준을 충족한 고객<ul class="info-list type-li-dash-ed"><li><span>근로소득자: 재직기간 3개월 이상 및 연소득 15백만원 이상</span></li><li><span>사업소득자: 사업영위기간 6개월 이상 및 연소득 10백만원 이상</span></li><li><span>연금소득자: 연금을 1회 이상 수령 및 연소득 10백만원 이상</span></li></ul></li></ul>', 101, NOW(), NOW()),
 (9, 'INFO:대출한도', '<p class="ssp-editor-p">신용평가결과에 따라 최고 2천만원이내 (최저 대출금액 1백만원 이상)</p>', 102, NOW(), NOW()),
@@ -374,19 +455,29 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (9, 'RATE:가산금리', '<p class="ssp-editor-p">신용평점에 따라 최대 연 2.00%</p>', 302, NOW(), NOW()),
 (9, 'RATE:우대금리', '<ul class="info-list type-li-dot"><li>신용평점에 따라 최대 1.50%</li><li>비대면 가입고객 우대금리 최대 0.20%</li><li>금융자산정보 조회 동의(대면채널에 한함) 최대 0.10%</li><li>성실상환고객<sup>주) </sup>감면금리: 최대 0.60%<br>(연 1회 0.30%이며,최대 2회까지 최대 0.60%p 범위내 감면 가능)</li></ul><div>주) 대출 취급 후 해당 기간동안 연체 없는 고객</div>', 303, NOW(), NOW()),
 (9, 'RATE:최종금리', '- 최저 연 5.75% ~ 최고 연 9.45% (2026.04.16 신잔액기준 COFIX :2.45%)<br>(최저금리는 신잔액 COFIX 변동금리 적용, 가산금리 미적용 및 최대 우대금리 1.70% 모두 적용하는 경우. 단, 성실상환 고객 감면금리 미적용)<br>(최고금리는 신잔액 COFIX 변동금리 적용, 가산금리 적용 및 우대금리 미적용 하는 경우)<br>* 최종금리는 기본금리에 가산금리 및 우대금리를 가감하여 산정됩니다.', 304, NOW(), NOW()),
-(9, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(9, 'DOC:가계대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf', 501, NOW(), NOW()),
-(9, 'DOC:상품공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/3132/2/(2025.12.19)BNK 사잇돌 중금리대출.pdf', 502, NOW(), NOW());
+(9, 'DOC:여신거래 기본약관', '/terms/p9/0.pdf', 500, NOW(), NOW()),
+(9, 'DOC:가계대출 상품설명서', '/terms/p9/1.pdf', 501, NOW(), NOW()),
+(9, 'DOC:상품공시자료', '/terms/p9/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(9, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(9, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(9, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(9, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(9, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(9, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [10] BNK 징검다리론 (서민금융)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
-(10, 'BNK 징검다리론', 2.9, '6개월 ~ 5년(거치 최대 1년)', 'SALE', '서민금융', '0300018407', '정책서민금융상품 성실상환자 맞춤대출', '6.2', '9', NOW(), NOW());
+(10, 'BNK 징검다리론', 9, '6개월 ~ 5년(거치 최대 1년)', 'SALE', '서민금융', '0300018407', '정책서민금융상품 성실상환자 맞춤대출', '6.2', '9', NOW(), NOW());
 INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES
 (10, 'BASE_RATE_RAW', '2.9', 4, NOW(), NOW()),
 (10, 'LOAN_LIMIT', '30백만원', 5, NOW(), NOW()),
 (10, 'LOAN_TERM', '6개월 ~ 5년(거치 최대 1년)', 6, NOW(), NOW()),
 (10, 'TARGET', '정책 서민금융상품 이용고객 중 성실 상환한 자', 7, NOW(), NOW()),
 (10, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(10, 'OPT_RATE_TYPE', '신잔액기준 COFIX', 9, NOW(), NOW()),
+(10, 'OPT_RATE_CYCLES', '3,6', 10, NOW(), NOW()),
+(10, 'OPT_TERMS', '6개월,1년,2년,3년,5년', 11, NOW(), NOW()),
 (10, 'INFO:상품개요', '금융당국의 서민금융 지원강화 방안에 따라 정책서민금융상품을 성실상환한 고객이 자금지원의 공백 없이 은행권 신용대출을 이용할 수 있도록 은행권 공동으로 출시한 서민금융 정책상품', 100, NOW(), NOW()),
 (10, 'INFO:대출조건(자격)', '<p class="ssp-editor-p">정책서민금융상품<sup>주1)</sup>을 6개월 이상 이용 후 최근 3년 내 완제 또는 2년 이상 거래중이며, 서민금융진흥원의 서민특화 신용평가모형 심사를 통해 선별된 자에 한함.&nbsp;소득구분별상세 자격요건은 다음과 같음</p><table class="tbl-matrix" cellspacing="0" cellpadding="0" ><tbody><tr><th rowspan="2" ><p class="ssp-editor-p">구분</p></th><th  colspan="3"><p class="ssp-editor-p">소득구분</p></th></tr><tr><th class="" ><p class="ssp-editor-p">급여소득자</p></th><th class="" ><p class="ssp-editor-p">개인사업자</p></th><th class="" ><p class="ssp-editor-p">연금소득자<sup>주2)</sup></p></th></tr><tr><th ><p class="ssp-editor-p">재직(사업)기간</p></th><td ><p class="ssp-editor-p" style="text-align: center">3개월 이상</p></td><td ><p class="ssp-editor-p" style="text-align: center">3개월 이상</p></td><td ><p class="ssp-editor-p" style="text-align: center">연금 1회 이상 수령</p></td></tr><tr><th ><p class="ssp-editor-p">연소득</p></th><td  colspan="3"><p class="ssp-editor-p" style="text-align: center">연소득 50백만원 이하인 자</p></td></tr></tbody></table><p class="ssp-editor-p">&nbsp;</p><p class="ssp-editor-p">주1) 새희망홀씨, 근로자햇살론, 햇살론유스·뱅크·15·17, 최저신용자 특례보증, 미소금융</p><p class="ssp-editor-p"><span style="font-size: 100%">주</span><span style="font-family: Pretendard; font-size: 100%">2)&nbsp;</span><span style="font-size: 100%">비대면 채널 전용 상품으로 국민연금 수령자 限</span><span style="font-size: 100%">&nbsp;</span></p>', 101, NOW(), NOW()),
 (10, 'INFO:대출한도', '심사결과에 따라 최소 1백만원 ~ 최대 30백만원', 102, NOW(), NOW()),
@@ -414,9 +505,16 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (10, 'RATE:가산금리', '<p><span style="font-family: Pretendard; font-size: 100%">*&nbsp;</span>신용평점에 따라 최대 1.00%</p><p class="ssp-editor-p"><span style="font-family: Pretendard; font-size: 100%">*&nbsp;</span>당행 내부등급에 따라 최대 1.00%</p>', 302, NOW(), NOW()),
 (10, 'RATE:우대금리', '<p>* 기본 감면금리</p><p class="ssp-editor-p">&nbsp;&nbsp; 당행 급여이체 0.30%</p><p class="ssp-editor-p">&nbsp; &nbsp;연소득 3천만원 이하 0.50%</p><p class="ssp-editor-p">* 신용평점에 따라 최대 1.50%</p><p class="ssp-editor-p">* 당행 내부등급에 따라 최대 0.50%</p><p class="ssp-editor-p"><span style="font-size: 100%">* 성실상환고객 감면금리 : 최대 1.00%( 1회 감면금리, 최초 대출취급 후 1년간 연체가 없는 경우 적용하며 최대 2회까지 적용)</span></p>', 303, NOW(), NOW()),
 (10, 'RATE:최종금리', '최저 연 6.19 % ~최고 연 9.00 % (2026-06-04 신 잔액기준 (COFIX) : 2.49 %)<br>(최저금리는 신잔액 COFIX 변동금리 적용, 최대 우대금리 모두 적용 및 가산금리 미적용하는 경우이며, 최고금리는 상품별 최고금리 연 9.00% 초과 불가. 단, 성실상환고객 감면금리 미적용)<br>※ 최종금리는 기본금리에 가산금리 및 감면금리를 가감하여 산정됩니다.<br>※ 상기 적용금리에도 불구하고 신규 취급 시 대출금리는 최고 연 9.00%를 초과할 수 없습니다.', 304, NOW(), NOW()),
-(10, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(10, 'DOC:가계대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf', 501, NOW(), NOW()),
-(10, 'DOC:상품공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/10325/2/(2026.06.10)BNK징검다리론공시자료.pdf', 502, NOW(), NOW());
+(10, 'DOC:여신거래 기본약관', '/terms/p10/0.pdf', 500, NOW(), NOW()),
+(10, 'DOC:가계대출 상품설명서', '/terms/p10/1.pdf', 501, NOW(), NOW()),
+(10, 'DOC:상품공시자료', '/terms/p10/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(10, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(10, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(10, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(10, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(10, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(10, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [11] 돌아와요 부산항에 청년 신용대출 (신용대출)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
@@ -429,6 +527,8 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 2) 재직 기간 : 1개월 이상
 3) CB 평점 : NICE 745점 및 KCB 690점 이상', 7, NOW(), NOW()),
 (11, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(11, 'OPT_RATE_TYPE', '고정금리', 9, NOW(), NOW()),
+(11, 'OPT_TERMS', '6개월,1년', 11, NOW(), NOW()),
 (11, 'INFO:상품개요', '수도권에서 거주하다 부산·울산·경남지역으로 전입 및 취업 완료한 청년 급여소득자 대상 저금리 포용금융 상품', 100, NOW(), NOW()),
 (11, 'INFO:대출조건(자격)', '<p>대출 신청일 기준 최근 1년&nbsp;내 수도권에서 거주하다 부산·울산·경남지역으로 전입 및 취업 완료 한 청년(만 19세 ~ 만 45세) 급여소득자 中 아래 요건을 충족하는 자<br><br>1) 연소득 기준 : 60백만원 이하<br>2) 재직 기간 : 1개월 이상<br>3) CB 평점 : NICE 745점 및 KCB 690점 이상</p>', 101, NOW(), NOW()),
 (11, 'INFO:대출한도', '최대 10백만원', 102, NOW(), NOW()),
@@ -452,19 +552,29 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (11, 'INFO:유의사항', '<p class="ssp-editor-p">1.&nbsp; 본 상품은 취급 후 3년간 고정금리 적용되며, 3년 경과 후 기한연기 시 변동금리로 전환되므로 이 점 유의하시기 바랍니다.</p><p class="ssp-editor-p">2. [선택] 개인정보 제3자 제공 동의서(돌아와요 부산항에 청년 신용대출 대상자 설문조사 기초자료 활용) 징구에 동의하신 고객님께서는 대출 후 3개월 내에 (재)청년재단에서 대출 효과 분석에 따른 설문조사 진행이&nbsp;있는 바 이 점 참고하시기 바랍니다.</p>', 113, NOW(), NOW()),
 (11, 'RATE:기준금리', '고정금리', 300, NOW(), NOW()),
 (11, 'RATE:최종금리', '최저 연 2.65 % ~최고 연 2.65 % (2026.04.14 현재)<br><br>※ 단, 최초 취급후 3년 경과 후 산출금리(변동) 적용<br>1) 기준금리 : 신잔액 COFIX<br>2) 금리변동주기 : 3개월, 6개월, 12개월<br>3) 본부 금리 감면 불가', 301, NOW(), NOW()),
-(11, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(11, 'DOC:가계대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf', 501, NOW(), NOW()),
-(11, 'DOC:돌아와요 부산항에 청년 신용대출 공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/9017/5/(2026.04.17)돌아와요 부산항에 청년 신용대출 공시자료.pdf', 502, NOW(), NOW());
+(11, 'DOC:여신거래 기본약관', '/terms/p11/0.pdf', 500, NOW(), NOW()),
+(11, 'DOC:가계대출 상품설명서', '/terms/p11/1.pdf', 501, NOW(), NOW()),
+(11, 'DOC:돌아와요 부산항에 청년 신용대출 공시자료', '/terms/p11/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(11, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(11, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(11, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(11, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(11, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(11, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [12] 비상금 동백론 (신용대출)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
-(12, '비상금 동백론', 2.5, '6개월~3년', 'SALE', '신용대출', '0300000744', '동백전 이용 고객을 위한 비상금 대출', '4.9', '9.8', NOW(), NOW());
+(12, '비상금 동백론', 9.8, '6개월~3년', 'SALE', '신용대출', '0300000744', '동백전 이용 고객을 위한 비상금 대출', '4.9', '9.8', NOW(), NOW());
 INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES
 (12, 'BASE_RATE_RAW', '2.5', 4, NOW(), NOW()),
 (12, 'LOAN_LIMIT', '3백만원', 5, NOW(), NOW()),
 (12, 'LOAN_TERM', '6개월~3년', 6, NOW(), NOW()),
 (12, 'TARGET', '가처분소득 1천만원 이상, 고위험업권 대출1건 이하', 7, NOW(), NOW()),
 (12, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(12, 'OPT_RATE_TYPE', '신잔액기준 COFIX', 9, NOW(), NOW()),
+(12, 'OPT_RATE_CYCLES', '3,6,12', 10, NOW(), NOW()),
+(12, 'OPT_TERMS', '6개월,1년,2년,3년', 11, NOW(), NOW()),
 (12, 'INFO:상품개요', '<p>동백전 회원을 위한 사전승인 무보증 신용대출 상품<br></p>', 100, NOW(), NOW()),
 (12, 'INFO:대출조건(자격)', '<ul class="info-list type-li-dot"><li>아래 요건을 모두 충족하는 경우<ul class="info-list type-li-dash-ed"><li>나이 19세 이상</li><li>가처분소득 1천만원 이상</li><li>NICE 745점 이상, KCB 690점 이상 모두 충족</li><li>고위험업권(저축은행, 캐피탈, 대부업) 신용대출 1건 이하 보유</li></ul></li></ul>', 101, NOW(), NOW()),
 (12, 'INFO:대출한도', '<p>사전승인 심사기준에 따라 최대 3백만원 이내<br></p>', 102, NOW(), NOW()),
@@ -488,19 +598,29 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (12, 'RATE:가산금리', '<ul class="info-list type-li-dot"><li>신용평가회사(CB사) 신용등급에 따라 최대 0.80%p</li><li>마이너스통장대출 가산금리 0.50%p</li><li>고위험업권(캐피탈, 저축은행, 대부업) 1건 보유 0.50%p</li></ul>', 302, NOW(), NOW()),
 (12, 'RATE:우대금리', '<ul class="info-list type-li-dot"><li>신용평점에 따라 최대 0.80%</li><li>신용평점에 따른 추가 우대금리 최대 연 0.50%<ul class="info-list type-li-dash-ed"><li>종합통장대출 제외, 신규 시에만 적용</li></ul></li><li>거래실적연동 옵션 감면금리 최대 0.80%<ul class="info-list type-li-dash-ed"><li>급여(연금) 및 가맹점 결제대금(요양급여 포함) 자동이체: 0.30%<ul class="info-list type-li-gt"><li>매 3개월간 2회 이상 건당 50만원 이상의 급여가 입금되는 경우</li></ul></li><li>자동이체(아파트관리비, 공과금, 통신요금) 건수: 0.10%<ul class="info-list type-li-gt"><li>매 3개월간 8건 이상 공과금 또는 지로, 아파트관리비, 통신요금이 자동이체되는 경우</li></ul></li><li>예금평잔기준: 0.20%<ul class="info-list type-li-gt"><li>매3개월간 예금평잔 1.5백만원 또는 요구불예금평잔 1백만원이상인 경우</li></ul></li><li>신용카드 회원(신규 포함)<ul class="info-list type-li-gt"><li>매 3개월간 신용카드 사용금액이 1백만원 이상인 경우: 0.10%</li><li>매 3개월간 신용카드 사용금액이 2백만원 이상인 경우: 0.20%</li></ul></li><li>주택청약종합저축 자동이체: 0.10% <ul class="info-list type-li-gt"><li>매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축(청년우대형 포함) 계좌에 자동이체 되는 경우<br></li></ul></li></ul></li><li>우수고객 우대금리 최대 0.40%<ul class="info-list type-li-dash-ed"><li>수신 거래: 0.30%</li><li>기타 거래: 0.10%</li><li>사전승인 재이용 고객: 0.10% </li></ul></li><li>동백전 거래실적 우대금리 최대 0.60%<ul class="info-list type-li-dash-ed"><li>동백패스 이용: 0.30%</li><li>동백전카드 유실적: 0.20%</li><li>웰컴동백(대출 신규 고객): 0.10%</li></ul></li></ul><p><span style="font-size: 100%">※ 취급 시 대출금리 10% 이상 적용 불가</span></p>', 303, NOW(), NOW()),
 (12, 'RATE:최종금리', '최저 연 4.94 % ~최고 연 9.84 % (2025-09-24 신 잔액기준 (COFIX) : 2.54 %)', 304, NOW(), NOW()),
-(12, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(12, 'DOC:가계대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf', 501, NOW(), NOW()),
-(12, 'DOC:상품공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/3076/3/비상금동백론 공시자료.pdf', 502, NOW(), NOW());
+(12, 'DOC:여신거래 기본약관', '/terms/p12/0.pdf', 500, NOW(), NOW()),
+(12, 'DOC:가계대출 상품설명서', '/terms/p12/1.pdf', 501, NOW(), NOW()),
+(12, 'DOC:상품공시자료', '/terms/p12/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(12, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(12, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(12, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(12, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(12, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(12, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [13] BNK Welcome Global 대출 (신용대출)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
-(13, 'BNK Welcome Global 대출', 2.9, '3개월 ~ 3년(상환방식에 따라 다름)', 'SALE', '신용대출', '0300000184', '외국인 근로자 전용 신용대출', '7.9', '15', NOW(), NOW());
+(13, 'BNK Welcome Global 대출', 15, '3개월 ~ 3년(상환방식에 따라 다름)', 'SALE', '신용대출', '0300000184', '외국인 근로자 전용 신용대출', '7.9', '15', NOW(), NOW());
 INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES
 (13, 'BASE_RATE_RAW', '2.9', 4, NOW(), NOW()),
 (13, 'LOAN_LIMIT', '3천만원(최소 5백만원)', 5, NOW(), NOW()),
 (13, 'LOAN_TERM', '3개월 ~ 3년(상환방식에 따라 다름)', 6, NOW(), NOW()),
 (13, 'TARGET', '외국인 급여소득자', 7, NOW(), NOW()),
 (13, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(13, 'OPT_RATE_TYPE', '신규취급액기준 COFIX', 9, NOW(), NOW()),
+(13, 'OPT_RATE_CYCLES', '3,6,12', 10, NOW(), NOW()),
+(13, 'OPT_TERMS', '6개월,1년,2년,3년', 11, NOW(), NOW()),
 (13, 'INFO:상품개요', '<p class="ssp-editor-p">외국인 근로자 전용 신용대출 상품</p>', 100, NOW(), NOW()),
 (13, 'INFO:대출조건(자격)', '<p class="ssp-editor-p">대출 신청일 현재 체류자격 E-9(비전문취업), E-7(특정활동), F-2(거주), F-4(재외동포), F-5(영주), F-6(결혼이민)으로 국내에 거주 중인 외국인급여소득자로 상세자격기준은 다음과 같음&nbsp;</p><div class="table-box"><table class="tbl-matrix"><colgroup><col><col></colgroup><tbody><tr><th scope="" style="border-left: 0px none rgb(0, 0, 0); border-bottom: 2px solid rgb(240, 240, 240); background-color: rgb(247, 247, 247)"><p class="ssp-editor-p">구분</p></th><td scope="" style="border-right: 2px solid rgb(97, 97, 97); border-bottom: 2px solid rgb(240, 240, 240); background-color: rgb(247, 247, 247)"><p class="ssp-editor-p" style="text-align: center">내용</p></td></tr><tr><th scope="" style="border-left: 0px none rgb(0, 0, 0); border-right: 2px solid rgb(240, 240, 240); border-top: 0px none rgb(0, 0, 0); background-color: rgb(255, 255, 255)"><p class="ssp-editor-p">국적</p></th><td scope="" ><p class="ssp-editor-p" style="text-align: center">베트남, 인도네시아, 우즈베키스탄, 필리핀,&nbsp;</p><p class="ssp-editor-p" style="text-align: center">스리랑카, 태국, 미얀마, 캄보디아, 네팔,&nbsp;</p><p class="ssp-editor-p" style="text-align: center">몽골, 중국, 카자흐스탄</p></td></tr><tr><th scope="" style="border-left: 0px none rgb(0, 0, 0); border-right: 2px solid rgb(240, 240, 240); border-bottom: 2px solid rgb(240, 240, 240); background-color: rgb(255, 255, 255)"><p class="ssp-editor-p">재직기간</p></th><td scope="" ><p class="ssp-editor-p" style="text-align: center"><span>現 직장기준 재직기간 3개월 이상</span></p></td></tr><tr><th class="" style="border-right: 2px solid rgb(240, 240, 240); border-bottom: 2px solid rgb(240, 240, 240); border-left: 0px none rgb(0, 0, 0); background-color: rgb(255, 255, 255)"><p class="ssp-editor-p">연소득</p></th><td class="" ><p class="ssp-editor-p" style="text-align: center"><span><span>18백만원 이상</span><br></span></p></td></tr><tr><th class="" style="border-right: 2px solid rgb(240, 240, 240); border-bottom: 2px solid rgb(240, 240, 240); border-left: 0px none rgb(0, 0, 0); background-color: rgb(255, 255, 255)"><p class="ssp-editor-p">잔여 체류기간</p></th><td class="" ><p class="ssp-editor-p" style="text-align: center"><span>3개월 이상</span></p></td></tr></tbody></table></div>', 101, NOW(), NOW()),
 (13, 'INFO:대출한도', '<p class="ssp-editor-p">심사결과에 따라 최소 5백만원 ~ 최대 30백만원</p>', 102, NOW(), NOW()),
@@ -529,13 +649,20 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (13, 'RATE:가산금리', '<p class="ssp-editor-p">신용등급에 따라 최대 연 1.50%</p>', 302, NOW(), NOW()),
 (13, 'RATE:우대금리', '<ul class="info-list type-li-dot"><li>거래실적 우대금리 최대 연 1.00%<ul class="info-list type-li-dash-ed"><li><span>급여 입금: 0.50%</span></li><li><span>외환 환전송금 실적: 0.50%</span></li></ul></li><li><span>신용등급에 따라 최대 연 1.50%</span></li><li><span>타 금융기관 대환신청 우대금리 연 2.00%</span></li><li><span>MGM(소개마케팅) 우대금리 최대 연 1.50%</span></li><li>협약기업체 우대금리 최대 연 1.00%</li></ul>', 303, NOW(), NOW()),
 (13, 'RATE:최종금리', '최저 연 7.81 % ~최고 연 15.00 % (2026.04.27 기준 신규취급액기준 COFIX : 2.81 %)<br>(최저금리는 최대 우대금리 적용 및 가산금리 미적용하는 경우)<br>※ 최종금리는 기본금리에 가산금리 및 우대금리를 가감하여 산정됩니다.<br>※ 최종금리는 연 15% 초과 적용 불가합니다.', 304, NOW(), NOW()),
-(13, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(13, 'DOC:가계대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf', 501, NOW(), NOW()),
-(13, 'DOC:상품공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/3054/4/(2026.04.27)BNK_Welcome_Global대출_공시자료.pdf', 502, NOW(), NOW());
+(13, 'DOC:여신거래 기본약관', '/terms/p13/0.pdf', 500, NOW(), NOW()),
+(13, 'DOC:가계대출 상품설명서', '/terms/p13/1.pdf', 501, NOW(), NOW()),
+(13, 'DOC:상품공시자료', '/terms/p13/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(13, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(13, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(13, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(13, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(13, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(13, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [14] BNK공무원가계자금대출 (신용대출)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
-(14, 'BNK공무원가계자금대출', 2.5, '6개월 ~ 10년', 'SALE', '신용대출', '0300000359', '공무원연금관리공단 협약대출상품', '3.5', '5', NOW(), NOW());
+(14, 'BNK공무원가계자금대출', 5, '6개월 ~ 10년', 'SALE', '신용대출', '0300000359', '공무원연금관리공단 협약대출상품', '3.5', '5', NOW(), NOW());
 INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES
 (14, 'BASE_RATE_RAW', '2.5', 4, NOW(), NOW()),
 (14, 'LOAN_LIMIT', '5천만원', 5, NOW(), NOW()),
@@ -544,6 +671,9 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (사립학교 교원, 군인은 제외)으로서
 공무원 가계자금 융자추천서를 발급한 고객', 7, NOW(), NOW()),
 (14, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(14, 'OPT_RATE_TYPE', '신잔액기준 COFIX', 9, NOW(), NOW()),
+(14, 'OPT_RATE_CYCLES', '3,6,12', 10, NOW(), NOW()),
+(14, 'OPT_TERMS', '6개월,1년,2년,3년,5년,7년,10년', 11, NOW(), NOW()),
 (14, 'INFO:상품개요', '공무원연금관리공단과 협약에 의해 차주 퇴직시 퇴직사실 통지조건부로 퇴직금의 1/2 범위내에서 생활자금을 지원하는 공무원 특화 대출 상품
 ', 100, NOW(), NOW()),
 (14, 'INFO:대출조건(자격)', '<p class="ssp-editor-p">공무원연금법의 적용을 받는 재직공무원(사립학교 교원, 군인은 제외)으로서 공무원 가계자금 융자추천서를 발급한 고객<br><span style="color: rgb(255, 0, 0)">※&nbsp;</span>공무원 가계자금 융자추천서 발급일로 부터 3영업일 이내까지 유효</p>', 101, NOW(), NOW()),
@@ -580,19 +710,29 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (14, 'RATE:가산금리', '<ul class="info-list type-li-dot"><li>종합통장대출(마이너스통장)의 경우 0.50%</li><li>내부등급에 따라 최대 0.20%&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</li></ul>', 302, NOW(), NOW()),
 (14, 'RATE:우대금리', '<ul class="info-list type-li-dot"><li>거래실적옵션 감면금리<ul class="info-list type-li-dash-ed"><li>급여이체 0.20%</li></ul></li><li>내부등급에 따라 최대 0.20% </li></ul><p class="ssp-editor-p">&nbsp;</p><p class="ssp-editor-p">※ 영업점 대면 가입 특별감면금리 (비대면 채널 적용 불가)</p><ul class="info-list type-li-dot"><li>&nbsp;부산지역 공무원 특별감면금리 0.40% (특별우대금리 운영 한도 소진 시 적용중단)</li></ul>', 303, NOW(), NOW()),
 (14, 'RATE:최종금리', '최저 연 3.47 % ~최고 연 4.97 % (2026-03-17 신 잔액기준 (COFIX) : 2.47 %)<br>(최저금리는 부산지역 노동조합 협약 대상자(단, 대면 가입 한정)이고, 최대 우대금리 적용 및 가산금리 미적용하는 경우)<br>(최고금리는 최대 가산금리 적용 및 우대금리 미적용하는 경우)', 304, NOW(), NOW()),
-(14, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(14, 'DOC:가계대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf', 501, NOW(), NOW()),
-(14, 'DOC:상품공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/3055/3/BNK공무원가계자금대출 공시자료.pdf', 502, NOW(), NOW());
+(14, 'DOC:여신거래 기본약관', '/terms/p14/0.pdf', 500, NOW(), NOW()),
+(14, 'DOC:가계대출 상품설명서', '/terms/p14/1.pdf', 501, NOW(), NOW()),
+(14, 'DOC:상품공시자료', '/terms/p14/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(14, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(14, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(14, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(14, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(14, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(14, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [15] BNK공무원연금수급권자신용대출 (신용대출)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
-(15, 'BNK공무원연금수급권자신용대출', 2.9, '6개월~5년', 'SALE', '신용대출', '0300000020', '공무원연금관리공단 협약대출상품', '5', '7.8', NOW(), NOW());
+(15, 'BNK공무원연금수급권자신용대출', 7.8, '6개월~5년', 'SALE', '신용대출', '0300000020', '공무원연금관리공단 협약대출상품', '5', '7.8', NOW(), NOW());
 INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES
 (15, 'BASE_RATE_RAW', '2.9', 4, NOW(), NOW()),
 (15, 'LOAN_LIMIT', '3천만원', 5, NOW(), NOW()),
 (15, 'LOAN_TERM', '6개월~5년', 6, NOW(), NOW()),
 (15, 'TARGET', '공무원연금관리공단으로부터, 공무원연금 수혜중 고객', 7, NOW(), NOW()),
 (15, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(15, 'OPT_RATE_TYPE', '신규취급액기준 COFIX', 9, NOW(), NOW()),
+(15, 'OPT_RATE_CYCLES', '3,6', 10, NOW(), NOW()),
+(15, 'OPT_TERMS', '6개월,1년,2년,3년,5년', 11, NOW(), NOW()),
 (15, 'INFO:상품개요', '<p class="ssp-editor-p">공무원연금관리공단과 협약에 의해 공무원 연금 수령자에 대하여 매월 수령연금을 본인계좌에 입금하여 상환하는 조건부로 생활자금을 지원하는 상품입니다.</p>', 100, NOW(), NOW()),
 (15, 'INFO:대출조건(자격)', '<p class="ssp-editor-p">공무원연금관리공단(이하 “공단”이라 함)으로부터 공무원 퇴직연금(유족, 장애연금 등 포함)을&nbsp; 1회 이상 당행 본인계좌로 수령중인 고객<br><b>주의) 군인연금법에 의한 “군인 연금수급권자” 및 사립학교 교직원 연금법에 의한 ‘사학연금수급권자’는 대출대상이 아님</b></p>', 101, NOW(), NOW()),
 (15, 'INFO:대출한도', '차주별 대출한도는 30백만원 이내로 함
@@ -622,13 +762,20 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (15, 'RATE:가산금리', '<ul class="info-list type-li-dot"><li>종합통장대출 0.5%</li><li>신용평점에 따라 최대 1.50%</li></ul>', 302, NOW(), NOW()),
 (15, 'RATE:우대금리', '<ul class="info-list type-li-dot"><li>거래실적연동 옵션 감면금리<ul class="info-list type-li-dash-ed"><li>연금 자동이체 0.30%<ul class="info-list type-li-gt"><li>매 3개월간 2회 이상 건당 50만원 이상의 급여가 입금되는 경우</li></ul></li><li>자동이체(아파트 관리비,공과금,통신요금)건수 0.10%<ul class="info-list type-li-gt"><li>매 3개월간 8건 이상 공과금 또는 지로, 아파트관리비, 통신요금이 자동이체되는 경우</li></ul></li><li>예금평잔기준 0.20%<ul class="info-list type-li-gt"><li>매3개월간 예금평잔 1.5백만원 또는 요구불예금평잔 1백만원이상인 경우</li></ul></li><li>신용카드 회원(신규발급포함)<ul class="info-list type-li-gt"><li>매 3개월간 1백만원 이상 0.10%</li><li>매 3개월간 2백만원 이상 0.20%</li></ul></li></ul></li></ul>', 303, NOW(), NOW()),
 (15, 'RATE:최종금리', '최저 연 4.91% ~ 최고 7.71% (2025-12-17 신규취급액기준 COFIX: 2.81%)<br>(최저금리는  신규취급액기준 COFIX 변동금리 적용, 최대 우대금리 적용 및 가산금리 미적용하는 경우)<br>(최고금리는 신규취급액기준 COFIX 변동금리 적용, 최대 가산금리 적용 및 우대금리 미적용하는 경우)', 304, NOW(), NOW()),
-(15, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(15, 'DOC:가계대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf', 501, NOW(), NOW()),
-(15, 'DOC:상품공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/3070/2/BNK공무원연금수급권자대출 공시자료.pdf', 502, NOW(), NOW());
+(15, 'DOC:여신거래 기본약관', '/terms/p15/0.pdf', 500, NOW(), NOW()),
+(15, 'DOC:가계대출 상품설명서', '/terms/p15/1.pdf', 501, NOW(), NOW()),
+(15, 'DOC:상품공시자료', '/terms/p15/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(15, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(15, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(15, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(15, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(15, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(15, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [16] BNK와 함께하는 미래설계대출 (신용대출)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
-(16, 'BNK와 함께하는 미래설계대출', 0.1, '12개월, 36개월', 'SALE', '신용대출', '0300017001', '부산 거주 청년 직장인을 위한 BNK와 함께 만드는 맞춤 금융', '0.1', '6', NOW(), NOW());
+(16, 'BNK와 함께하는 미래설계대출', 6, '12개월, 36개월', 'SALE', '신용대출', '0300017001', '부산 거주 청년 직장인을 위한 BNK와 함께 만드는 맞춤 금융', '0.1', '6', NOW(), NOW());
 INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES
 (16, 'BASE_RATE_RAW', '0.1', 4, NOW(), NOW()),
 (16, 'LOAN_LIMIT', '1천만원', 5, NOW(), NOW()),
@@ -636,6 +783,9 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (16, 'TARGET', '부산 거주 및 부산 소재 직장에
 재직중인 청년 직장인', 7, NOW(), NOW()),
 (16, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(16, 'OPT_RATE_TYPE', '고정금리', 9, NOW(), NOW()),
+(16, 'OPT_RATE_CYCLES', '6,12', 10, NOW(), NOW()),
+(16, 'OPT_TERMS', '1년,2년,3년', 11, NOW(), NOW()),
 (16, 'INFO:상품개요', '부산 거주 및 부산 소재 회사에 재직중인 청년 직장인을 위한 BNK와 함께 만드는 맞춤 금융', 100, NOW(), NOW()),
 (16, 'INFO:대출조건(자격)', '<ul class="info-list type-li-dot"><li>현재 부산에 거주 및&nbsp;부산 소재&nbsp;기업에 6개월 이상 재직중인 청년 급여소득자&nbsp;中&nbsp;아래 요건을 충족하는 고객</li></ul><p class="ssp-editor-p">&nbsp;</p><p class="ssp-editor-p"><span>1) 연소득&nbsp;:&nbsp;5천만원 이하</span></p><p class="ssp-editor-p"><span>2) 재직기간 : 6개월 이상</span></p><p class="ssp-editor-p"><span style="font-size: 100%">3</span><span style="font-size: 100%">)&nbsp;</span><span style="font-family: Pretendard; font-size: 100%">연령: 만 19세 이상 ~ 만&nbsp;</span><span style="font-family: Pretendard; font-size: 100%">39세 이하의&nbsp;</span><span style="font-family: Pretendard; font-size: 100%">청년</span></p><p class="ssp-editor-p">4) 신용평점기준 : NICE 평점 675점 이상이면서&nbsp;KCB 평점 625점 이상인 고객</p><p class="ssp-editor-p">5) BNK와 함께하는 미래설계대출을 받은 이력이 없는 고객 (1회에 한하여 지원가능)</p>', 101, NOW(), NOW()),
 (16, 'INFO:대출한도', '심사결과에 따라 최소 1백만원 ~ 최대 1천만원', 102, NOW(), NOW()),
@@ -683,19 +833,29 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (16, 'RATE:기본금리', '<p class="ssp-editor-p">계단식금리, 고정금리 中 택 1<br></p>', 301, NOW(), NOW()),
 (16, 'RATE:우대금리', '0', 302, NOW(), NOW()),
 (16, 'RATE:최종금리', '· 계단식금리 선택시<br>　- 우대금리 충족 개수에 따라 <br>　　&gt; 3개 충족시 : 0.1% (1년차), 2.0% (2년차), 3.9% (3년차)<br>　　&gt; 2개 충족시 : 1.0% (1년차), 3.0% (2년차), 5.0% (3년차)<br>　　&gt; 1개 충족시 : 2.0% (1년차), 4.0% (2년차), 6.0% (3년차)<br><br>· 고정금리 선택시<br>　- 우대금리 충족 개수에 따라<br>　　&gt; 3개 충족시 : 연 2.0%<br>　　&gt; 2개 충족시 : 연 3.0%<br>　　&gt; 1개 충족시 : 연 4.0%<br><br>· 우대조건<br>1) 부산 소재 기업 6개월 이상 재직<br>2) 부산 거주 1년 이상<br>3) 당행 주거래고객 여부주) (급여이체&amp;카드보유)<br>주) 주거래고객 판단 여부<br>1. 급여이체 : 당행 급여 이체 1회 이상 이력 보유<br>(대출 신청월(M) 기준 전전월(M-2)까지 거래 인정)<br>2. 카드보유 : 신청일 기준 신용카드 또는 체크카드 정상 회원<br><br> 최저 연 0.10% ~ 최고 연 6.00% <br>(최저금리는 우대요건 3개 충족시 1년차 금리이며, 최고금리는 우대요건 1개 충족시 3년차 금리) <br><br>※ 단, 최초 취급후 3년 경과 후 산출금리(변동) 적용<br>1) 기준금리 : 신잔액 COFIX<br>2) 금리변동주기 : 6개월, 12개월<br>3) 본부 금리 감면 불가', 303, NOW(), NOW()),
-(16, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(16, 'DOC:가계대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf', 501, NOW(), NOW()),
-(16, 'DOC:BNK와 함께하는 미래설계대출 공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/10152/2/BNK와 함께하는 미래설계대출 공시자료.pdf', 502, NOW(), NOW());
+(16, 'DOC:여신거래 기본약관', '/terms/p16/0.pdf', 500, NOW(), NOW()),
+(16, 'DOC:가계대출 상품설명서', '/terms/p16/1.pdf', 501, NOW(), NOW()),
+(16, 'DOC:BNK와 함께하는 미래설계대출 공시자료', '/terms/p16/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(16, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(16, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(16, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(16, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(16, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(16, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [17] ONE스피드론 (신용대출)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
-(17, 'ONE스피드론', 2.5, '6개월 ~ 5년(상환방식에 따라 다름)', 'SALE', '신용대출', '0300000299', '소득 및 거래실적을 반영한 초간편 사전승인 대출', '5.5', '9.8', NOW(), NOW());
+(17, 'ONE스피드론', 9.8, '6개월 ~ 5년(상환방식에 따라 다름)', 'SALE', '신용대출', '0300000299', '소득 및 거래실적을 반영한 초간편 사전승인 대출', '5.5', '9.8', NOW(), NOW());
 INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES
 (17, 'BASE_RATE_RAW', '2.5', 4, NOW(), NOW()),
 (17, 'LOAN_LIMIT', '5천만원', 5, NOW(), NOW()),
 (17, 'LOAN_TERM', '6개월 ~ 5년(상환방식에 따라 다름)', 6, NOW(), NOW()),
 (17, 'TARGET', '사전승인 대상자라면 누구나 가능', 7, NOW(), NOW()),
 (17, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(17, 'OPT_RATE_TYPE', '신잔액기준 COFIX', 9, NOW(), NOW()),
+(17, 'OPT_RATE_CYCLES', '3,6,12', 10, NOW(), NOW()),
+(17, 'OPT_TERMS', '6개월,1년,2년,3년,5년', 11, NOW(), NOW()),
 (17, 'INFO:상품개요', '<p class="ssp-editor-p">당행 거래실적에 따라 혜택을 더하는 사전승인 무보증 신용대출 상품</p>', 100, NOW(), NOW()),
 (17, 'INFO:대출조건(자격)', '<ul class="info-list type-li-dot"><li>아래 요건을 모두 충족하는 경우<ul class="info-list type-li-dash-ed"><li>나이 25세 ~ 55세&nbsp;</li><li>가처분소득 1천만원 이상</li><li>NICE 745점 이상, KCB 690점 이상 모두 충족</li><li>고위험업권(저축은행, 캐피탈, 대부업) 신용대출 1건 이하 보유</li></ul></li></ul><p><span style="font-size: 100%">※ 사전승인대출 상품으로 1인 1계좌 원칙(멤버스론, 스피드론 계좌 포함)</span></p>', 101, NOW(), NOW()),
 (17, 'INFO:대출한도', '<ul class="info-list type-li-dot"><li>사전승인 심사기준에 따라 최대 5천만원 이내<ul class="info-list type-li-dash-ed"><li><span>급여소득자: 최대 5천만원 이내</span></li><li><span>자영업자 및 기타소득자: 최대 4천만원 이내</span></li></ul></li></ul>', 102, NOW(), NOW()),
@@ -719,19 +879,29 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (17, 'RATE:가산금리', '<ul class="info-list type-li-dot"><li>신용평가회사(CB사) 신용평점에 따라 최대 연 0.80% </li><li>마이너스통장대출 연 0.50% </li><li>고위험업권(캐피탈, 저축은행, 대부업) 1건 보유 연 0.50%</li></ul>', 302, NOW(), NOW()),
 (17, 'RATE:우대금리', '<ul class="info-list type-li-dot"><li>신용평점에 따라최대 연 0.80% </li><li>신용평점에 따른 추가 우대금리 최대 연 0.50%<ul class="info-list type-li-dash-ed"><li>종합통장대출 제외, 신규 시에만 적용</li></ul></li><li>거래실적 연동옵션 우대금리 최대 연 0.80%<ul class="info-list type-li-dash-ed"><li>급여(연금) 및 가맹점 결제대금(요양급여 포함) 자동이체: 0.30%<ul class="info-list type-li-gt"><li>매 3개월간 2회 이상 건당 50만원 이상의 급여가 입금되는 경우<br></li></ul></li><li>자동이체(아파트관리비, 공과금, 통신요금) 건수: 0.10%<ul class="info-list type-li-gt"><li>매 3개월간 8건 이상 공과금 또는 지로, 아파트관리비, 통신요금이 자동이체되는 경우<br></li></ul></li><li>예금평잔기준: 0.20%<ul class="info-list type-li-gt"><li>매 3개월간 예금평잔 1.5백만원 또는 요구불예금평잔 1백만원 이상인 경우<br></li></ul></li><li>신용카드 회원(신규 포함)<ul class="info-list type-li-gt"><li>매 3개월간 신용카드 사용금액이 1백만원 이상인 경우: 0.10%</li><li>매 3개월간 신용카드 사용금액이 2백만원 이상인 경우: 0.20%</li></ul></li><li>주택청약종합저축 자동이체: 0.10% <ul class="info-list type-li-gt"><li>매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축(청년우대형 포함) 계좌에 자동이체 되는 경우<br></li></ul></li></ul></li><li>우수고객 우대금리 적용시 최대 연 0.40%<ul class="info-list type-li-dash-ed"><li>수신 거래: 0.30%</li><li>기타 거래: 0.10%</li><li>사전승인 재이용 고객: 0.10% </li></ul></li></ul><p class="ssp-editor-p">※ 취급 시 대출금리 10% 이상 적용 불가</p>', 303, NOW(), NOW()),
 (17, 'RATE:최종금리', '최저 연 5.54 % ~최고 연 9.84 % (2024.9.24 신 잔액기준 (COFIX) : 2.54 %)', 304, NOW(), NOW()),
-(17, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(17, 'DOC:가계대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf', 501, NOW(), NOW()),
-(17, 'DOC:상품공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/3059/3/ONE스피드론 공시자료.pdf', 502, NOW(), NOW());
+(17, 'DOC:여신거래 기본약관', '/terms/p17/0.pdf', 500, NOW(), NOW()),
+(17, 'DOC:가계대출 상품설명서', '/terms/p17/1.pdf', 501, NOW(), NOW()),
+(17, 'DOC:상품공시자료', '/terms/p17/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(17, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(17, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(17, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(17, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(17, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(17, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [18] ONE장기근속 직장인 우대대출 (신용대출)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
-(18, 'ONE장기근속 직장인 우대대출', 2.5, '6개월~10년', 'SALE', '신용대출', '0300000306', '장기근속직장인을 위한 특별대출', '3.8', '12.5', NOW(), NOW());
+(18, 'ONE장기근속 직장인 우대대출', 12.5, '6개월~10년', 'SALE', '신용대출', '0300000306', '장기근속직장인을 위한 특별대출', '3.8', '12.5', NOW(), NOW());
 INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES
 (18, 'BASE_RATE_RAW', '2.5', 4, NOW(), NOW()),
 (18, 'LOAN_LIMIT', '200백만원', 5, NOW(), NOW()),
 (18, 'LOAN_TERM', '6개월~10년', 6, NOW(), NOW()),
 (18, 'TARGET', '현 직장 60개월 이상, 재직중 급여소득자', 7, NOW(), NOW()),
 (18, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(18, 'OPT_RATE_TYPE', '신잔액기준 COFIX', 9, NOW(), NOW()),
+(18, 'OPT_RATE_CYCLES', '3,6', 10, NOW(), NOW()),
+(18, 'OPT_TERMS', '6개월,1년,2년,3년,5년,7년,10년', 11, NOW(), NOW()),
 (18, 'INFO:상품개요', '<p class="ssp-editor-p">장기근속직장인을 위한 특별 우대대출</p>', 100, NOW(), NOW()),
 (18, 'INFO:대출조건(자격)', '<p class="ssp-editor-p">현 직장 60개월 이상 재직 중인 급여소득자로 상세 자격요건은 다음과 같음</p><div class="table-box"><table class="tbl-matrix" ><colgroup><col span="2"> </colgroup><tbody><tr><th height="31" scope="" >직업체형태</th><td height="31" scope="" ><p class="ssp-editor-p" style="text-align: center">법인기업체/일반기업체</p></td></tr><tr><th height="31" scope="" >재직기간</th><td height="31" scope="" ><p class="ssp-editor-p" style="text-align: center">재직기간&nbsp;60개월  이상</p></td></tr><tr><th height="31" scope="" >재직업체구분</th><td height="31" scope="" ><p class="ssp-editor-p" style="text-align: center">일반기업체</p></td></tr><tr><th height="46" scope="" >CB평점기준</th><td height="46" scope="" ><p class="ssp-editor-p" style="text-align: center">NICE 675점&amp; KCB 625점 이상</p></td></tr><tr><th height="30" scope="" >연소득</th><td height="30" scope="" ><p class="ssp-editor-p" style="text-align: center">30백만원 이상</p></td></tr></tbody></table></div>', 101, NOW(), NOW()),
 (18, 'INFO:대출한도', '심사결과에 따라 최소 5백만원 ~ 최대 200백만원
@@ -770,19 +940,29 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 <ul class="info-list type-li-gt"><li>매 3개월간 신용카드 사용금액이 1백만원 이상인 경우 : 0.10%</li><li>매 3개월간 신용카드 사용금액이 2백만원 이상인 경우 : 0.20%</li></ul></li><li>&nbsp; 주택청약종합저축(청년우대형 포함) 자동이체 : 0.10%<ul class="info-list type-li-gt"><li>매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축(청년우대형 포함) 계좌에 자동이체 되는 경우</li></ul></li></ul></li><li>신용평점에 따라 최대 연 0.70%</li><li>신용평점에 따른 추가 우대금리 최대 연 0.40%
 <ul class="info-list type-li-dash-ed"><li>종합통장대출 제외, 신규 시에만 적용</li></ul></li><li>당행 내부등급에 따라 최대 연 0.50%</li><li>장기근속 우대금리 최대 연 0.30%</li><li>협약기관 우대금리 최대 연 0.30%</li></ul><p class="ssp-editor-p">&nbsp;</p><p class="ssp-editor-p">※ 영업점 대면 가입 특별감면금리 (비대면 채널 적용 불가)</p><ul class="info-list type-li-dot"><li><span>가덕도 원주민 토지 보상 대상 특별 우대금리 최대 연 </span><span>0.20%</span></li></ul><p class="ssp-editor-p">&nbsp;</p><p class="ssp-editor-p">※ 상기 적용금리에도 불구하고최저스프레드는 아래 미만으로 적용 불가</p><ul class="info-list type-li-dot"><li>장기근속직장인(금리)&nbsp; &nbsp; &nbsp; &nbsp;: 기준금리 + 1.30%</li><li>장기근속직장인(한도)&nbsp; &nbsp; &nbsp; &nbsp;: 기준금리 + 2.10%</li></ul>', 303, NOW(), NOW()),
 (18, 'RATE:최종금리', '최저 연 3.79% ~ 최고 12.49% (2026-05-28 신잔액기준 COFIX: 2.49%, 신규취급액기준 COFIX: 2.89%)<br>(최저금리는 신잔액기준 COFIX 변동금리 적용, 최대 우대금리 적용 및 가산금리 미적용하는 경우. <br>단, 상품별 최저스프레드 미만 적용 불가 반영)<br>(최고금리는 신규취급액기준 COFIX 변동금리 적용, 최대 가산금리 적용 및 우대금리 미적용하는 경우)', 304, NOW(), NOW()),
-(18, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(18, 'DOC:가계대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf', 501, NOW(), NOW()),
-(18, 'DOC:상품공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/3065/4/(2026.05.28)ONE장기근속직장인우대대출 공시자료.pdf', 502, NOW(), NOW());
+(18, 'DOC:여신거래 기본약관', '/terms/p18/0.pdf', 500, NOW(), NOW()),
+(18, 'DOC:가계대출 상품설명서', '/terms/p18/1.pdf', 501, NOW(), NOW()),
+(18, 'DOC:상품공시자료', '/terms/p18/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(18, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(18, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(18, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(18, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(18, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(18, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- [19] ONE퍼스트 금융인대출 (신용대출)
 INSERT INTO loan_product (product_id, product_name, base_rate, loan_period, status, category, mkpd_cd, catchphrase, rate_min, rate_max, created_at, updated_at) VALUES
-(19, 'ONE퍼스트 금융인대출', 2.5, '6개월~10년', 'SALE', '신용대출', '0300000183', '금융인을 위한 특별대출!', '3.62', '6.82', NOW(), NOW());
+(19, 'ONE퍼스트 금융인대출', 6.82, '6개월~10년', 'SALE', '신용대출', '0300000183', '금융인을 위한 특별대출!', '3.62', '6.82', NOW(), NOW());
 INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES
 (19, 'BASE_RATE_RAW', '2.5', 4, NOW(), NOW()),
 (19, 'LOAN_LIMIT', '350백만원', 5, NOW(), NOW()),
 (19, 'LOAN_TERM', '6개월~10년', 6, NOW(), NOW()),
 (19, 'TARGET', '제1금융기관 및, 금융관련기관 재직자', 7, NOW(), NOW()),
 (19, 'BASE_DATE', '2026-06-23', 8, NOW(), NOW()),
+(19, 'OPT_RATE_TYPE', '신잔액기준 COFIX', 9, NOW(), NOW()),
+(19, 'OPT_RATE_CYCLES', '3,6', 10, NOW(), NOW()),
+(19, 'OPT_TERMS', '6개월,1년,2년,3년,5년,7년,10년', 11, NOW(), NOW()),
 (19, 'INFO:상품개요', '<p>금융기관 재직자를 위한 우대대출</p>', 100, NOW(), NOW()),
 (19, 'INFO:대출조건(자격)', '<p class="ssp-editor-p">제1금융기관(시중은행, 특수은행, 외국계은행, 지방은행) 및 금융관련기관에 재직중인 급여소득자로 상세 자격요건은 다음과 같음</p><div class="table-box"><table class="__se_tbl tbl-matrix" ><tbody><tr><th scope="" ><p class="ssp-editor-p">&nbsp;재직업체형태</p></th><td scope="" ><p class="ssp-editor-p" style="text-align: center">&nbsp;법인기업체</p></td></tr><tr><th scope="" ><p class="ssp-editor-p">&nbsp;재직기간</p></th><td scope="" ><p class="ssp-editor-p" style="text-align: center">&nbsp;재직기간 3개월 이상</p></td></tr><tr><th scope="" ><p class="ssp-editor-p">&nbsp;CB평점기준</p></th><td scope="" ><p class="ssp-editor-p" style="text-align: center">&nbsp;NICE 835점 &amp; KCB 845점 이상</p></td></tr><tr><th scope="" ><p class="ssp-editor-p">&nbsp;연소득</p></th><td scope="" ><p class="ssp-editor-p" style="text-align: center">&nbsp;50백만원 이상</p></td></tr></tbody></table></div>', 101, NOW(), NOW()),
 (19, 'INFO:대출한도', '심사결과에 따라 최소 5백만원 ~ 최대 350백만원
@@ -815,9 +995,16 @@ INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, c
 (19, 'RATE:가산금리', '<p><span style="font-size: 100%">종합통장대출(마이너스통장) 연 0.50%&nbsp;</span></p>', 302, NOW(), NOW()),
 (19, 'RATE:우대금리', '<ul class="info-list type-li-dot"><li>거래실적에 따른 감면금리 최대 연 0.60%<ul class="info-list type-li-dash-ed"><li>급여 입금 : 0.30%<ul class="info-list type-li-gt"><li>매 3개월간 2회 이상 건당 50만원 이상의 급여가 입금되는 경우</li></ul></li><li>자동이체건수 : 0.10%<ul class="info-list type-li-gt"><li>매 3개월간 8건 이상 공과금 또는 지로, 아파트관리비, 통신요금이 자동이체되는 경우</li></ul></li><li>예금평잔기준 : 0.20%<ul class="info-list type-li-gt"><li>매 3개월간 예금평잔 1.5백만원 또는 요구불예금평잔 1백만원 이상인 경우</li></ul></li><li>신용카드 회원(신규 포함)<ul class="info-list type-li-gt"><li>매 3개월간 신용카드 사용금액이 1백만원 이상인 경우 : 0.10%</li><li>매 3개월간 신용카드 사용금액이 2백만원 이상인 경우 : 0.20%</li></ul></li><li>&nbsp; 주택청약종합저축(청년우대형 포함) 자동이체 : 0.10%<ul class="info-list type-li-gt"><li>매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축(청년우대형 포함) 계좌에 자동이체 되는 경우</li></ul></li></ul></li><li>신용평점에 따라 최대 연 0.70%</li><li>신용평점에 따른 추가 우대금리 최대 연 0.40%<ul class="info-list type-li-dash-ed"><li>종합통장대출 제외, 신규 시에만 적용</li></ul></li><li>ONE퍼스트 금융인대출 최초신규 연 0.20%</li><li>모바일뱅킹(App)신청 고객 우대금리 연 0.20%</li><li>협약기관 우대금리 최대 연 0.30%</li></ul><p class="ssp-editor-p">&nbsp;</p><p class="ssp-editor-p">&nbsp;</p><p class="ssp-editor-p">※ 영업점 대면 가입 특별감면금리 (비대면 채널 적용 불가)</p><ul class="info-list type-li-dot"><li>가덕도 원주민 토지 보상 대상 특별 우대금리 최대 연 0.20%&nbsp;</li></ul><p class="ssp-editor-p">&nbsp;</p><p class="ssp-editor-p">※ 상기 적용금리에도 불구하고최저스프레드는 1.12%&nbsp;미만으로 적용 불가 (최저금리 : 기준금리+1.12%)</p><p>&nbsp;</p>', 303, NOW(), NOW()),
 (19, 'RATE:최종금리', '최저 연 3.61% ~ 최고 6.81% (2026-05-28 신잔액 COFIX: 2.49%, 신규취급액 COFIX: 2.89% )<br>(최저금리는 신잔액기준 COFIX 변동금리 적용, 최대 우대금리 적용 및 가산금리 미적용하는 경우.<br>  단, 상품별 최저스프레드 미만 적용 불가 반영)<br>(최고금리는 신규취급액기준 COFIX 변동금리 적용, 최대 가산금리 적용 및 우대금리 미적용하는 경우)', 304, NOW(), NOW()),
-(19, 'DOC:여신거래 기본약관', 'https://www.busanbank.co.kr/SSPCTS/LN/397/1/은행여신거래약관(가계용)(501128).pdf', 500, NOW(), NOW()),
-(19, 'DOC:가계대출 상품설명서', 'https://www.busanbank.co.kr/SSPCTS/LN/1254/2/2026-0101_가계대출 상품설명서(501195).pdf', 501, NOW(), NOW()),
-(19, 'DOC:상품공시자료', 'https://www.busanbank.co.kr/SSPCTS/LN/3066/4/(2026.05.28)ONE퍼스트금융인대출 공시자료.pdf', 502, NOW(), NOW());
+(19, 'DOC:여신거래 기본약관', '/terms/p19/0.pdf', 500, NOW(), NOW()),
+(19, 'DOC:가계대출 상품설명서', '/terms/p19/1.pdf', 501, NOW(), NOW()),
+(19, 'DOC:상품공시자료', '/terms/p19/2.pdf', 502, NOW(), NOW());
+INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES
+(19, 'SALARY_TRANSFER', '급여(연금) 자동이체', 0.3, '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시', NOW(), NOW()),
+(19, 'AUTO_TRANSFER', '자동이체(아파트관리비·공과금·통신요금)', 0.1, '매 3개월간 8건 이상 자동이체 시', NOW(), NOW()),
+(19, 'DEPOSIT_BALANCE', '예금 평균잔액', 0.2, '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시', NOW(), NOW()),
+(19, 'CARD_USE_100', '신용카드 100만원 이상 사용', 0.1, '매 3개월간 신용카드 사용금액 100만원 이상 시', NOW(), NOW()),
+(19, 'CARD_USE_200', '신용카드 200만원 이상 사용', 0.2, '매 3개월간 신용카드 사용금액 200만원 이상 시', NOW(), NOW()),
+(19, 'HOUSING_SUBSCRIPTION', '주택청약종합저축 자동이체', 0.1, '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시', NOW(), NOW());
 
 -- ============================================================
 -- 약관 기본 (PRODUCT_TERMS_BASE) — 상품별 6종

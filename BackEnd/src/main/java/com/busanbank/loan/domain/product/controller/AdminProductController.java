@@ -1,10 +1,6 @@
 package com.busanbank.loan.domain.product.controller;
 
-import com.busanbank.loan.domain.product.dto.request.CreateProductRequest;
-import com.busanbank.loan.domain.product.dto.request.UpdateProductRequest;
 import com.busanbank.loan.domain.product.dto.response.ProductDetailResponse;
-import com.busanbank.loan.domain.product.dto.response.ProductResponse;
-import com.busanbank.loan.domain.product.dto.response.ProductStatusResponse;
 import com.busanbank.loan.domain.product.entity.ProductDescription;
 import com.busanbank.loan.domain.product.repository.LoanProductRepository;
 import com.busanbank.loan.domain.product.repository.ProductDescriptionRepository;
@@ -13,14 +9,17 @@ import com.busanbank.loan.domain.product.service.ProductService;
 import com.busanbank.loan.global.error.code.ErrorCode;
 import com.busanbank.loan.global.error.exception.BusinessException;
 import com.busanbank.loan.global.response.ApiResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 관리자 상품 부가기능 — AI 요약 생성/수정.
+ * 상품의 등록/변경/판매중지는 결재 플로우(AdminChangeRequestController)로 일원화되었으므로
+ * 직접 반영 CRUD 는 본 컨트롤러에서 제거되었다.
+ */
 @RestController
 @RequestMapping("/api/v1/admin/products")
 @RequiredArgsConstructor
@@ -30,30 +29,6 @@ public class AdminProductController {
     private final AiSummaryService aiSummaryService;
     private final LoanProductRepository loanProductRepository;
     private final ProductDescriptionRepository productDescriptionRepository;
-
-    @GetMapping
-    public ApiResponse<List<ProductResponse>> getAllProducts() {
-        return ApiResponse.ok(productService.getAllProducts());
-    }
-
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<ProductDetailResponse> createProduct(
-            @Valid @RequestBody CreateProductRequest request) {
-        return ApiResponse.created(productService.createProduct(request), "상품이 등록되었습니다.");
-    }
-
-    @PutMapping("/{productId}")
-    public ApiResponse<ProductDetailResponse> updateProduct(
-            @PathVariable Long productId,
-            @Valid @RequestBody UpdateProductRequest request) {
-        return ApiResponse.ok(productService.updateProduct(productId, request), "상품 정보가 수정되었습니다.");
-    }
-
-    @DeleteMapping("/{productId}")
-    public ApiResponse<ProductStatusResponse> deleteProduct(@PathVariable Long productId) {
-        return ApiResponse.ok(productService.deleteProduct(productId), "상품이 판매 중지되었습니다.");
-    }
 
     /**
      * AI 요약 생성/갱신

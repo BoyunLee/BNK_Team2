@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BottomSheet } from '../../components/BottomSheet';
 import { useApply } from '../../auth/ApplyContext';
@@ -10,6 +10,10 @@ import {
   verifyContractSignature,
   type ConditionsResult,
 } from '../../lib/loan';
+import {
+  fetchProductDetail,
+  type BePreferentialRate,
+} from '../../lib/products';
 import { ApiError } from '../../lib/api';
 import '../../styles/shell.css';
 import './apply.css';
@@ -29,16 +33,6 @@ const REPAY_METHODS = [
   '종합통장대출(마이너스통장)',
 ];
 
-const PREF_ITEMS = [
-  { id: 'salary', label: '급여자동이체하고 0.30% 우대받기', rate: 0.3 },
-  { id: 'card100', label: '신용카드 3개월에 100만원 이상 사용하고 최대 0.10% 우대받기', rate: 0.1 },
-  { id: 'card200', label: '신용카드 3개월에 200만원 이상 사용하고 최대 0.20% 우대받기', rate: 0.2 },
-  { id: 'deposit', label: '수신3개월평균잔액 0.20% 우대받기', rate: 0.2 },
-  { id: 'auto', label: '자동이체(아파트,공과금,통신요금)하고 0.10% 우대받기', rate: 0.1 },
-  { id: 'house', label: '주택청약종합저축(청년우대형 포함) 자동이체하고 0.10% 우대받기', rate: 0.1 },
-];
-const PREF_MAX = 0.8;
-
 const BASE_RATE_OPTIONS = [
   '신규취급액기준 COFIX',
   '신잔액기준 COFIX',
@@ -46,7 +40,6 @@ const BASE_RATE_OPTIONS = [
   '금융채 12개월',
 ];
 const TERM_OPTIONS = ['6개월', '1년', '2년', '3년', '5년'];
-const CYCLE_OPTIONS = ['1개월', '3개월', '6개월', '12개월'];
 const ACCOUNT_OPTIONS = [
   '112-2314-1478-08 (자유입출금)',
   '302-1102-5547-11 (수시입출금)',
@@ -142,13 +135,39 @@ export function LoanApplyFormPage() {
 
   // 섹션1
   const [method, setMethod] = useState(REPAY_METHODS[0]);
-  // 섹션2
-  const [prefs, setPrefs] = useState<string[]>([]);
-  // 섹션3
+  // 섹션2 — BE 우대금리
+  const [prefRates, setPrefRates] = useState<BePreferentialRate[]>([]);
+  const [prefs, setPrefs] = useState<number[]>([]); // 선택한 preferentialId
+
+  // 상품의 우대금리 + 기준금리/변동주기/대출기간 옵션 로드
+  useEffect(() => {
+    fetchProductDetail(productCd)
+      .then((d) => {
+        setPrefRates(d.preferentialRates ?? []);
+        const byKey = (k: string) =>
+          d.descriptions.find((x) => x.attrKey === k)?.attrValue ?? '';
+        const rt = byKey('OPT_RATE_TYPE');
+        const cycles = byKey('OPT_RATE_CYCLES')
+          .split(',')
+          .filter(Boolean)
+          .map((m) => `${m}개월`);
+        const terms = byKey('OPT_TERMS').split(',').filter(Boolean);
+        setRateType(rt);
+        setCycleOpts(cycles);
+        setTermOpts(terms.length ? terms : TERM_OPTIONS);
+        if (rt) setBaseRate(rt); // 기준금리는 상품별 1종 → 미리 채움
+        setCycle(cycles[0] ?? '해당없음');
+      })
+      .catch(() => setPrefRates([]));
+  }, [productCd]);
+  // 섹션3 (상품별 옵션은 로드 후 채움)
   const [amount, setAmount] = useState(''); // 숫자 문자열(콤마 제외)
   const [baseRate, setBaseRate] = useState('');
   const [term, setTerm] = useState('');
-  const [cycle, setCycle] = useState('3개월');
+  const [cycle, setCycle] = useState('');
+  const [rateType, setRateType] = useState(''); // 기준금리 종류(상품별 1종)
+  const [cycleOpts, setCycleOpts] = useState<string[]>([]); // 변동주기 옵션
+  const [termOpts, setTermOpts] = useState<string[]>(TERM_OPTIONS); // 대출기간 옵션
   // 섹션4 (입금계좌 기본값 = 가입 계좌)
   const [account, setAccount] = useState(depositAccountNo);
   const [purpose, setPurpose] = useState('');
@@ -156,21 +175,25 @@ export function LoanApplyFormPage() {
 
   const [sheet, setSheet] = useState<SheetKind>(null);
 
-  const prefSum = useMemo(() => {
-    const s = PREF_ITEMS.filter((p) => prefs.includes(p.id)).reduce(
-      (a, b) => a + b.rate,
-      0,
-    );
-    return Math.min(s, PREF_MAX);
-  }, [prefs]);
+  const prefSum = useMemo(
+    () =>
+      prefRates
+        .filter((p) => prefs.includes(p.preferentialId))
+        .reduce((a, b) => a + b.rateValue, 0),
+    [prefs, prefRates],
+  );
+  const prefMax = useMemo(
+    () => prefRates.reduce((a, b) => a + b.rateValue, 0),
+    [prefRates],
+  );
 
-  const finalRate = effBaseRate - prefSum; // 연 %
+  const finalRate = Math.max(0.1, effBaseRate - prefSum); // 연 %, 최저 0.1%
   const finalSpread = BASE_SPREAD - prefSum; // COFIX + 가산(표시용)
   const amountNum = Number(amount) || 0;
   const termMonths = TERM_MONTHS[term] ?? 12;
   const firstRepay = computeFirstRepay(amountNum, finalRate, method, termMonths);
 
-  const togglePref = (id: string) =>
+  const togglePref = (id: number) =>
     setPrefs((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
 
   // 한도 초과 입력 차단(한도까지만)
@@ -203,13 +226,13 @@ export function LoanApplyFormPage() {
       ]);
       const res = await saveConditions(loanAccountNo, {
         repaymentType: method,
-        rateTypeCode: 'V',
+        rateTypeCode: rateType === '고정금리' ? 'F' : 'V',
         rateChangeCycle: cycle,
         loanPeriod: term,
         depositAccountNo,
         fundPurpose: purpose,
         loanAmount: amountNum,
-        preferentialIds: [], // BE에 우대금리 미적재 → 빈 배열
+        preferentialIds: prefs, // 선택한 우대금리 ID
       });
       setConditions(res);
       setPhase('agreement');
@@ -435,25 +458,27 @@ export function LoanApplyFormPage() {
 
           <h3 className="lf-h3">우대금리 조건을 선택해주세요</h3>
           <p className="lf-max">
-            최대 <b>0.80%</b>
+            최대 <b>{prefMax.toFixed(2)}%</b>
           </p>
           <p className="lf-help">
             대출 신청 후 대출&gt;대출관리&gt;우대금리 현황에서 확인할 수 있어요
           </p>
 
           <ul className="lf-check">
-            {PREF_ITEMS.map((p) => (
-              <li key={p.id}>
+            {prefRates.map((p) => (
+              <li key={p.preferentialId}>
                 <button
                   type="button"
                   className="lf-check__btn"
-                  aria-pressed={prefs.includes(p.id)}
-                  onClick={() => togglePref(p.id)}
+                  aria-pressed={prefs.includes(p.preferentialId)}
+                  onClick={() => togglePref(p.preferentialId)}
                 >
                   <span className="lf-check__mark" aria-hidden="true">
                     ✓
                   </span>
-                  <span className="lf-check__label">{p.label}</span>
+                  <span className="lf-check__label">
+                    {p.conditionName} {p.rateValue.toFixed(2)}% 우대받기
+                  </span>
                 </button>
               </li>
             ))}
@@ -630,21 +655,25 @@ export function LoanApplyFormPage() {
       <BottomSheet
         title="기준금리 선택"
         open={sheet === 'baseRate'}
-        options={BASE_RATE_OPTIONS.map((v) => ({ value: v }))}
+        options={(rateType ? [rateType] : BASE_RATE_OPTIONS).map((v) => ({
+          value: v,
+        }))}
         onSelect={setBaseRate}
         onClose={() => setSheet(null)}
       />
       <BottomSheet
         title="대출기간 선택"
         open={sheet === 'term'}
-        options={TERM_OPTIONS.map((v) => ({ value: v }))}
+        options={termOpts.map((v) => ({ value: v }))}
         onSelect={setTerm}
         onClose={() => setSheet(null)}
       />
       <BottomSheet
         title="금리변경주기 선택"
         open={sheet === 'cycle'}
-        options={CYCLE_OPTIONS.map((v) => ({ value: v }))}
+        options={(cycleOpts.length ? cycleOpts : ['해당없음']).map((v) => ({
+          value: v,
+        }))}
         onSelect={setCycle}
         onClose={() => setSheet(null)}
       />

@@ -8,12 +8,19 @@ import {
 } from '../../lib/auth';
 import { ApiError } from '../../lib/api';
 import { PinPad } from '../../components/PinPad';
+import { PdfViewer } from '../../components/PdfViewer';
 import bnkLogo from '../../assets/bnk-logo.png';
 import '../../styles/shell.css';
 import './bnkauth.css';
 
 const onlyDigits = (v: string) => v.replace(/[^\d]/g, '');
 const CODE_TTL = 180; // 인증코드 유효시간(초)
+
+// 본인확인을 위한 약관(동의서) — public/pdf/signup 에 저장
+const CONSENT_DOCS = [
+  { id: 'collect', label: '개인정보 수집·이용 동의서', url: '/pdf/signup/consent-collect.pdf' },
+  { id: 'thirdparty', label: '개인정보 제3자 제공에 대한 동의서', url: '/pdf/signup/consent-thirdparty.pdf' },
+];
 const TODAY = new Date().toISOString().slice(0, 10); // 생년월일 상한(오늘)
 
 /** 숫자만 추출해 000-0000-0000 형식으로 포맷 */
@@ -37,9 +44,47 @@ export function SignupPage() {
 
   const [step, setStep] = useState<Step>('intro');
 
-  // 본인확인
-  const [termsAgreed, setTermsAgreed] = useState(false);
+  // 본인확인 약관 — 헤더 선택 시 동의서를 순차로 열람·동의(모두동의)
+  const [agreedDocs, setAgreedDocs] = useState<Set<string>>(new Set());
+  const [openConsent, setOpenConsent] = useState<(typeof CONSENT_DOCS)[number] | null>(
+    null,
+  );
+  const [seqMode, setSeqMode] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
+  const termsAgreed = agreedDocs.size === CONSENT_DOCS.length;
+
+  // 헤더(체크+제목) 선택 → 미동의 문서부터 순차로 열람·동의(모두동의)
+  function startConsent() {
+    const first = CONSENT_DOCS.find((d) => !agreedDocs.has(d.id));
+    if (first) {
+      setSeqMode(true);
+      setOpenConsent(first);
+    } else {
+      setTermsOpen(true); // 이미 전체동의 → 목록 펼침
+    }
+  }
+
+  // 개별 동의 — 패널에서 문서 하나만 열람·동의
+  function openOne(doc: (typeof CONSENT_DOCS)[number]) {
+    setSeqMode(false);
+    setOpenConsent(doc);
+  }
+
+  function agreeConsent() {
+    if (!openConsent) return;
+    const next = new Set(agreedDocs).add(openConsent.id);
+    setAgreedDocs(next);
+    if (seqMode) {
+      const remaining = CONSENT_DOCS.find((d) => !next.has(d.id));
+      if (remaining) {
+        setOpenConsent(remaining); // 다음 문서로 이어서
+        return;
+      }
+      setSeqMode(false);
+      setTermsOpen(true); // 모두동의 완료 → 목록 펼침
+    }
+    setOpenConsent(null);
+  }
   const [name, setName] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [phoneNo, setPhoneNo] = useState('');
@@ -233,13 +278,13 @@ export function SignupPage() {
         <div className="ba-body">
           <h1 className="ba-title">{'고객님의 정보를\n입력해주세요'}</h1>
 
-          {/* 약관 */}
+          {/* 본인확인을 위한 약관 — 좌측: 모두동의 / 우측 ›: 개별 목록 펼침 */}
           <div className="ba-terms">
             <div className="ba-terms__head">
               <button
                 type="button"
                 className="ba-terms__agree"
-                onClick={() => setTermsAgreed((a) => !a)}
+                onClick={startConsent}
               >
                 <span
                   className={`ba-terms__check${termsAgreed ? ' ba-terms__check--on' : ''}`}
@@ -252,7 +297,7 @@ export function SignupPage() {
                 type="button"
                 className="ba-terms__chevbtn"
                 onClick={() => setTermsOpen((o) => !o)}
-                aria-label="약관 자세히 보기"
+                aria-label="약관 펼치기"
               >
                 <span
                   className={`ba-terms__chev${termsOpen ? ' ba-terms__chev--open' : ''}`}
@@ -262,24 +307,27 @@ export function SignupPage() {
               </button>
             </div>
             {termsOpen && (
-              <div className="ba-terms__panel">
-                <div className="ba-terms__item">
-                  <span
-                    className={`ba-terms__check${termsAgreed ? ' ba-terms__check--on' : ''}`}
-                  >
-                    ✓
-                  </span>
-                  개인정보 수집·이용 동의 (필수)
-                </div>
-                <div className="ba-terms__item">
-                  <span
-                    className={`ba-terms__check${termsAgreed ? ' ba-terms__check--on' : ''}`}
-                  >
-                    ✓
-                  </span>
-                  본인확인 서비스 이용약관 (필수)
-                </div>
-              </div>
+              <ul className="ba-terms__panel">
+                {CONSENT_DOCS.map((doc) => (
+                  <li key={doc.id}>
+                    <button
+                      type="button"
+                      className="ba-consent"
+                      onClick={() => openOne(doc)}
+                    >
+                      <span
+                        className={`ba-terms__check ba-terms__check--sm${agreedDocs.has(doc.id) ? ' ba-terms__check--on' : ''}`}
+                      >
+                        ✓
+                      </span>
+                      <span className="ba-consent__label">[필수] {doc.label}</span>
+                      <span className="ba-consent__chev" aria-hidden="true">
+                        ›
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
 
@@ -380,6 +428,26 @@ export function SignupPage() {
             다음
           </button>
         </div>
+
+        {openConsent && (
+          <PdfViewer
+            title={openConsent.label}
+            url={openConsent.url}
+            onClose={() => {
+              setOpenConsent(null);
+              setSeqMode(false);
+            }}
+            onAgree={agreeConsent}
+            agreeText={
+              seqMode &&
+              CONSENT_DOCS.some(
+                (d) => d.id !== openConsent.id && !agreedDocs.has(d.id),
+              )
+                ? '동의하고 계속'
+                : '동의'
+            }
+          />
+        )}
       </div>
     );
   }
