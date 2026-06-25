@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BottomSheet } from '../../components/BottomSheet';
 import { INCOME_TREE, nodeAtPath, type IncomeNode } from '../../data/incomeTree';
+import { useApply } from '../../auth/ApplyContext';
+import { saveIncome, annualIncomeFor } from '../../lib/loan';
+import { ApiError } from '../../lib/api';
 import '../../styles/shell.css';
 import './apply.css';
 
@@ -20,11 +23,13 @@ function levelLabel(depth: number, root: string | undefined): string {
 export function LoanApplyPage() {
   const { mkpdCd } = useParams<{ mkpdCd: string }>();
   const navigate = useNavigate();
+  const { loanAccountNo } = useApply();
   const productCd = mkpdCd ?? '';
   const back = () => navigate(-1);
 
   const [path, setPath] = useState<string[]>([]);
   const [openLevel, setOpenLevel] = useState<number | null>(null);
+  const [busy, setBusy] = useState(false);
 
   // 현재 경로에 따른 단계 목록 구성
   const levels: {
@@ -56,9 +61,31 @@ export function LoanApplyPage() {
     setOpenLevel(null);
   };
 
-  const onConfirm = () => {
-    if (isBusiness) navigate(`/apply/${encodeURIComponent(productCd)}/business`);
-    else navigate(`/apply/${encodeURIComponent(productCd)}/loan-result`);
+  const onConfirm = async () => {
+    // 사업소득자는 사업자 정보 페이지에서 소득 저장
+    if (isBusiness) {
+      navigate(`/apply/${encodeURIComponent(productCd)}/business`);
+      return;
+    }
+    if (busy) return;
+    if (!loanAccountNo) {
+      alert('신청서 정보가 없습니다. 처음부터 다시 진행해주세요.');
+      return;
+    }
+    setBusy(true);
+    try {
+      await saveIncome(loanAccountNo, {
+        companyName: '-',
+        jobType: path[1] ?? path[0],
+        employmentType: path[path.length - 1] ?? path[0],
+        annualIncome: annualIncomeFor(path[0]),
+      });
+      navigate(`/apply/${encodeURIComponent(productCd)}/loan-result`);
+    } catch (e) {
+      alert(e instanceof ApiError ? e.message : '소득정보 등록에 실패했습니다.');
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -113,10 +140,10 @@ export function LoanApplyPage() {
         <button
           type="button"
           className="flow-2btn__ok"
-          disabled={!complete}
+          disabled={!complete || busy}
           onClick={onConfirm}
         >
-          확인
+          {busy ? '처리 중…' : '확인'}
         </button>
       </div>
 

@@ -39,8 +39,12 @@ public class LoanApplicationService {
             throw new BusinessException(ErrorCode.LOAN_ALREADY_IN_PROGRESS);
         }
 
+        // 채번: 인메모리 시퀀스가 재기동 시 0으로 리셋되므로, 이미 존재하면 다음 번호로 건너뛴다.
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        String loanAccountNo = LoanApplication.nextAccountNo(date, loanSeq.incrementAndGet());
+        String loanAccountNo;
+        do {
+            loanAccountNo = LoanApplication.nextAccountNo(date, loanSeq.incrementAndGet());
+        } while (loanApplicationRepository.existsById(loanAccountNo));
 
         LoanApplication application = LoanApplication.builder()
                 .loanAccountNo(loanAccountNo)

@@ -1,20 +1,47 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useApply } from '../../auth/ApplyContext';
+import { saveIncome, annualIncomeFor } from '../../lib/loan';
+import { ApiError } from '../../lib/api';
 import '../../styles/shell.css';
 import './apply.css';
 import './loan.css';
 
-/** 사업소득자용 사업자 정보 입력. 확인 시 한도/금리 조회 결과로 이동. */
+/** 사업소득자용 사업자 정보 입력. 확인 시 소득 저장 후 한도/금리 조회로 이동. */
 export function BusinessInfoPage() {
   const { mkpdCd } = useParams<{ mkpdCd: string }>();
   const navigate = useNavigate();
+  const { loanAccountNo } = useApply();
   const productCd = mkpdCd ?? '';
 
   const [name, setName] = useState('');
   const [bizNo, setBizNo] = useState('');
   const [addr, setAddr] = useState('');
+  const [busy, setBusy] = useState(false);
 
   const complete = name.trim() !== '' && bizNo.trim() !== '';
+
+  const onConfirm = async () => {
+    if (busy) return;
+    if (!loanAccountNo) {
+      alert('신청서 정보가 없습니다. 처음부터 다시 진행해주세요.');
+      return;
+    }
+    setBusy(true);
+    try {
+      await saveIncome(loanAccountNo, {
+        companyName: name.trim(),
+        jobType: '사업소득자',
+        employmentType: '개인사업자',
+        annualIncome: annualIncomeFor('사업소득자'),
+      });
+      navigate(`/apply/${encodeURIComponent(productCd)}/loan-result`);
+    } catch (e) {
+      alert(e instanceof ApiError ? e.message : '소득정보 등록에 실패했습니다.');
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <div className="app-shell">
@@ -74,10 +101,10 @@ export function BusinessInfoPage() {
         <button
           type="button"
           className="flow-2btn__ok"
-          disabled={!complete}
-          onClick={() => navigate(`/apply/${encodeURIComponent(productCd)}/loan-result`)}
+          disabled={!complete || busy}
+          onClick={onConfirm}
         >
-          확인
+          {busy ? '처리 중…' : '확인'}
         </button>
       </div>
     </div>

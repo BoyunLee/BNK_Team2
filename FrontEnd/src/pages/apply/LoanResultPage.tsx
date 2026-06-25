@@ -1,25 +1,29 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useApply } from '../../auth/ApplyContext';
+import {
+  runScreening,
+  getScreening,
+  type ScreeningResult,
+} from '../../lib/loan';
+import { ApiError } from '../../lib/api';
 import '../../styles/shell.css';
 import './apply.css';
 import './loan.css';
 
 type Tab = '일반신용' | '마이너스통장';
 
-const COND: Record<Tab, { rate: string; interest: string }> = {
-  일반신용: { rate: '7.1', interest: '177,000' },
-  마이너스통장: { rate: '7.7', interest: '192,000' },
-};
-const LIMIT = '3,000';
-
-/** 한도/금리 조회 로딩 후 대출 조건 결과(일반신용/마이너스통장). */
+/** 한도/금리 조회 — BE screening 산출(status 5→6) 후 결과 표시. */
 export function LoanResultPage() {
   const { mkpdCd } = useParams<{ mkpdCd: string }>();
   const navigate = useNavigate();
+  const { loanAccountNo, setScreening } = useApply();
   const productCd = mkpdCd ?? '';
 
   const [progress, setProgress] = useState(0);
   const [tab, setTab] = useState<Tab>('일반신용');
+  const [screening, setLocalScreening] = useState<ScreeningResult | null>(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const iv = setInterval(() => {
@@ -34,7 +38,54 @@ export function LoanResultPage() {
     return () => clearInterval(iv);
   }, []);
 
-  if (progress < 100) {
+  // 한도 산출 호출 (이미 산출된 상태면 GET 으로 폴백)
+  useEffect(() => {
+    if (!loanAccountNo) {
+      setError('신청서 정보가 없습니다. 처음부터 다시 진행해주세요.');
+      return;
+    }
+    let alive = true;
+    (async () => {
+      try {
+        let r: ScreeningResult;
+        try {
+          r = await runScreening(loanAccountNo);
+        } catch (e) {
+          if (e instanceof ApiError && e.code === 'LOAN004') {
+            r = await getScreening(loanAccountNo); // 이미 산출됨
+          } else throw e;
+        }
+        if (!alive) return;
+        setLocalScreening(r);
+        setScreening(r);
+      } catch (e) {
+        if (alive)
+          setError(e instanceof ApiError ? e.message : '한도 조회에 실패했습니다.');
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loanAccountNo]);
+
+  if (error) {
+    return (
+      <div className="app-shell">
+        <header className="flow-head">
+          <button type="button" className="flow-head__back" onClick={() => navigate(-1)}>
+            ‹ 뒤로가기
+          </button>
+        </header>
+        <div className="list-error" style={{ padding: '48px 24px' }}>
+          <h2>한도 조회 실패</h2>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (progress < 100 || !screening) {
     const phase1 = progress < 50;
     return (
       <div className="app-shell">
@@ -71,7 +122,34 @@ export function LoanResultPage() {
     );
   }
 
-  const c = COND[tab];
+  // 심사 거절
+  if (screening.result === 'REJECTED') {
+    return (
+      <div className="app-shell">
+        <header className="flow-head">
+          <button type="button" className="flow-head__back" onClick={() => navigate(-1)}>
+            ‹ 뒤로가기
+          </button>
+        </header>
+        <div className="flow-body" style={{ paddingTop: 40, textAlign: 'center' }}>
+          <div style={{ fontSize: 64, marginBottom: 20 }}>😢</div>
+          <h1 className="loan-result__lead">
+            아쉽지만 이번에는
+            <br />
+            대출이 어려워요.
+          </h1>
+          <p style={{ color: 'var(--ink-soft)', marginTop: 16 }}>
+            심사 기준에 따라 한도가 산출되지 않았습니다.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const limitMan = Math.floor(screening.maxLimitAmt / 10000).toLocaleString('ko-KR');
+  const rate = tab === '마이너스통장' ? screening.appliedBaseRate + 0.5 : screening.appliedBaseRate;
+  const interest = Math.round((screening.maxLimitAmt * rate) / 1200).toLocaleString('ko-KR');
+
   return (
     <div className="app-shell">
       <header className="flow-head">
@@ -106,21 +184,21 @@ export function LoanResultPage() {
             <div className="loan-card__col">
               <div className="loan-card__k">한도</div>
               <div className="loan-card__limit">
-                {LIMIT}
+                {limitMan}
                 <span>만원</span>
               </div>
             </div>
             <div className="loan-card__col">
               <div className="loan-card__k">금리</div>
               <div className="loan-card__rate">
-                {c.rate}
+                {rate.toFixed(2)}
                 <span>%</span>
               </div>
             </div>
           </div>
           <div className="loan-card__interest">
-            {LIMIT}만원 한달 평균 대출이자는?
-            <br />약 {c.interest}원
+            {limitMan}만원 한달 평균 대출이자는?
+            <br />약 {interest}원
           </div>
           <button
             type="button"

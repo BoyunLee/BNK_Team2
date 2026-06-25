@@ -49,7 +49,7 @@ public class ScreeningService {
     public MydataResponse getMydataResult(String loanAccountNo) {
         loanApplicationService.findApplication(loanAccountNo);
 
-        IncomeInfo incomeInfo = incomeInfoRepository.findByLoanAccountNo(loanAccountNo)
+        IncomeInfo incomeInfo = incomeInfoRepository.findTopByLoanAccountNoOrderByIncomeIdDesc(loanAccountNo)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
 
         MydataService.MydataResult result = mydataService.fetchPublicData(loanAccountNo, incomeInfo.getAnnualIncome());
@@ -60,7 +60,7 @@ public class ScreeningService {
     public ScreeningResponse calculateScreening(String loanAccountNo) {
         LoanApplication application = loanApplicationService.findAndValidate(loanAccountNo, "5");
 
-        IncomeInfo incomeInfo = incomeInfoRepository.findByLoanAccountNo(loanAccountNo)
+        IncomeInfo incomeInfo = incomeInfoRepository.findTopByLoanAccountNoOrderByIncomeIdDesc(loanAccountNo)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
 
         LoanProduct product = loanProductRepository.findById(application.getProductId())

@@ -8,4 +8,7 @@ import java.util.Optional;
 public interface IncomeInfoRepository extends JpaRepository<IncomeInfo, Long> {
 
     Optional<IncomeInfo> findByLoanAccountNo(String loanAccountNo);
+
+    /** 중복 입력 대비 — 최신 1건 */
+    Optional<IncomeInfo> findTopByLoanAccountNoOrderByIncomeIdDesc(String loanAccountNo);
 }

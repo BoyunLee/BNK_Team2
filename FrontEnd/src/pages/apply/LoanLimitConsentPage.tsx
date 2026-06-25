@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Document, Page, pdfjs } from 'react-pdf';
+import { useApply } from '../../auth/ApplyContext';
+import { completeLimitConsent } from '../../lib/loan';
+import { ApiError } from '../../lib/api';
 import '../../styles/shell.css';
 import './apply.css';
 import './LoanLimitConsentPage.css';
@@ -87,6 +90,7 @@ const ITEMS: Doc[] = [
 export function LoanLimitConsentPage() {
   const { mkpdCd } = useParams<{ mkpdCd: string }>();
   const navigate = useNavigate();
+  const { loanAccountNo } = useApply();
   const productCd = mkpdCd ?? '';
   const back = () => navigate(`/product/${encodeURIComponent(productCd)}`);
 
@@ -94,13 +98,29 @@ export function LoanLimitConsentPage() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [seq, setSeq] = useState(false); // 전체동의 순차 진행 모드
   const [showNotice, setShowNotice] = useState(false); // 보이스피싱 유의사항 시트
+  const [busy, setBusy] = useState(false);
 
-  // 유의사항 확인 → 간편비밀번호 본인 인증(인증 후 한도조회 완료)
-  const proceedToAuth = () => {
-    const after = `/apply/${encodeURIComponent(productCd)}/done`;
-    navigate(
-      `/apply/${encodeURIComponent(productCd)}/auth?next=${encodeURIComponent(after)}`,
-    );
+  // 유의사항 확인 → 마이데이터 동의 + 서류 6종 동의(status 2→3) → PIN(사전 전자서명, →4)
+  const proceedToAuth = async () => {
+    if (busy) return;
+    if (!loanAccountNo) {
+      alert('신청서 정보가 없습니다. 처음부터 다시 진행해주세요.');
+      return;
+    }
+    setBusy(true);
+    try {
+      await completeLimitConsent(loanAccountNo, Number(productCd));
+      const after = `/apply/${encodeURIComponent(productCd)}/done`;
+      navigate(
+        `/apply/${encodeURIComponent(productCd)}/auth?action=presign&next=${encodeURIComponent(after)}`,
+      );
+    } catch (e) {
+      alert(
+        e instanceof ApiError ? e.message : '동의 처리에 실패했습니다. 다시 시도해주세요.',
+      );
+    } finally {
+      setBusy(false);
+    }
   };
 
   const allAgreed = agreed.size === ITEMS.length;
@@ -254,8 +274,9 @@ export function LoanLimitConsentPage() {
                 type="button"
                 className="notice__confirm"
                 onClick={proceedToAuth}
+                disabled={busy}
               >
-                모두 확인했어요
+                {busy ? '처리 중…' : '모두 확인했어요'}
               </button>
             </div>
           </div>

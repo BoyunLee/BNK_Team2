@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { Outlet } from 'react-router-dom';
+import type { ScreeningResult } from '../lib/loan';
 
 const STORAGE_KEY = 'bnk.apply';
 
@@ -14,23 +15,27 @@ const STORAGE_KEY = 'bnk.apply';
 interface ApplyData {
   loanAccountNo: string | null;
   productId: string | null;
+  screening: ScreeningResult | null;
 }
 
 interface ApplyContextValue extends ApplyData {
   setApplication: (loanAccountNo: string, productId: string) => void;
+  setScreening: (screening: ScreeningResult) => void;
   reset: () => void;
 }
 
 const ApplyContext = createContext<ApplyContextValue | null>(null);
 
+const EMPTY: ApplyData = { loanAccountNo: null, productId: null, screening: null };
+
 function readStored(): ApplyData {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as ApplyData;
+    if (raw) return { ...EMPTY, ...(JSON.parse(raw) as ApplyData) };
   } catch {
     /* ignore */
   }
-  return { loanAccountNo: null, productId: null };
+  return EMPTY;
 }
 
 export function ApplyProvider({ children }: { children: ReactNode }) {
@@ -41,20 +46,31 @@ export function ApplyProvider({ children }: { children: ReactNode }) {
     setData(next);
   }, []);
 
+  // 새 신청서 시작 — 이전 screening 등 초기화
   const setApplication = useCallback(
     (loanAccountNo: string, productId: string) =>
-      persist({ loanAccountNo, productId }),
+      persist({ loanAccountNo, productId, screening: null }),
     [persist],
+  );
+
+  const setScreening = useCallback(
+    (screening: ScreeningResult) =>
+      setData((d) => {
+        const next = { ...d, screening };
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        return next;
+      }),
+    [],
   );
 
   const reset = useCallback(() => {
     sessionStorage.removeItem(STORAGE_KEY);
-    setData({ loanAccountNo: null, productId: null });
+    setData(EMPTY);
   }, []);
 
   const value = useMemo<ApplyContextValue>(
-    () => ({ ...data, setApplication, reset }),
-    [data, setApplication, reset],
+    () => ({ ...data, setApplication, setScreening, reset }),
+    [data, setApplication, setScreening, reset],
   );
 
   return <ApplyContext.Provider value={value}>{children}</ApplyContext.Provider>;

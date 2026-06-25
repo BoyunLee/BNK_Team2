@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useApply } from '../../auth/ApplyContext';
-import { verifySuitability } from '../../lib/loan';
+import { verifySuitability, signPreProcess } from '../../lib/loan';
 import { ApiError } from '../../lib/api';
 import '../../styles/shell.css';
 import './apply.css';
@@ -48,10 +48,11 @@ export function PinAuthPage() {
       setBusy(true);
       setError('');
       try {
-        if (action === 'suitability') {
+        if (action === 'suitability' || action === 'presign') {
           if (!loanAccountNo)
             throw new Error('신청서 정보가 없습니다. 처음부터 다시 진행해주세요.');
-          await verifySuitability(loanAccountNo, pin);
+          if (action === 'suitability') await verifySuitability(loanAccountNo, pin);
+          else await signPreProcess(loanAccountNo);
         }
         if (alive) navigate(next);
       } catch (e) {
