@@ -1,10 +1,11 @@
+# syntax=docker/dockerfile:1
 # ===== build =====
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+# npm 캐시를 BuildKit 캐시마운트로 보존
+RUN --mount=type=cache,target=/root/.npm npm ci
 COPY . .
-# .env.production 의 VITE_API_BASE=（빈값) → API 호출이 상대경로(/api/..) → nginx 가 백엔드로 프록시
 RUN npm run build
 
 # ===== serve =====

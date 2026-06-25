@@ -6,6 +6,7 @@
 # DB 접속정보는 아래 기본값을 쓰거나, 루트에 .env 파일 또는 셸 환경변수로 덮어쓴다.
 services:
   backend:
+    image: "${REGISTRY:-local}/bnk-backend:latest"
     build: ./BackEnd
     container_name: bnk-backend
     environment:
@@ -22,6 +23,7 @@ services:
     restart: unless-stopped
 
   frontend:
+    image: "${REGISTRY:-local}/bnk-frontend:latest"
     build: ./FrontEnd
     container_name: bnk-frontend
     depends_on:
