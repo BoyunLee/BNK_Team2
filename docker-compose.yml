@@ -9,10 +9,13 @@ services:
     build: ./BackEnd
     container_name: bnk-backend
     environment:
-      # 환경변수가 application-local.yml(로컬 프로파일) 값을 덮어쓴다.
+      # 환경변수가 application yml 값보다 우선한다(플레이스홀더 직접 주입).
+      SPRING_PROFILES_ACTIVE: "local"
       SPRING_DATASOURCE_URL: "${DB_URL:-jdbc:mysql://34.47.80.185:3306/bnk3?createDatabaseIfNotExist=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8}"
       SPRING_DATASOURCE_USERNAME: "${DB_USERNAME:-root}"
       SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD:-4510471}"
+      # AES-256 키(Base64 32바이트). 필수 — 미설정 시 부팅 실패.
+      CRYPTO_SECRET_KEY: "${CRYPTO_SECRET_KEY:-dGVzdGtleTF0ZXN0a2V5MnRlc3RrZXkzdGVzdGtleTQ=}"
       ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
     expose:
       - "8080" # 외부 노출 없이 compose 내부망에서만 접근(프론트 nginx 가 프록시)
