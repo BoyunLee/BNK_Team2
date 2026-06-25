@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { sendChat, type ChatMessage } from '../lib/chat';
 import '../styles/shell.css';
 import './ChatWidget.css';
@@ -12,6 +12,7 @@ const GREETING: ChatMessage = {
 
 /** 전역 플로팅 챗봇. 모든 화면 위에 떠 있는 FAB → 패널. */
 export function ChatWidget() {
+  const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([GREETING]);
   const [input, setInput] = useState('');
@@ -101,6 +102,11 @@ export function ChatWidget() {
       e.preventDefault();
       handleSend();
     }
+  }
+
+  // 로그인/회원가입 화면에서는 챗봇 버튼을 숨긴다.
+  if (pathname.startsWith('/login') || pathname.startsWith('/signup')) {
+    return null;
   }
 
   return (
