@@ -47,7 +47,14 @@ public enum ErrorCode {
     INVALID_PASSWORD("VERIFY001", "비밀번호가 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
     SIGNATURE_FAILED("VERIFY002", "전자서명 인증에 실패했습니다.", HttpStatus.BAD_REQUEST),
     SIGNATURE_TOKEN_INVALID("VERIFY003", "전자서명 토큰이 유효하지 않습니다.", HttpStatus.BAD_REQUEST),
-    ALREADY_VERIFIED("VERIFY004", "이미 완료된 인증입니다.", HttpStatus.CONFLICT);
+    ALREADY_VERIFIED("VERIFY004", "이미 완료된 인증입니다.", HttpStatus.CONFLICT),
+
+    // ────── Admin (상품 결재) ──────
+    ADMIN_NOT_FOUND("ADMIN001", "관리자 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    CHANGE_REQUEST_NOT_FOUND("ADMIN002", "변경 신청서를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    INVALID_CHANGE_STATE("ADMIN003", "현재 신청 상태에서 수행할 수 없는 작업입니다.", HttpStatus.BAD_REQUEST),
+    NOT_APPROVER("ADMIN004", "결재 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    APPROVER_REQUIRED("ADMIN005", "책임자(APPROVER)만 지정할 수 있습니다.", HttpStatus.BAD_REQUEST);
 
     private final String code;
     private final String message;

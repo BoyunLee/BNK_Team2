@@ -1,0 +1,256 @@
+/* ===== 관리자(상품 결재) 공통 스타일 ===== */
+:root {
+  --adm-red: #d6001c;
+  --adm-red-dark: #b00017;
+  --adm-ink: #1f2329;
+  --adm-muted: #6b7280;
+  --adm-line: #e5e7eb;
+  --adm-bg: #f4f5f7;
+  --adm-card: #ffffff;
+}
+
+.adm-root {
+  min-height: 100vh;
+  display: flex;
+  background: var(--adm-bg);
+  color: var(--adm-ink);
+  font-family: 'Pretendard', system-ui, -apple-system, 'Malgun Gothic', sans-serif;
+}
+
+/* ----- Sidebar ----- */
+.adm-side {
+  width: 232px;
+  flex: 0 0 232px;
+  background: #1f2329;
+  color: #cbd2dc;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+.adm-side__brand {
+  padding: 20px 18px;
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+  border-bottom: 1px solid #2b3038;
+  letter-spacing: -0.3px;
+}
+.adm-side__brand b { color: var(--adm-red); }
+.adm-nav { padding: 10px 0; flex: 1; overflow-y: auto; }
+.adm-nav__sec {
+  padding: 14px 18px 6px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: #79808c;
+  text-transform: uppercase;
+}
+.adm-nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  color: #cbd2dc;
+  text-decoration: none;
+  font-size: 14px;
+  border-left: 3px solid transparent;
+}
+.adm-nav a:hover { background: #262b33; color: #fff; }
+.adm-nav a.active {
+  background: #262b33;
+  color: #fff;
+  border-left-color: var(--adm-red);
+  font-weight: 700;
+}
+.adm-nav .badge {
+  margin-left: auto;
+  background: var(--adm-red);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 1px 7px;
+}
+.adm-side__foot {
+  padding: 14px 18px;
+  border-top: 1px solid #2b3038;
+  font-size: 13px;
+}
+.adm-side__foot .name { color: #fff; font-weight: 700; }
+.adm-side__foot .role { color: #79808c; font-size: 12px; }
+.adm-side__foot button {
+  margin-top: 10px;
+  width: 100%;
+  background: transparent;
+  border: 1px solid #3a414b;
+  color: #cbd2dc;
+  border-radius: 8px;
+  padding: 7px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.adm-side__foot button:hover { background: #262b33; color: #fff; }
+
+/* ----- Main ----- */
+.adm-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.adm-topbar {
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid var(--adm-line);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.adm-topbar h1 { font-size: 16px; font-weight: 800; margin: 0; }
+.adm-content { padding: 24px; max-width: 1100px; width: 100%; }
+
+/* ----- Buttons ----- */
+.adm-btn {
+  border: 1px solid var(--adm-line);
+  background: #fff;
+  color: var(--adm-ink);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.adm-btn:hover { background: #f7f8fa; }
+.adm-btn--primary { background: var(--adm-red); border-color: var(--adm-red); color: #fff; }
+.adm-btn--primary:hover { background: var(--adm-red-dark); }
+.adm-btn--ghost { background: transparent; }
+.adm-btn--danger { color: var(--adm-red); border-color: #f2c2c8; }
+.adm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.adm-btn--sm { padding: 5px 10px; font-size: 13px; }
+
+/* ----- Card / table ----- */
+.adm-card {
+  background: var(--adm-card);
+  border: 1px solid var(--adm-line);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 18px;
+}
+.adm-card__title { font-size: 14px; font-weight: 800; margin: 0 0 12px; }
+
+.adm-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.adm-table th, .adm-table td {
+  text-align: left;
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--adm-line);
+}
+.adm-table th { font-size: 12px; color: var(--adm-muted); font-weight: 700; background: #fafbfc; }
+.adm-table tbody tr:hover { background: #fafbfc; cursor: pointer; }
+.adm-table .num { color: var(--adm-muted); font-variant-numeric: tabular-nums; }
+
+/* ----- Badges ----- */
+.adm-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.adm-badge--DRAFT { background: #eef0f2; color: #4b5563; }
+.adm-badge--PENDING { background: #fff4e5; color: #b26a00; border-color: #ffe2b8; }
+.adm-badge--APPROVED { background: #e6f0ff; color: #1d4ed8; border-color: #c9ddff; }
+.adm-badge--REJECTED { background: #fdeaea; color: #c01724; border-color: #f6cdd1; }
+.adm-badge--DEPLOYED { background: #e7f6ec; color: #1a7f37; border-color: #c4ebd1; }
+.adm-badge--CANCELLED { background: #f1f1f1; color: #9aa0a6; }
+.adm-badge--type { background: #f0f1f3; color: #374151; font-weight: 700; }
+
+/* ----- Tabs ----- */
+.adm-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+.adm-tab {
+  border: 1px solid var(--adm-line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--adm-muted);
+}
+.adm-tab.active { background: var(--adm-ink); color: #fff; border-color: var(--adm-ink); }
+
+/* ----- Form ----- */
+.adm-field { margin-bottom: 14px; }
+.adm-field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.adm-field input, .adm-field select, .adm-field textarea {
+  width: 100%;
+  border: 1px solid var(--adm-line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+.adm-field textarea { min-height: 80px; resize: vertical; }
+.adm-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+
+/* ----- Diff ----- */
+.adm-diff { width: 100%; border-collapse: collapse; font-size: 14px; }
+.adm-diff th, .adm-diff td { padding: 10px 12px; border-bottom: 1px solid var(--adm-line); vertical-align: top; }
+.adm-diff th { font-size: 12px; color: var(--adm-muted); width: 130px; background: #fafbfc; }
+.adm-diff col.asis { width: 50%; }
+.adm-diff .asis-cell { color: #6b7280; }
+.adm-diff .tobe-cell.changed { background: #fff8e6; font-weight: 600; }
+.adm-diff thead th { text-align: left; font-size: 12px; }
+.adm-diff__head-asis { color: #6b7280; }
+.adm-diff__head-tobe { color: var(--adm-red); }
+
+/* ----- Meta list ----- */
+.adm-meta { display: grid; grid-template-columns: 120px 1fr; gap: 8px 12px; font-size: 14px; }
+.adm-meta dt { color: var(--adm-muted); font-size: 13px; }
+.adm-meta dd { margin: 0; }
+
+.adm-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.adm-row--end { justify-content: flex-end; }
+.adm-spacer { flex: 1; }
+.adm-empty { padding: 48px; text-align: center; color: var(--adm-muted); }
+.adm-hint { font-size: 13px; color: var(--adm-muted); }
+.adm-err { color: var(--adm-red); font-size: 13px; margin-top: 8px; }
+
+/* ----- Modal ----- */
+.adm-modal__dim {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center; z-index: 50;
+}
+.adm-modal {
+  background: #fff; border-radius: 14px; width: min(460px, 92vw);
+  padding: 22px; box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+}
+.adm-modal h3 { margin: 0 0 14px; font-size: 16px; }
+.adm-pick { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.adm-pick__item {
+  display: flex; align-items: center; gap: 10px;
+  border: 1px solid var(--adm-line); border-radius: 10px; padding: 12px; cursor: pointer;
+}
+.adm-pick__item.active { border-color: var(--adm-red); background: #fff5f6; }
+.adm-pick__item .nm { font-weight: 700; }
+.adm-pick__item .dp { font-size: 12px; color: var(--adm-muted); }
+
+/* ----- KPI ----- */
+.adm-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+.adm-kpi { background: #fff; border: 1px solid var(--adm-line); border-radius: 12px; padding: 16px; }
+.adm-kpi .label { font-size: 13px; color: var(--adm-muted); }
+.adm-kpi .value { font-size: 26px; font-weight: 800; margin-top: 4px; }
+
+/* ----- Login ----- */
+.adm-login { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--adm-bg); }
+.adm-login__box { background: #fff; border: 1px solid var(--adm-line); border-radius: 16px; padding: 32px; width: min(400px, 92vw); }
+.adm-login__box h1 { font-size: 20px; margin: 0 0 4px; }
+.adm-login__box h1 b { color: var(--adm-red); }
+.adm-login__box p { color: var(--adm-muted); font-size: 13px; margin: 0 0 20px; }
+
+@media (max-width: 720px) {
+  .adm-side { display: none; }
+  .adm-kpis { grid-template-columns: repeat(2, 1fr); }
+  .adm-grid2 { grid-template-columns: 1fr; }
+}
