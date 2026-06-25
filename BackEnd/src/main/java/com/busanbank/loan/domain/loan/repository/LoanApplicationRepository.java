@@ -13,6 +13,8 @@ public interface LoanApplicationRepository extends JpaRepository<LoanApplication
 
     boolean existsByCustomerIdAndStatusCodeNotIn(Long customerId, List<String> codes);
 
+    boolean existsByCustomerIdAndProductIdAndStatusCodeNotIn(Long customerId, Long productId, List<String> codes);
+
     List<LoanApplication> findAllByExpireAtBeforeAndStatusCodeNotIn(LocalDateTime now, List<String> codes);
 
     List<LoanApplication> findAllByCustomerIdOrderByAppliedAtDesc(Long customerId);

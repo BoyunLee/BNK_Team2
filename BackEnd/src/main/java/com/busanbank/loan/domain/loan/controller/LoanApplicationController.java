@@ -2,6 +2,7 @@ package com.busanbank.loan.domain.loan.controller;
 
 import com.busanbank.loan.domain.loan.dto.request.*;
 import com.busanbank.loan.domain.loan.dto.response.CreateApplicationResponse;
+import com.busanbank.loan.domain.loan.dto.response.CurrentApplicationResponse;
 import com.busanbank.loan.domain.loan.dto.response.DocumentActionResponse;
 import com.busanbank.loan.domain.loan.dto.response.SignatureResponse;
 import com.busanbank.loan.domain.loan.dto.response.TokenIssueResponse;
@@ -32,6 +33,13 @@ public class LoanApplicationController {
         Long customerId = SessionUtil.getCurrentCustomerId();
         LoanApplication application = loanApplicationService.createApplication(customerId, request.productId());
         return ApiResponse.created(CreateApplicationResponse.from(application), "대출 신청서가 생성되었습니다.");
+    }
+
+    @GetMapping("/current")
+    public ApiResponse<CurrentApplicationResponse> getCurrentApplication(@RequestParam Long productId) {
+        Long customerId = SessionUtil.getCurrentCustomerId();
+        LoanApplication application = loanApplicationService.getCurrentApplication(customerId, productId);
+        return ApiResponse.ok(application == null ? null : CurrentApplicationResponse.from(application));
     }
 
     @PostMapping("/{loanAccountNo}/verification/suitability")

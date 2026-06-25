@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApply } from '../../auth/ApplyContext';
+import { useAuth } from '../../auth/AuthContext';
 import { useApplyExit } from './useApplyExit';
 import {
   runScreening,
@@ -18,16 +19,23 @@ type Tab = '일반신용' | '마이너스통장';
 export function LoanResultPage() {
   const { mkpdCd } = useParams<{ mkpdCd: string }>();
   const navigate = useNavigate();
-  const { loanAccountNo, setScreening } = useApply();
-  const { requestExit, exitModal } = useApplyExit(mkpdCd ?? '');
+  const { loanAccountNo, screening: savedScreening, setScreening } = useApply();
+  const { customer } = useAuth();
   const productCd = mkpdCd ?? '';
 
-  const [progress, setProgress] = useState(0);
+  // 한도조회 결과는 보존 — 나가도 신청서를 취소하지 않고, 재진입 시 이어볼 수 있다.
+  const { requestExit: leave, exitModal: leaveModal } = useApplyExit(productCd, {
+    preserve: true,
+  });
+
+  // 이미 조회한 결과가 있으면(이탈 후 재진입) 로딩 없이 결과로 이어본다
+  const [progress, setProgress] = useState(savedScreening ? 100 : 0);
   const [tab, setTab] = useState<Tab>('일반신용');
-  const [screening, setLocalScreening] = useState<ScreeningResult | null>(null);
+  const [screening, setLocalScreening] = useState<ScreeningResult | null>(savedScreening);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    if (savedScreening) return; // 저장된 결과로 이어보기 — 애니메이션 생략
     const iv = setInterval(() => {
       setProgress((p) => {
         if (p >= 100) {
@@ -38,12 +46,14 @@ export function LoanResultPage() {
       });
     }, 45);
     return () => clearInterval(iv);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 한도 산출 호출 (이미 산출된 상태면 GET 으로 폴백)
   // StrictMode 이중 실행/재진입 시 중복 산출 방지 — 한 번만 호출
   const ranRef = useRef(false);
   useEffect(() => {
+    if (savedScreening) return; // 저장된 결과 사용 — 재호출 안 함
     if (!loanAccountNo) {
       setError('신청서 정보가 없습니다. 처음부터 다시 진행해주세요.');
       return;
@@ -72,16 +82,17 @@ export function LoanResultPage() {
   if (error) {
     return (
       <div className="app-shell">
-        <header className="flow-head">
-          <button type="button" className="flow-head__back" onClick={requestExit}>
+        <header className="flow-head flow-head--col">
+          <button type="button" className="flow-head__back" onClick={leave}>
             ‹ 뒤로가기
           </button>
         </header>
+        <h1 className="page-title">대출한도조회</h1>
         <div className="list-error" style={{ padding: '48px 24px' }}>
           <h2>한도 조회 실패</h2>
           <p>{error}</p>
         </div>
-        {exitModal}
+        {leaveModal}
       </div>
     );
   }
@@ -90,11 +101,12 @@ export function LoanResultPage() {
     const phase1 = progress < 50;
     return (
       <div className="app-shell">
-        <header className="flow-head">
-          <button type="button" className="flow-head__back" onClick={requestExit}>
+        <header className="flow-head flow-head--col">
+          <button type="button" className="flow-head__back" onClick={leave}>
             ‹ 뒤로가기
           </button>
         </header>
+        <h1 className="page-title">대출한도조회</h1>
         <div className="loan-loading">
           <h1 className="loan-loading__title">
             {phase1 ? (
@@ -119,7 +131,7 @@ export function LoanResultPage() {
             {phase1 ? '한도 올리는 중 ···' : '금리 내리는 중 ···'}
           </div>
         </div>
-        {exitModal}
+        {leaveModal}
       </div>
     );
   }
@@ -128,11 +140,12 @@ export function LoanResultPage() {
   if (screening.result === 'REJECTED') {
     return (
       <div className="app-shell">
-        <header className="flow-head">
-          <button type="button" className="flow-head__back" onClick={requestExit}>
+        <header className="flow-head flow-head--col">
+          <button type="button" className="flow-head__back" onClick={leave}>
             ‹ 뒤로가기
           </button>
         </header>
+        <h1 className="page-title">대출한도조회</h1>
         <div className="flow-body" style={{ paddingTop: 40, textAlign: 'center' }}>
           <div style={{ fontSize: 64, marginBottom: 20 }}>😢</div>
           <h1 className="loan-result__lead">
@@ -144,7 +157,7 @@ export function LoanResultPage() {
             심사 기준에 따라 한도가 산출되지 않았습니다.
           </p>
         </div>
-        {exitModal}
+        {leaveModal}
       </div>
     );
   }
@@ -155,15 +168,16 @@ export function LoanResultPage() {
 
   return (
     <div className="app-shell">
-      <header className="flow-head">
-        <button type="button" className="flow-head__back" onClick={() => navigate(-1)}>
+      <header className="flow-head flow-head--col">
+        <button type="button" className="flow-head__back" onClick={leave}>
           ‹ 뒤로가기
         </button>
       </header>
+      <h1 className="page-title">대출한도조회</h1>
 
       <div className="flow-body" style={{ paddingBottom: 32 }}>
         <h1 className="loan-result__lead">
-          고객님을 위한
+          {customer?.name?.trim() || '고객'}님을 위한
           <br />
           대출 조건을 알려드립니다!
         </h1>
@@ -218,7 +232,7 @@ export function LoanResultPage() {
           <p>최대 0.8% 우대가 포함된 금리에요. 다음 단계에서 거래 실적 조건을 선택하면 이 금리를 모두 받을 수 있어요.</p>
         </div>
       </div>
-      {exitModal}
+      {leaveModal}
     </div>
   );
 }

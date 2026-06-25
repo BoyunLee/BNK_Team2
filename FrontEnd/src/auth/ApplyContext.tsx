@@ -9,7 +9,8 @@ import {
 import { Outlet } from 'react-router-dom';
 import type { ScreeningResult } from '../lib/loan';
 
-const STORAGE_KEY = 'bnk.apply';
+// 신청 진행 상태는 메모리에만 보관한다. 플로우(/apply/*) 안에서는 ApplyLayout 이
+// 유지돼 공유되며, 이탈 후 재진입 시에는 BE(getCurrentApplication)로 복원한다.
 
 /** 대출 신청 플로우 전반에서 공유하는 상태(점진적으로 필드 추가). */
 interface ApplyData {
@@ -28,45 +29,22 @@ const ApplyContext = createContext<ApplyContextValue | null>(null);
 
 const EMPTY: ApplyData = { loanAccountNo: null, productId: null, screening: null };
 
-function readStored(): ApplyData {
-  try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (raw) return { ...EMPTY, ...(JSON.parse(raw) as ApplyData) };
-  } catch {
-    /* ignore */
-  }
-  return EMPTY;
-}
-
 export function ApplyProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<ApplyData>(readStored);
+  const [data, setData] = useState<ApplyData>(EMPTY);
 
-  const persist = useCallback((next: ApplyData) => {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    setData(next);
-  }, []);
-
-  // 새 신청서 시작 — 이전 screening 등 초기화
+  // 새 신청서 시작/복원 — 이전 screening 초기화
   const setApplication = useCallback(
     (loanAccountNo: string, productId: string) =>
-      persist({ loanAccountNo, productId, screening: null }),
-    [persist],
-  );
-
-  const setScreening = useCallback(
-    (screening: ScreeningResult) =>
-      setData((d) => {
-        const next = { ...d, screening };
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-        return next;
-      }),
+      setData({ loanAccountNo, productId, screening: null }),
     [],
   );
 
-  const reset = useCallback(() => {
-    sessionStorage.removeItem(STORAGE_KEY);
-    setData(EMPTY);
-  }, []);
+  const setScreening = useCallback(
+    (screening: ScreeningResult) => setData((d) => ({ ...d, screening })),
+    [],
+  );
+
+  const reset = useCallback(() => setData(EMPTY), []);
 
   const value = useMemo<ApplyContextValue>(
     () => ({ ...data, setApplication, setScreening, reset }),

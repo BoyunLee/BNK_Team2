@@ -33,8 +33,9 @@ public class LoanApplicationService {
         loanProductRepository.findById(productId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
+        // 진행 중 신청서는 상품별로 1건만 — 다른 상품은 동시 진행 가능
         boolean inProgress = loanApplicationRepository
-                .existsByCustomerIdAndStatusCodeNotIn(customerId, List.of("9", "X", "R"));
+                .existsByCustomerIdAndProductIdAndStatusCodeNotIn(customerId, productId, List.of("9", "X", "R"));
         if (inProgress) {
             throw new BusinessException(ErrorCode.LOAN_ALREADY_IN_PROGRESS);
         }
@@ -55,6 +56,17 @@ public class LoanApplicationService {
                 .build();
 
         return loanApplicationRepository.save(application);
+    }
+
+    /** 특정 상품의 진행 중(미완료·미만료) 신청서 최신 1건. 없으면 null. */
+    @Transactional(readOnly = true)
+    public LoanApplication getCurrentApplication(Long customerId, Long productId) {
+        return loanApplicationRepository.findAllByCustomerIdOrderByAppliedAtDesc(customerId).stream()
+                .filter(a -> a.getProductId().equals(productId))
+                .filter(a -> !List.of("9", "X", "R").contains(a.getStatusCode()))
+                .filter(a -> !a.isExpired())
+                .findFirst()
+                .orElse(null);
     }
 
     @Transactional(readOnly = true)

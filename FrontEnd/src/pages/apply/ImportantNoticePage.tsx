@@ -302,7 +302,8 @@ export function ImportantNoticePage() {
   const { mkpdCd } = useParams<{ mkpdCd: string }>();
   const navigate = useNavigate();
   const productCd = mkpdCd ?? '';
-  const { requestExit, exitModal } = useApplyExit(productCd);
+  // 한도조회 이후 단계 — 나가도 신청서 보존(재진입 시 이어서 진행 가능)
+  const { requestExit, exitModal } = useApplyExit(productCd, { preserve: true });
 
   // step: 0 인트로 / 1..SLIDES.length 콘텐츠 / SLIDES.length+1 완료
   const [step, setStep] = useState(0);

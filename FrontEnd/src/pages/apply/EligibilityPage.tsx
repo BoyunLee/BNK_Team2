@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { BottomSheet, type SheetOption } from '../../components/BottomSheet';
 import { AlertModal } from '../../components/AlertModal';
 import { DiagnosisResultSheet } from './DiagnosisResultPage';
 import { useApplyExit } from './useApplyExit';
 import { useApply } from '../../auth/ApplyContext';
-import { createApplication, cancelApplication } from '../../lib/loan';
+import {
+  createApplication,
+  cancelApplication,
+  getCurrentApplication,
+  getScreening,
+} from '../../lib/loan';
 import { ApiError } from '../../lib/api';
 import '../../styles/shell.css';
 import './apply.css';
@@ -60,6 +65,18 @@ const EMPTY: Form = {
   overdue: null,
 };
 
+// 적정성 답변은 BE 저장 API가 없어 로컬에 보관 → 재진입 시 폼 자동 복원
+const FORM_STORAGE_KEY = 'bnk.eligibility';
+function loadSavedForm(): Form {
+  try {
+    const raw = localStorage.getItem(FORM_STORAGE_KEY);
+    if (raw) return { ...EMPTY, ...(JSON.parse(raw) as Partial<Form>) };
+  } catch {
+    /* ignore */
+  }
+  return EMPTY;
+}
+
 /** 버튼 옵션 그룹 */
 function Group({
   label,
@@ -102,9 +119,55 @@ export function EligibilityPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const showResult = params.get('result') === '1'; // PIN 인증 후 진단결과 오버레이
-  const { loanAccountNo, setApplication } = useApply();
+  const { loanAccountNo, setApplication, setScreening, reset } = useApply();
   const { requestExit, exitModal } = useApplyExit(mkpdCd ?? '');
-  const [form, setForm] = useState<Form>(EMPTY);
+  const [showResume, setShowResume] = useState(false); // 한도조회 이어하기 확인
+
+  // BE 복원: 이 상품의 진행 중 신청서가 있으면
+  //  - 한도조회 완료(status 6) 이상 → "이어하기" 확인 모달
+  //  - 그 외(status 1~5)도 컨텍스트에 담아 재제출 시 취소 후 새로 시작
+  // 다른 상품의 진행 중 신청서는 건드리지 않는다(상품별 독립).
+  useEffect(() => {
+    const pid = mkpdCd ?? '';
+    if (loanAccountNo || !pid) return; // 이미 이 플로우에서 진행 중
+    (async () => {
+      try {
+        const cur = await getCurrentApplication(Number(pid));
+        if (!cur) return;
+        setApplication(cur.loanAccountNo, String(cur.productId));
+        if (cur.statusCode >= '6') setShowResume(true);
+      } catch {
+        /* 진행 중 없음/비로그인 등 — 무시하고 폼 표시 */
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 이어하기 → 한도 결과 복원 후 결과 페이지로
+  async function resumeYes() {
+    setShowResume(false);
+    if (!loanAccountNo) return;
+    try {
+      setScreening(await getScreening(loanAccountNo));
+    } catch {
+      /* 결과 페이지에서 다시 조회 */
+    }
+    navigate(`/apply/${mkpdCd ?? ''}/loan-result`, { replace: true });
+  }
+
+  // 새로 시작 → 이전 신청서 취소 후 폼 초기 진행
+  async function resumeNo() {
+    setShowResume(false);
+    if (loanAccountNo) {
+      try {
+        await cancelApplication(loanAccountNo);
+      } catch {
+        /* 무시 */
+      }
+    }
+    reset();
+  }
+  const [form, setForm] = useState<Form>(loadSavedForm);
   const [sheet, setSheet] = useState<null | 'purpose' | 'repay'>(null);
   const [showCreditWarn, setShowCreditWarn] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -141,6 +204,8 @@ export function EligibilityPage() {
       }
       const res = await createApplication(Number(productCd));
       setApplication(res.loanAccountNo, productCd);
+      // 제출(완료)한 적정성 답변 저장 → 재진입 시 폼 자동 복원
+      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(form));
       // 인증 후 적합성 페이지로 복귀하며 진단결과 오버레이 표시
       const after = `/apply/${productCd}?result=1`;
       navigate(
@@ -305,6 +370,16 @@ export function EligibilityPage() {
       />
 
       {exitModal}
+
+      <AlertModal
+        open={showResume}
+        title="이어서 진행할까요?"
+        message="이전에 한도조회까지 진행한 내역이 있어요. 이어서 진행할까요?"
+        confirmText="이어하기"
+        cancelText="새로 시작"
+        onConfirm={resumeYes}
+        onCancel={resumeNo}
+      />
 
       {showResult && (
         <DiagnosisResultSheet

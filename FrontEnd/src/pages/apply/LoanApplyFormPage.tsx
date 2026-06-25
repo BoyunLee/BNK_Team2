@@ -121,7 +121,13 @@ export function LoanApplyFormPage() {
   const { loanAccountNo, screening } = useApply();
   const { accountNo } = useAuth();
   const productCd = mkpdCd ?? '';
-  const { requestExit, exitModal } = useApplyExit(productCd);
+  // 뒤로가기 = 저장하고 나가기(보존), 대출취소 = 중단(취소)
+  const { requestExit: requestLeave, exitModal: leaveModal } = useApplyExit(
+    productCd,
+    { preserve: true },
+  );
+  const { requestExit: requestCancel, exitModal: cancelModal } =
+    useApplyExit(productCd);
 
   // screening 결과(없으면 폴백)
   const effLimit = screening?.maxLimitAmt ?? MY_LIMIT;
@@ -337,7 +343,7 @@ export function LoanApplyFormPage() {
         </div>
 
         <div className="flow-2btn">
-          <button type="button" className="flow-2btn__cancel" onClick={requestExit}>
+          <button type="button" className="flow-2btn__cancel" onClick={requestCancel}>
             대출취소
           </button>
           <button
@@ -349,7 +355,7 @@ export function LoanApplyFormPage() {
             {busy ? '처리 중…' : '약정 및 실행하기'}
           </button>
         </div>
-        {exitModal}
+        {cancelModal}
       </div>
     );
   }
@@ -358,7 +364,7 @@ export function LoanApplyFormPage() {
   return (
     <div className="app-shell">
       <header className="flow-head flow-head--col">
-        <button type="button" className="flow-head__back" onClick={requestExit}>
+        <button type="button" className="flow-head__back" onClick={requestLeave}>
           ‹ 뒤로가기
         </button>
       </header>
@@ -658,7 +664,7 @@ export function LoanApplyFormPage() {
         onSelect={setPurpose}
         onClose={() => setSheet(null)}
       />
-      {exitModal}
+      {leaveModal}
     </div>
   );
 }

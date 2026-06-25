@@ -20,6 +20,18 @@ export const cancelApplication = (loanAccountNo: string) =>
     { method: 'PATCH' },
   );
 
+export interface CurrentApplication {
+  loanAccountNo: string;
+  productId: number;
+  statusCode: string; // '1'~'8'
+}
+
+/** 특정 상품의 진행 중(미완료) 신청서 조회 — 재진입 복원용. 없으면 null. */
+export const getCurrentApplication = (productId: number) =>
+  apiFetch<CurrentApplication | null>(
+    `/api/v1/loans/applications/current?productId=${productId}`,
+  );
+
 /** 2) 본인인증 (적합성·적정성 완료 처리) — 간편비밀번호 (status 1→2) */
 export const verifySuitability = (loanAccountNo: string, simplePassword: string) =>
   apiFetch<void>(
