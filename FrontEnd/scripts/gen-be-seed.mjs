@@ -12,6 +12,9 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DATA = path.join(ROOT, 'public', 'data');
 const OUT = path.resolve(ROOT, '..', 'BackEnd', 'data.sql');
+// 상품 약관 PDF 를 ASCII 경로로 복사할 곳(한글/쉼표 파일명 서빙 문제 회피)
+const TERMS_OUT = path.join(ROOT, 'public', 'terms');
+fs.rmSync(TERMS_OUT, { recursive: true, force: true });
 
 /** MySQL 문자열 리터럴 이스케이프 */
 const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/'/g, "''");
@@ -32,6 +35,74 @@ const TERMS_TYPES = [
   'PRODUCT_DESCRIPTION',
   'BOND_CONTRACT',
 ];
+
+// 우대금리 표준 세트 — ONE스피드론 "거래실적 연동옵션 우대금리"(고객 선택 항목) 기준
+const PREF_SET = [
+  { code: 'SALARY_TRANSFER', name: '급여(연금) 자동이체', rate: 0.3, desc: '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시' },
+  { code: 'AUTO_TRANSFER', name: '자동이체(아파트관리비·공과금·통신요금)', rate: 0.1, desc: '매 3개월간 8건 이상 자동이체 시' },
+  { code: 'DEPOSIT_BALANCE', name: '예금 평균잔액', rate: 0.2, desc: '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시' },
+  { code: 'CARD_USE_100', name: '신용카드 100만원 이상 사용', rate: 0.1, desc: '매 3개월간 신용카드 사용금액 100만원 이상 시' },
+  { code: 'CARD_USE_200', name: '신용카드 200만원 이상 사용', rate: 0.2, desc: '매 3개월간 신용카드 사용금액 200만원 이상 시' },
+  { code: 'HOUSING_SUBSCRIPTION', name: '주택청약종합저축 자동이체', rate: 0.1, desc: '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시' },
+];
+
+/** HTML → 평문 */
+const strip = (h) =>
+  String(h ?? '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&[a-z#0-9]+;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+/** 섹션 제목으로 본문(평문) 찾기 */
+function sectionText(p, ...titles) {
+  const secs = [...(p.infoSections ?? []), ...(p.rateSections ?? [])];
+  for (const t of titles) {
+    const s = secs.find((x) => x.title === t);
+    if (s) return strip(s.html);
+  }
+  return '';
+}
+
+/** 기준금리 종류 (예: "신잔액기준 COFIX", "금융채", "고정금리") */
+function parseRateType(p) {
+  const s = sectionText(p, '기준금리');
+  if (!s) return '고정금리';
+  if (/COFIX/i.test(s)) return s.split(':')[0].trim().slice(0, 40);
+  if (/금융채/.test(s)) return '금융채';
+  if (/고정/.test(s)) return '고정금리';
+  return s.split(':')[0].trim().slice(0, 40);
+}
+
+/** 금리변동주기 개월 목록 (예: [3,6,12]) — 고정/해당없음이면 [] */
+function parseCycles(p) {
+  const s = sectionText(p, '금리변동주기', '금리변동주기 ');
+  const nums = (s.match(/\d+/g) ?? [])
+    .map(Number)
+    .filter((n) => [1, 3, 6, 12].includes(n));
+  return [...new Set(nums)].sort((a, b) => a - b);
+}
+
+const TERM_BREAKPOINTS = [
+  ['6개월', 6], ['1년', 12], ['2년', 24], ['3년', 36], ['5년', 60],
+  ['7년', 84], ['10년', 120], ['15년', 180], ['20년', 240], ['30년', 360], ['40년', 480],
+];
+
+/** 대출기간 옵션 — 요약(term)의 최소~최대 범위 내 표준 구간 */
+function parseTerms(termStr) {
+  const s = String(termStr ?? '');
+  const months = [];
+  for (const m of s.matchAll(/(\d+)\s*년/g)) months.push(Number(m[1]) * 12);
+  for (const m of s.matchAll(/(\d+)\s*개월/g)) months.push(Number(m[1]));
+  if (months.length === 0) return ['6개월', '1년', '2년', '3년', '5년'];
+  const minM = Math.min(...months);
+  const maxM = Math.max(...months);
+  const opts = TERM_BREAKPOINTS.filter(([, m]) => m >= minM && m <= maxM).map(
+    ([l]) => l,
+  );
+  return opts.length ? opts : ['6개월'];
+}
 
 const index = JSON.parse(fs.readFileSync(path.join(DATA, 'index.json'), 'utf8'));
 
@@ -63,8 +134,14 @@ for (const item of index) {
   const meta = p.meta ?? {};
   const sum = p.summary ?? {};
 
+  // 대출 기본금리(우대 전) = 최고금리 우선 → 최저 → COFIX 순. COFIX(≈2.5%)만 쓰면 너무 낮음.
   const baseRate =
-    numOrNull(sum.baseRate) ?? numOrNull(sum.rateMin) ?? numOrNull(item.rateMin) ?? '0.00';
+    numOrNull(sum.rateMax) ??
+    numOrNull(item.rateMax) ??
+    numOrNull(sum.rateMin) ??
+    numOrNull(item.rateMin) ??
+    numOrNull(sum.baseRate) ??
+    '5.00';
   const mkpdCd = meta.mkpd_cd ?? item.mkpd_cd ?? '';
   const catchphrase = sum.catchphrase ?? item.catchphrase ?? '';
   const rateMin = sum.rateMin ?? item.rateMin ?? null;
@@ -89,6 +166,10 @@ for (const item of index) {
   add('LOAN_TERM', sum.term, 6);
   add('TARGET', sum.target, 7);
   add('BASE_DATE', meta.baseDate, 8);
+  // 상품별 선택지(폼 셀렉트용)
+  add('OPT_RATE_TYPE', parseRateType(p), 9);
+  add('OPT_RATE_CYCLES', parseCycles(p).join(','), 10);
+  add('OPT_TERMS', parseTerms(sum.term).join(','), 11);
 
   (p.infoSections ?? []).forEach((s, i) =>
     add(`INFO:${s.title}`.slice(0, 100), s.html, 100 + i),
@@ -96,9 +177,20 @@ for (const item of index) {
   (p.rateSections ?? []).forEach((s, i) =>
     add(`RATE:${s.title}`.slice(0, 100), s.html, 300 + i),
   );
-  (p.documents ?? []).forEach((d, i) =>
-    add(`DOC:${d.title}`.slice(0, 100), d.url ?? d.file, 500 + i),
-  );
+  // 상품약관: 로컬 PDF 를 /terms/p{id}/{i}.pdf 로 복사하고 그 경로를 저장(원본 부산은행 링크 대체)
+  (p.documents ?? []).forEach((d, i) => {
+    let urlVal = d.url ?? d.file;
+    const src = d.file
+      ? path.join(DATA, item.category, item.name, '약관', d.file)
+      : null;
+    if (src && fs.existsSync(src)) {
+      const destDir = path.join(TERMS_OUT, `p${id}`);
+      fs.mkdirSync(destDir, { recursive: true });
+      fs.copyFileSync(src, path.join(destDir, `${i}.pdf`));
+      urlVal = `/terms/p${id}/${i}.pdf`;
+    }
+    add(`DOC:${d.title}`.slice(0, 100), urlVal, 500 + i);
+  });
 
   out.push(
     'INSERT INTO product_description (product_id, attr_key, attr_value, sort_order, created_at, updated_at) VALUES',
@@ -109,6 +201,17 @@ for (const item of index) {
         (r) => `(${id}, ${q(r.key)}, ${q(r.value)}, ${r.sort}, NOW(), NOW())`,
       )
       .join(',\n') + ';',
+  );
+
+  // 우대금리 — FE 데이터가 비구조화(HTML)라 상품 공통 표준 세트를 적재
+  out.push(
+    'INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES',
+  );
+  out.push(
+    PREF_SET.map(
+      (pr) =>
+        `(${id}, ${q(pr.code)}, ${q(pr.name)}, ${pr.rate}, ${q(pr.desc)}, NOW(), NOW())`,
+    ).join(',\n') + ';',
   );
   out.push('');
 }

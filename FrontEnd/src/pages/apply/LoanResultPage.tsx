@@ -229,7 +229,7 @@ export function LoanResultPage() {
         <div className="flow-info" style={{ marginTop: 16 }}>
           <div className="flow-info__head">유의사항</div>
           <p>해당금리는 예상 금리로 상환방식, 기간 등에 따라 최종 진행화면에서 금리가 재산출됩니다.</p>
-          <p>최대 0.8% 우대가 포함된 금리에요. 다음 단계에서 거래 실적 조건을 선택하면 이 금리를 모두 받을 수 있어요.</p>
+          <p>우대금리 적용 전 금리예요. 다음 단계에서 거래 실적(우대조건)을 선택하면 금리가 더 낮아집니다.</p>
         </div>
       </div>
       {leaveModal}
