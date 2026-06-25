@@ -1,12 +1,20 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BottomSheet } from '../../components/BottomSheet';
+import { useApply } from '../../auth/ApplyContext';
+import { useAuth } from '../../auth/AuthContext';
+import {
+  agreeTerms,
+  saveConditions,
+  type ConditionsResult,
+} from '../../lib/loan';
+import { ApiError } from '../../lib/api';
 import '../../styles/shell.css';
 import './apply.css';
 import './loan.css';
 import './loanform.css';
 
-/* ===== 데모 고정 값 ===== */
+/* ===== 한도/금리 미확보 시 폴백 값 ===== */
 const MY_LIMIT = 30000000; // 나의 한도(원)
 const BASE_RATE = 7.9; // 나의 금리(연 %)
 const BASE_SPREAD = 5.4; // 신잔액기준 COFIX + 가산금리
@@ -58,6 +66,37 @@ const PURPOSE_OPTIONS = [
 
 const won = (n: number) => n.toLocaleString('ko-KR');
 
+const TERM_MONTHS: Record<string, number> = {
+  '6개월': 6,
+  '1년': 12,
+  '2년': 24,
+  '3년': 36,
+  '5년': 60,
+};
+
+/** 상환방식별 1회차(최초) 상환금액 */
+function computeFirstRepay(
+  principal: number,
+  annualRate: number,
+  method: string,
+  months: number,
+): number {
+  const r = annualRate / 100 / 12; // 월 이자율
+  if (principal <= 0 || months <= 0) return 0;
+  const interest = principal * r;
+  if (method === '원금균등상환') {
+    // 매월 원금 균등 + 잔액 이자(1회차는 전액 이자)
+    return Math.round(principal / months + interest);
+  }
+  if (method === '원리금균등상환') {
+    if (r === 0) return Math.round(principal / months);
+    const annuity = (principal * r) / (1 - Math.pow(1 + r, -months));
+    return Math.round(annuity);
+  }
+  // 만기일시상환 / 종합통장대출(마이너스통장): 이자만 납부
+  return Math.round(interest);
+}
+
 /** 매월 24일 기준 1회차 납부일(다음달 24일) "YYYY.MM.DD" */
 function firstPayDate(): string {
   const d = new Date();
@@ -77,11 +116,21 @@ type SheetKind = 'baseRate' | 'term' | 'cycle' | 'account' | 'purpose' | null;
 export function LoanApplyFormPage() {
   const { mkpdCd } = useParams<{ mkpdCd: string }>();
   const navigate = useNavigate();
+  const { loanAccountNo, screening } = useApply();
+  const { accountNo } = useAuth();
   const productCd = mkpdCd ?? '';
   const exit = () => navigate(`/product/${encodeURIComponent(productCd)}`);
 
+  // screening 결과(없으면 폴백)
+  const effLimit = screening?.maxLimitAmt ?? MY_LIMIT;
+  const effBaseRate = screening?.appliedBaseRate ?? BASE_RATE;
+  // 입금계좌 = 가입 시 만든 고객 계좌(실행 시 검증됨)
+  const depositAccountNo = accountNo ?? '';
+
   const [phase, setPhase] = useState<'form' | 'agreement'>('form');
   const [step, setStep] = useState(1); // 활성 섹션(1~4)
+  const [conditions, setConditions] = useState<ConditionsResult | null>(null);
+  const [busy, setBusy] = useState(false);
 
   // 섹션1
   const [method, setMethod] = useState(REPAY_METHODS[0]);
@@ -92,8 +141,8 @@ export function LoanApplyFormPage() {
   const [baseRate, setBaseRate] = useState('');
   const [term, setTerm] = useState('');
   const [cycle, setCycle] = useState('3개월');
-  // 섹션4
-  const [account, setAccount] = useState('');
+  // 섹션4 (입금계좌 기본값 = 가입 계좌)
+  const [account, setAccount] = useState(depositAccountNo);
   const [purpose, setPurpose] = useState('');
   const [staff, setStaff] = useState('');
 
@@ -107,18 +156,61 @@ export function LoanApplyFormPage() {
     return Math.min(s, PREF_MAX);
   }, [prefs]);
 
-  const finalRate = BASE_RATE - prefSum; // 연 %
-  const finalSpread = BASE_SPREAD - prefSum; // COFIX + 가산
+  const finalRate = effBaseRate - prefSum; // 연 %
+  const finalSpread = BASE_SPREAD - prefSum; // COFIX + 가산(표시용)
   const amountNum = Number(amount) || 0;
-  const firstRepay = Math.round((amountNum * finalRate) / 1200); // 만기일시 1회차 이자
+  const termMonths = TERM_MONTHS[term] ?? 12;
+  const firstRepay = computeFirstRepay(amountNum, finalRate, method, termMonths);
 
   const togglePref = (id: string) =>
     setPrefs((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
 
-  const onAmountChange = (v: string) => setAmount(v.replace(/[^\d]/g, ''));
+  // 한도 초과 입력 차단(한도까지만)
+  const onAmountChange = (v: string) => {
+    const digits = v.replace(/[^\d]/g, '');
+    const n = Number(digits) || 0;
+    setAmount(n > effLimit ? String(effLimit) : digits);
+  };
 
   const section3Ok = amountNum > 0 && !!baseRate && !!term;
   const section4Ok = !!account && !!purpose;
+
+  // 섹션4 다음 → 약관 동의 + 대출조건 입력(status 6→7) → 약정 확인
+  async function submitConditions() {
+    if (busy) return;
+    if (!loanAccountNo) {
+      alert('신청서 정보가 없습니다. 처음부터 다시 진행해주세요.');
+      return;
+    }
+    if (amountNum > effLimit) {
+      alert(`신청 금액이 한도(${won(effLimit)}원)를 초과합니다.`);
+      return;
+    }
+    setBusy(true);
+    try {
+      await agreeTerms(loanAccountNo, [
+        'PRODUCT_TERMS',
+        'PRODUCT_DESCRIPTION',
+        'BOND_CONTRACT',
+      ]);
+      const res = await saveConditions(loanAccountNo, {
+        repaymentType: method,
+        rateTypeCode: 'V',
+        rateChangeCycle: cycle,
+        loanPeriod: term,
+        depositAccountNo,
+        fundPurpose: purpose,
+        loanAmount: amountNum,
+        preferentialIds: [], // BE에 우대금리 미적재 → 빈 배열
+      });
+      setConditions(res);
+      setPhase('agreement');
+    } catch (e) {
+      alert(e instanceof ApiError ? e.message : '대출 조건 등록에 실패했습니다.');
+    } finally {
+      setBusy(false);
+    }
+  }
 
   /* ===== 나의 한도/금리 요약 카드 ===== */
   const SummaryCard = ({ withMethod }: { withMethod?: boolean }) => (
@@ -126,7 +218,7 @@ export function LoanApplyFormPage() {
       <div className="lf-summary__row">
         <span className="lf-summary__k">나의 한도</span>
         <span className="lf-summary__v">
-          <b>{won(MY_LIMIT)}</b> 원
+          <b>{won(effLimit)}</b> 원
         </span>
       </div>
       <div className="lf-summary__row">
@@ -152,6 +244,11 @@ export function LoanApplyFormPage() {
 
   /* ===== 약정 확인 화면 ===== */
   if (phase === 'agreement') {
+    // BE 조건 등록 결과 우선(없으면 폼 값)
+    const agrAmount = conditions?.loanAmount ?? amountNum;
+    const agrRate = conditions?.finalRate ?? finalRate;
+    const agrFirstRepay = computeFirstRepay(agrAmount, agrRate, method, termMonths);
+    const agrMaturity = conditions?.maturityDate ?? '';
     return (
       <div className="app-shell">
         <header className="flow-head flow-head--col">
@@ -173,12 +270,12 @@ export function LoanApplyFormPage() {
           <dl className="agree__list">
             <div className="agree__row">
               <dt>대출금액</dt>
-              <dd className="agree__strong">{won(amountNum)}원</dd>
+              <dd className="agree__strong">{won(agrAmount)}원</dd>
             </div>
             <div className="agree__row">
               <dt>대출금리</dt>
               <dd className="agree__strong">
-                {finalRate.toFixed(2)}%
+                {agrRate.toFixed(2)}%
                 <span className="agree__sub">
                   ({COFIX_LABEL.replace('기준', '')} COFIX+{finalSpread.toFixed(2)})
                 </span>
@@ -198,15 +295,15 @@ export function LoanApplyFormPage() {
             </div>
             <div className="agree__row">
               <dt>최초상환금액</dt>
-              <dd>{won(firstRepay)}원</dd>
+              <dd>{won(agrFirstRepay)}원</dd>
             </div>
             <div className="agree__row">
               <dt>대출만기일</dt>
-              <dd>대출 실행일로부터 {term}</dd>
+              <dd>{agrMaturity || `대출 실행일로부터 ${term}`}</dd>
             </div>
             <div className="agree__row">
               <dt>대출금입금계좌</dt>
-              <dd>{account.split(' ')[0]}</dd>
+              <dd>{account}</dd>
             </div>
           </dl>
 
@@ -281,7 +378,7 @@ export function LoanApplyFormPage() {
           </ul>
           <div className="lf-mini">
             <span>나의한도</span>
-            <b>{won(MY_LIMIT)}</b> 원
+            <b>{won(effLimit)}</b> 원
           </div>
           <div className="lf-mini">
             <span>나의금리</span> 연 <b className="lf-rate">{finalRate.toFixed(2)}</b>{' '}
@@ -375,6 +472,9 @@ export function LoanApplyFormPage() {
               />
               <span className="lf-amount__unit">원</span>
             </div>
+            <p className="lf-help" style={{ marginTop: 8 }}>
+              최대 {won(effLimit)}원까지 신청 가능
+            </p>
           </div>
 
           <SelectField
@@ -493,10 +593,10 @@ export function LoanApplyFormPage() {
           <button
             type="button"
             className="flow-submit lf-next"
-            disabled={!section4Ok}
-            onClick={() => setPhase('agreement')}
+            disabled={!section4Ok || busy}
+            onClick={submitConditions}
           >
-            다음
+            {busy ? '처리 중…' : '다음'}
           </button>
         </AccSection>
       </div>
@@ -526,7 +626,9 @@ export function LoanApplyFormPage() {
       <BottomSheet
         title="대출금입금계좌 선택"
         open={sheet === 'account'}
-        options={ACCOUNT_OPTIONS.map((v) => ({ value: v }))}
+        options={(depositAccountNo ? [depositAccountNo] : ACCOUNT_OPTIONS).map(
+          (v) => ({ value: v }),
+        )}
         onSelect={setAccount}
         onClose={() => setSheet(null)}
       />

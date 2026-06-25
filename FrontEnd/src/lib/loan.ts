@@ -99,6 +99,40 @@ export const getScreening = (loanAccountNo: string) =>
     `/api/v1/loans/applications/${loanAccountNo}/screening`,
   );
 
+export interface ConditionsRequest {
+  repaymentType: string;
+  rateTypeCode: string; // 'F' 고정 / 'V' 변동
+  rateChangeCycle: string;
+  loanPeriod: string;
+  depositAccountNo: string;
+  fundPurpose: string;
+  loanAmount: number;
+  preferentialIds: number[];
+}
+
+export interface ConditionsResult {
+  loanAmount: number;
+  appliedBaseRate: number;
+  totalPreferentialRate: number;
+  finalRate: number;
+  repaymentType: string;
+  maturityDate: string;
+}
+
+/** 7-1) 약관 전체 동의 (status 6 유지) */
+export const agreeTerms = (loanAccountNo: string, documentTypes: string[]) =>
+  apiFetch<void>(
+    `/api/v1/loans/applications/${loanAccountNo}/contract/terms`,
+    { method: 'POST', body: JSON.stringify({ documentTypes }) },
+  );
+
+/** 7-2) 대출 조건 입력 (status 6→7) */
+export const saveConditions = (loanAccountNo: string, req: ConditionsRequest) =>
+  apiFetch<ConditionsResult>(
+    `/api/v1/loans/applications/${loanAccountNo}/contract/conditions`,
+    { method: 'POST', body: JSON.stringify(req) },
+  );
+
 export interface IncomeRequest {
   companyName: string;
   jobType: string;
