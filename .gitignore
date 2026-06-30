@@ -30,3 +30,12 @@ BackEnd/build/
 certs/
 *.pem
 *.key
+
+*.log
+*.snap
+*.xml
+*.location
+*.xmi
+*.project
+*.dat
+*.ser
