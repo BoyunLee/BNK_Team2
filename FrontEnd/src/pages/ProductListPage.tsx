@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { Link } from 'react-router-dom';
 import type { ProductCategory } from '../types/product';
 import { fetchProducts, type BeProductListItem } from '../lib/products';
@@ -23,6 +24,7 @@ export function ProductListPage() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('전체');
   const [query, setQuery] = useState('');
+  const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     // 상품 목록은 비로그인도 열람 가능(BE 인증 예외)
@@ -41,9 +43,23 @@ export function ProductListPage() {
     return m;
   }, [index]);
 
+  const maxCount = useMemo(() => {
+    let m = 0;
+    for (const c of CATEGORIES) {
+      const v = counts.get(c) ?? 0;
+      if (v > m) m = v;
+    }
+    // don't use the '전체' (all) count — it can be very large and create huge gaps
+    // cap the visible rows to avoid enormous min-heights when a category has many items
+    const CAP = 6; // maximum rows to reserve
+    return Math.max(1, Math.min(m, CAP));
+  }, [counts]);
+
+  // card height (matches .card min-height) + grid gap from CSS
+  const cardsMinHeight = `${maxCount * (116 + 12) - 12}px`;
+
   const filtered = useMemo(() => {
     if (!index) return [];
-    // 검색: 공백 무시 + 대소문자 무시로 상품명/캐치프레이즈 부분일치
     const q = query.trim().toLowerCase().replace(/\s+/g, '');
     return index.filter((p) => {
       if (filter !== '전체' && p.category !== filter) return false;
@@ -54,6 +70,15 @@ export function ProductListPage() {
       return hay.includes(q);
     });
   }, [index, filter, query]);
+
+  const anchorRef = useRef<HTMLDivElement>(null);
+
+  const handleFilterChange = (c: Filter) => {
+    flushSync(() => {
+      setFilter(c);
+    });
+    anchorRef.current?.scrollIntoView({ block: 'start', behavior: 'auto' });
+  };
 
   if (error) {
     return (
@@ -112,13 +137,14 @@ export function ProductListPage() {
         )}
       </div>
 
-      <nav className="chips" aria-label="상품 유형 필터">
+      <div ref={anchorRef} style={{ height: 0 }} />
+      <nav ref={navRef} className="chips" aria-label="상품 유형 필터">
         {(['전체', ...CATEGORIES] as Filter[]).map((c) => (
           <button
             key={c}
             className="chip"
             aria-pressed={filter === c}
-            onClick={() => setFilter(c)}
+            onClick={() => handleFilterChange(c)}
           >
             {c}
             <span className="chip__count">{counts.get(c) ?? 0}</span>
@@ -126,7 +152,7 @@ export function ProductListPage() {
         ))}
       </nav>
 
-      <main className="list-main">
+      <main className="list-main" style={{ minHeight: cardsMinHeight }}>
         {!index ? (
           <ul className="cards" aria-busy="true">
             {Array.from({ length: 4 }).map((_, i) => (
