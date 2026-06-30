@@ -23,9 +23,8 @@ export interface RegisterRequest {
   birthDate: string; // yyyy-MM-dd
   address: string;
   email: string;
-  simplePassword: string; // 6자리
+  simplePassword: string; // 6자리 (로그인·본인인증·전자서명에 사용)
   accountPassword: string; // 4자리
-  signaturePassword: string; // 6자리
 }
 
 export interface RegisterResult {

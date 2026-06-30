@@ -59,7 +59,6 @@ public class CustomerService {
                 .birthDate(birthDate)
                 .address(req.getAddress())
                 .email(req.getEmail())
-                .password(passwordEncoder.encode(req.getSignaturePassword()))
                 .simplePassword(passwordEncoder.encode(req.getSimplePassword()))
                 .build();
         Customer saved = customerRepository.save(customer);

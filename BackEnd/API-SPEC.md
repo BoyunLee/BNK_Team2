@@ -168,8 +168,7 @@ POST /api/v1/auth/register
   "address": "부산시 중구",
   "email": "test@email.com",
   "simplePassword": "123456",
-  "accountPassword": "1234",
-  "signaturePassword": "654321"
+  "accountPassword": "1234"
 }
 ```
 
@@ -180,9 +179,8 @@ POST /api/v1/auth/register
 | `birthDate` | string | ✅ | 생년월일 — **반드시 `yyyy-MM-dd` 형식** (예: `1990-01-01`) |
 | `address` | string | ✅ | 주소 |
 | `email` | string | ✅ | 이메일 |
-| `simplePassword` | string | ✅ | 간편인증 비밀번호 6자리 (로그인·본인인증에 사용) |
+| `simplePassword` | string | ✅ | 간편인증 비밀번호 6자리 (로그인·본인인증·전자서명에 사용) |
 | `accountPassword` | string | ✅ | 계좌 비밀번호 4자리 |
-| `signaturePassword` | string | ✅ | 전자서명 비밀번호 6자리 |
 
 > `birthDate`는 서버에서 `LocalDate.parse()`로 파싱합니다. 형식이 다르면 `C001 400` 에러가 반환됩니다.
 

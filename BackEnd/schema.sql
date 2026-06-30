@@ -12,7 +12,7 @@ USE bnk3;
 -- ────────────────────────────────────────────────────────────
 -- 1. CUSTOMER
 --    개인정보(name, phone_no, address, email): AES-256-CBC 암호화 저장
---    비밀번호(password, simple_password): BCrypt 해시 저장
+--    비밀번호(simple_password): BCrypt 해시 저장
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS CUSTOMER (
     customer_id      BIGINT          NOT NULL AUTO_INCREMENT,
@@ -22,7 +22,6 @@ CREATE TABLE IF NOT EXISTS CUSTOMER (
     address          VARCHAR(500)    COMMENT '주소 (AES 암호화)',
     email            VARCHAR(300)    NOT NULL COMMENT '이메일 (AES 암호화)',
     email_verified_yn CHAR(1)        NOT NULL DEFAULT 'N' COMMENT '이메일 인증 여부',
-    password         VARCHAR(200)    NOT NULL COMMENT '전자서명 비밀번호 (BCrypt)',
     simple_password  VARCHAR(200)    NOT NULL COMMENT '간편인증 비밀번호 (BCrypt)',
     status           VARCHAR(20)     NOT NULL DEFAULT 'ACTIVE' COMMENT 'ACTIVE / INACTIVE',
     created_at       DATETIME        NOT NULL,

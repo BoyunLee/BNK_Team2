@@ -30,7 +30,4 @@ public class RegisterRequest {
 
     @NotBlank
     private String accountPassword;
-
-    @NotBlank
-    private String signaturePassword;
 }

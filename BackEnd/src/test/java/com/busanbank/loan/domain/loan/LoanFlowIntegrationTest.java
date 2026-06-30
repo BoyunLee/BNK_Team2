@@ -422,7 +422,6 @@ class LoanFlowIntegrationTest {
         map.put("birthDate", LocalDate.of(1990, 1, 1).toString());
         map.put("simplePassword", password);
         map.put("accountPassword", "1234");
-        map.put("signaturePassword", "654321");
         return map;
     }
 

@@ -321,7 +321,6 @@ class ContractServiceTest {
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .address("부산시")
                 .email("test@test.com")
-                .password("encodedPwd")
                 .simplePassword(encodedSimplePassword)
                 .build();
         setField(customer, "customerId", customerId);

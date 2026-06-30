@@ -98,8 +98,7 @@ export function SignupPage() {
   const [address, setAddress] = useState('');
   const [simplePassword, setSimplePassword] = useState('');
   const [accountPassword, setAccountPassword] = useState('');
-  const [signaturePassword, setSignaturePassword] = useState('');
-  const [pad, setPad] = useState<null | 'simple' | 'account' | 'signature'>(null);
+  const [pad, setPad] = useState<null | 'simple' | 'account'>(null);
 
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
@@ -196,7 +195,6 @@ export function SignupPage() {
     address.trim() !== '' &&
     simplePassword.length === 6 &&
     accountPassword.length === 4 &&
-    signaturePassword.length === 6 &&
     !busy;
 
   async function onRegister() {
@@ -211,7 +209,6 @@ export function SignupPage() {
       email: email.trim(),
       simplePassword,
       accountPassword,
-      signaturePassword,
     };
     try {
       await register(req);
@@ -476,7 +473,7 @@ export function SignupPage() {
           <PinRow
             length={6}
             value={simplePassword}
-            placeholder="로그인·본인인증에 사용"
+            placeholder="로그인·본인인증·전자서명에 사용"
             onOpen={() => setPad('simple')}
           />
         </div>
@@ -488,16 +485,6 @@ export function SignupPage() {
             value={accountPassword}
             placeholder="계좌 거래에 사용"
             onOpen={() => setPad('account')}
-          />
-        </div>
-
-        <div className="ba-field">
-          <span className="ba-label">전자서명비밀번호 (숫자 6자리)</span>
-          <PinRow
-            length={6}
-            value={signaturePassword}
-            placeholder="대출 약정 서명에 사용"
-            onOpen={() => setPad('signature')}
           />
         </div>
       </div>
@@ -517,15 +504,6 @@ export function SignupPage() {
           sub="숫자 4자리를 입력해주세요"
           length={4}
           onComplete={setAccountPassword}
-          onClose={() => setPad(null)}
-        />
-      )}
-      {pad === 'signature' && (
-        <PinPad
-          title="전자서명비밀번호 입력"
-          sub="숫자 6자리를 입력해주세요"
-          length={6}
-          onComplete={setSignaturePassword}
           onClose={() => setPad(null)}
         />
       )}

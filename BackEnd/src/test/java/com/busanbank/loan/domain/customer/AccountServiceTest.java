@@ -163,7 +163,7 @@ class AccountServiceTest {
     private Customer buildCustomer(Long id) {
         Customer c = Customer.builder()
                 .name("홍길동").phoneNo("010-1234-5678").birthDate(LocalDate.of(1990,1,1))
-                .address("부산시").email("test@test.com").password("pw").simplePassword("sp").build();
+                .address("부산시").email("test@test.com").simplePassword("sp").build();
         setField(c, "customerId", id);
         setField(c, "status", "ACTIVE");
         return c;

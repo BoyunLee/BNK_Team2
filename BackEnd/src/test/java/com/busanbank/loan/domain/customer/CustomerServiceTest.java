@@ -201,7 +201,6 @@ class CustomerServiceTest {
         setField(req, "birthDate", "1990-01-01");
         setField(req, "simplePassword", simplePassword);
         setField(req, "accountPassword", "1234");
-        setField(req, "signaturePassword", "654321");
         return req;
     }
 
@@ -219,7 +218,6 @@ class CustomerServiceTest {
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .address("부산시")
                 .email(email)
-                .password("encodedSignaturePwd")
                 .simplePassword("encodedSimplePwd")
                 .build();
         setField(customer, "customerId", id);

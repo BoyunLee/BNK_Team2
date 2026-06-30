@@ -47,9 +47,6 @@ public class Customer {
     @Column(name = "email_verified_yn", length = 1)
     private String emailVerifiedYn = "N";
 
-    @Column(name = "password", nullable = false, length = 200)
-    private String password;
-
     @Column(name = "simple_password", nullable = false, length = 200)
     private String simplePassword;
 
@@ -65,13 +62,12 @@ public class Customer {
     @Builder
     public Customer(String name, String phoneNo, LocalDate birthDate,
                     String address, String email,
-                    String password, String simplePassword) {
+                    String simplePassword) {
         this.name = name;
         this.phoneNo = phoneNo;
         this.birthDate = birthDate;
         this.address = address;
         this.email = email;
-        this.password = password;
         this.simplePassword = simplePassword;
         this.emailVerifiedYn = "N";
         this.status = "ACTIVE";
