@@ -19,6 +19,7 @@ import com.busanbank.loan.domain.loan.service.ContractService;
 import com.busanbank.loan.domain.loan.service.LoanApplicationService;
 import com.busanbank.loan.domain.product.entity.LoanProduct;
 import com.busanbank.loan.domain.product.repository.LoanProductRepository;
+import com.busanbank.loan.domain.product.repository.ProductDescriptionRepository;
 import com.busanbank.loan.domain.product.repository.ProductPreferentialRateRepository;
 import com.busanbank.loan.global.error.code.ErrorCode;
 import com.busanbank.loan.global.error.exception.BusinessException;
@@ -74,6 +75,9 @@ class ContractServiceTest {
     private LoanProductRepository loanProductRepository;
 
     @Mock
+    private ProductDescriptionRepository productDescriptionRepository;
+
+    @Mock
     private LoanApplicationService loanApplicationService;
 
     @Mock
@@ -100,7 +104,7 @@ class ContractServiceTest {
         when(loanContractRepository.save(any(LoanContract.class))).thenAnswer(inv -> inv.getArgument(0));
 
         ContractConditionsRequest request = new ContractConditionsRequest(
-                "원리금균등", "F", null, "36개월",
+                "원리금균등", "F", null, null, "36개월",
                 "110000000001", "생활비", 10_000_000L, List.of()
         );
 
@@ -143,7 +147,7 @@ class ContractServiceTest {
         when(loanContractRepository.save(any(LoanContract.class))).thenAnswer(inv -> inv.getArgument(0));
 
         ContractConditionsRequest request = new ContractConditionsRequest(
-                "원리금균등", "F", null, "36개월",
+                "원리금균등", "F", null, null, "36개월",
                 "110000000001", "생활비", 10_000_000L, List.of(1L)
         );
 
@@ -170,7 +174,7 @@ class ContractServiceTest {
 
         // loanAmount = 20_000_000 > maxLimitAmt = 10_000_000
         ContractConditionsRequest request = new ContractConditionsRequest(
-                "원리금균등", "F", null, "36개월",
+                "원리금균등", "F", null, null, "36개월",
                 "110000000001", "생활비", 20_000_000L, List.of()
         );
 
@@ -196,7 +200,7 @@ class ContractServiceTest {
         when(loanScreeningRepository.findByLoanAccountNo(loanAccountNo)).thenReturn(Optional.of(screening));
 
         ContractConditionsRequest request = new ContractConditionsRequest(
-                "원리금균등", "F", null, "36개월",
+                "원리금균등", "F", null, null, "36개월",
                 "110000000001", "생활비", 5_000_000L, List.of()
         );
 

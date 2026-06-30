@@ -114,6 +114,7 @@ export const getScreening = (loanAccountNo: string) =>
 export interface ConditionsRequest {
   repaymentType: string;
   rateTypeCode: string; // 'F' 고정 / 'V' 변동
+  baseRateType?: string; // 선택한 기준금리 종류(COFIX 보정용)
   rateChangeCycle: string;
   loanPeriod: string;
   depositAccountNo: string;

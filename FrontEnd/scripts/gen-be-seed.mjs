@@ -63,14 +63,23 @@ function sectionText(p, ...titles) {
   return '';
 }
 
-/** 기준금리 종류 (예: "신잔액기준 COFIX", "금융채", "고정금리") */
-function parseRateType(p) {
-  const s = sectionText(p, '기준금리');
-  if (!s) return '고정금리';
-  if (/COFIX/i.test(s)) return s.split(':')[0].trim().slice(0, 40);
-  if (/금융채/.test(s)) return '금융채';
-  if (/고정/.test(s)) return '고정금리';
-  return s.split(':')[0].trim().slice(0, 40);
+/** 기준금리 종류 목록 — 상품이 복수 제시 시 모두 반환(원문 등장 순). 예: ["신잔액기준 COFIX","신규취급액기준 COFIX"] */
+function parseRateTypes(p) {
+  const raw = sectionText(p, '기준금리');
+  if (!raw) return ['고정금리'];
+  const s = raw.replace(/\s+/g, '');
+  const cands = [
+    ['신잔액기준COFIX', '신잔액기준 COFIX'],
+    ['신규취급액기준COFIX', '신규취급액기준 COFIX'],
+    ['금융채', '금융채'],
+    ['고정금리', '고정금리'],
+  ];
+  const hits = cands
+    .map(([key, label]) => ({ label, i: s.indexOf(key) }))
+    .filter((x) => x.i >= 0)
+    .sort((a, b) => a.i - b.i);
+  if (!hits.length) return [raw.split(':')[0].trim().slice(0, 40)];
+  return hits.map((h) => h.label);
 }
 
 /** 금리변동주기 개월 목록 (예: [3,6,12]) — 고정/해당없음이면 [] */
@@ -165,7 +174,7 @@ for (const item of index) {
   add('TARGET', sum.target, 7);
   add('BASE_DATE', meta.baseDate, 8);
   // 상품별 선택지(폼 셀렉트용)
-  add('OPT_RATE_TYPE', parseRateType(p), 9);
+  add('OPT_RATE_TYPE', parseRateTypes(p).join(','), 9);
   add('OPT_RATE_CYCLES', parseCycles(p).join(','), 10);
   add('OPT_TERMS', parseTerms(sum.term).join(','), 11);
   // 상환방법별 가능한 대출기간 범위(상품별 큐레이션) — FE 조건폼이 상환방식 선택에 따라 기간 옵션 산출

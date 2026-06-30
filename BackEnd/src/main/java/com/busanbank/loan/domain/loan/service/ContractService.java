@@ -13,6 +13,7 @@ import com.busanbank.loan.domain.loan.repository.*;
 import com.busanbank.loan.domain.product.entity.LoanProduct;
 import com.busanbank.loan.domain.product.entity.ProductPreferentialRate;
 import com.busanbank.loan.domain.product.repository.LoanProductRepository;
+import com.busanbank.loan.domain.product.repository.ProductDescriptionRepository;
 import com.busanbank.loan.domain.product.repository.ProductPreferentialRateRepository;
 import com.busanbank.loan.global.error.code.ErrorCode;
 import com.busanbank.loan.global.error.exception.BusinessException;
@@ -25,6 +26,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -40,8 +42,15 @@ public class ContractService {
     private final CustomerVerificationRepository customerVerificationRepository;
     private final ApplicationDocumentLogRepository applicationDocumentLogRepository;
     private final LoanProductRepository loanProductRepository;
+    private final ProductDescriptionRepository productDescriptionRepository;
     private final LoanApplicationService loanApplicationService;
     private final PasswordEncoder passwordEncoder;
+
+    /** COFIX 기준금리 값(연 %, 2026-06-23 고시). 기준금리 선택에 따라 적용금리 보정에 사용. */
+    private static final Map<String, BigDecimal> COFIX_VALUES = Map.of(
+            "신잔액기준 COFIX", new BigDecimal("2.5"),
+            "신규취급액기준 COFIX", new BigDecimal("2.9")
+    );
 
     @Transactional
     public void agreeTerms(String loanAccountNo, Long productId, List<String> documentTypes) {
@@ -106,8 +115,20 @@ public class ContractService {
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
         }
 
+        // 기준금리 선택 보정: base_rate 는 기본(첫) 기준금리 기준이므로, 다른 COFIX 선택 시 그 차이만큼 가감
+        String defaultRateType = productDescriptionRepository
+                .findByProductIdAndAttrKey(application.getProductId(), "OPT_RATE_TYPE")
+                .map(d -> d.getAttrValue().split(",")[0].trim())
+                .orElse("");
+        BigDecimal selCofix = data.baseRateType() == null ? null : COFIX_VALUES.get(data.baseRateType());
+        BigDecimal defCofix = defaultRateType.isEmpty() ? null : COFIX_VALUES.get(defaultRateType);
+        BigDecimal cofixDelta = (selCofix != null && defCofix != null)
+                ? selCofix.subtract(defCofix)
+                : BigDecimal.ZERO;
+        BigDecimal appliedBaseRate = screening.getAppliedBaseRate().add(cofixDelta);
+
         BigDecimal minRate = new BigDecimal("0.1");
-        BigDecimal finalRate = screening.getAppliedBaseRate().subtract(totalPreferentialRate);
+        BigDecimal finalRate = appliedBaseRate.subtract(totalPreferentialRate);
         if (finalRate.compareTo(minRate) < 0) {
             finalRate = minRate;
         }
@@ -133,7 +154,7 @@ public class ContractService {
 
         return new ConditionsResponse(
                 data.loanAmount(),
-                screening.getAppliedBaseRate(),
+                appliedBaseRate,
                 totalPreferentialRate,
                 finalRate,
                 data.repaymentType(),

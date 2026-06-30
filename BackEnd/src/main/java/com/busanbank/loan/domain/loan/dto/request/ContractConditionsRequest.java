@@ -5,6 +5,7 @@ import java.util.List;
 public record ContractConditionsRequest(
         String repaymentType,
         String rateTypeCode,
+        String baseRateType,
         String rateChangeCycle,
         String loanPeriod,
         String depositAccountNo,
