@@ -24,6 +24,7 @@ public class VerificationService {
     private final LoanApplicationService loanApplicationService;
     private final CustomerRepository customerRepository;
     private final SignatureRepository signatureRepository;
+    private final SignaturePayloadAssembler signaturePayloadAssembler;
     private final PasswordEncoder passwordEncoder;
 
     public record SignatureData(String signStep, String signType, String tokenId, String originalValue) {}
@@ -55,6 +56,9 @@ public class VerificationService {
     public void verifyContractSignature(String loanAccountNo, Long customerId, SignatureData signatureData) {
         LoanApplication application = loanApplicationService.findAndValidate(loanAccountNo, "7");
 
+        String signedData = signaturePayloadAssembler.assemble(
+                loanAccountNo, customerId, "CONTRACT", signatureData.signType());
+
         signatureRepository.save(Signature.builder()
                 .loanAccountNo(loanAccountNo)
                 .customerId(customerId)
@@ -62,6 +66,7 @@ public class VerificationService {
                 .signType(signatureData.signType())
                 .tokenId(signatureData.tokenId())
                 .originalValue(signatureData.originalValue())
+                .signedData(signedData)
                 .result("SUCCESS")
                 .signedAt(LocalDateTime.now())
                 .build());

@@ -222,6 +222,7 @@ CREATE TABLE IF NOT EXISTS SIGNATURE (
     sign_type       VARCHAR(50)  COMMENT 'COMMON_CERT / SIMPLE_CERT',
     token_id        VARCHAR(200) COMMENT '전자서명 토큰 ID',
     original_value  TEXT         COMMENT '서명 원문',
+    signed_data     TEXT         COMMENT '간편인증 시 사용한 데이터 (JSON, AES 암호화)',
     result          VARCHAR(20)  COMMENT 'SUCCESS / FAIL (null=미완료)',
     signed_at       DATETIME     COMMENT '서명 완료일시',
     created_at      DATETIME     NOT NULL,

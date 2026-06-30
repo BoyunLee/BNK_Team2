@@ -17,11 +17,14 @@ public class SignatureService {
 
     private final SignatureRepository signatureRepository;
     private final LoanApplicationService loanApplicationService;
+    private final SignaturePayloadAssembler signaturePayloadAssembler;
 
     @Transactional
     public Long sign(String loanAccountNo, Long customerId, String signStep, String signType,
                      String tokenId, String originalValue) {
         LoanApplication application = loanApplicationService.findApplication(loanAccountNo);
+
+        String signedData = signaturePayloadAssembler.assemble(loanAccountNo, customerId, signStep, signType);
 
         Signature signature = Signature.builder()
                 .loanAccountNo(loanAccountNo)
@@ -30,6 +33,7 @@ public class SignatureService {
                 .signType(signType)
                 .tokenId(tokenId)
                 .originalValue(originalValue)
+                .signedData(signedData)
                 .result("SUCCESS")
                 .signedAt(LocalDateTime.now())
                 .build();
@@ -49,12 +53,15 @@ public class SignatureService {
 
         String tokenId = UUID.randomUUID().toString();
 
+        String signedData = signaturePayloadAssembler.assemble(loanAccountNo, customerId, "LIMIT_INQUIRY", signType);
+
         Signature signature = Signature.builder()
                 .loanAccountNo(loanAccountNo)
                 .customerId(customerId)
                 .signStep("LIMIT_INQUIRY")
                 .signType(signType)
                 .tokenId(tokenId)
+                .signedData(signedData)
                 .result(null)
                 .signedAt(null)
                 .build();

@@ -1,5 +1,6 @@
 package com.busanbank.loan.domain.loan.entity;
 
+import com.busanbank.loan.global.crypto.EncryptedStringConverter;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -41,6 +42,11 @@ public class Signature {
     @Column(name = "original_value", columnDefinition = "TEXT")
     private String originalValue;
 
+    /** 간편인증 시 사용한 데이터(JSON). DB 저장 시 AES-256 암호화. */
+    @Convert(converter = EncryptedStringConverter.class)
+    @Column(name = "signed_data", columnDefinition = "TEXT")
+    private String signedData;
+
     @Column(name = "result")
     private String result;
 
@@ -52,13 +58,14 @@ public class Signature {
 
     @Builder
     public Signature(String loanAccountNo, Long customerId, String signStep, String signType,
-                     String tokenId, String originalValue, String result, LocalDateTime signedAt) {
+                     String tokenId, String originalValue, String signedData, String result, LocalDateTime signedAt) {
         this.loanAccountNo = loanAccountNo;
         this.customerId = customerId;
         this.signStep = signStep;
         this.signType = signType;
         this.tokenId = tokenId;
         this.originalValue = originalValue;
+        this.signedData = signedData;
         this.result = result;
         this.signedAt = signedAt;
         this.createdAt = LocalDateTime.now();
