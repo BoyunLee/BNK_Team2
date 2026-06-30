@@ -22,16 +22,18 @@ import './loanform.css';
 
 /* ===== 한도/금리 미확보 시 폴백 값 ===== */
 const MY_LIMIT = 30000000; // 나의 한도(원)
-const BASE_RATE = 7.9; // 나의 금리(연 %)
-const BASE_SPREAD = 5.4; // 신잔액기준 COFIX + 가산금리
-const COFIX_LABEL = '신잔액기준 COFIX';
+const BASE_RATE = 7.9; // 나의 금리(연 %) — screening 미확보 시 폴백
 
+// 상품 OPT_REPAYMENTS 미로드 시 폴백 상환방법
 const REPAY_METHODS = [
   '만기일시상환',
   '원금균등상환',
   '원리금균등상환',
   '종합통장대출(마이너스통장)',
 ];
+
+/** 상품별 상환방법 + 가능 기간범위(개월). DB OPT_REPAYMENTS(JSON) 매핑 */
+type RepaymentOpt = { method: string; minM: number; maxM: number; minIncl: boolean };
 
 const BASE_RATE_OPTIONS = [
   '신규취급액기준 COFIX',
@@ -61,13 +63,28 @@ const PURPOSE_OPTIONS = [
 
 const won = (n: number) => n.toLocaleString('ko-KR');
 
-const TERM_MONTHS: Record<string, number> = {
-  '6개월': 6,
-  '1년': 12,
-  '2년': 24,
-  '3년': 36,
-  '5년': 60,
-};
+const TERM_BREAKPOINTS: { label: string; m: number }[] = [
+  { label: '6개월', m: 6 }, { label: '1년', m: 12 }, { label: '2년', m: 24 },
+  { label: '3년', m: 36 }, { label: '5년', m: 60 }, { label: '7년', m: 84 },
+  { label: '10년', m: 120 }, { label: '15년', m: 180 }, { label: '20년', m: 240 },
+  { label: '30년', m: 360 }, { label: '40년', m: 480 },
+];
+const TERM_MONTHS: Record<string, number> = Object.fromEntries(
+  TERM_BREAKPOINTS.map((b) => [b.label, b.m]),
+);
+
+/** 선택한 상환방법에서 가능한 대출기간 라벨 목록 (minIncl=false → '초과') */
+function termsForMethod(
+  reps: RepaymentOpt[],
+  method: string,
+  fallback: string[],
+): string[] {
+  const r = reps.find((x) => x.method === method);
+  if (!r) return fallback;
+  return TERM_BREAKPOINTS.filter(
+    (b) => (r.minIncl ? b.m >= r.minM : b.m > r.minM) && b.m <= r.maxM,
+  ).map((b) => b.label);
+}
 
 /** 상환방식별 1회차(최초) 상환금액 */
 function computeFirstRepay(
@@ -138,6 +155,8 @@ export function LoanApplyFormPage() {
   // 섹션2 — BE 우대금리
   const [prefRates, setPrefRates] = useState<BePreferentialRate[]>([]);
   const [prefs, setPrefs] = useState<number[]>([]); // 선택한 preferentialId
+  // 섹션1 — 상품별 상환방법(+기간범위)
+  const [repayments, setRepayments] = useState<RepaymentOpt[]>([]);
 
   // 상품의 우대금리 + 기준금리/변동주기/대출기간 옵션 로드
   useEffect(() => {
@@ -152,6 +171,14 @@ export function LoanApplyFormPage() {
           .filter(Boolean)
           .map((m) => `${m}개월`);
         const terms = byKey('OPT_TERMS').split(',').filter(Boolean);
+        let reps: RepaymentOpt[] = [];
+        try {
+          reps = JSON.parse(byKey('OPT_REPAYMENTS') || '[]');
+        } catch {
+          reps = [];
+        }
+        setRepayments(reps);
+        if (reps.length) setMethod(reps[0].method); // 상품의 첫 상환방법 기본 선택
         setRateType(rt);
         setCycleOpts(cycles);
         setTermOpts(terms.length ? terms : TERM_OPTIONS);
@@ -188,10 +215,24 @@ export function LoanApplyFormPage() {
   );
 
   const finalRate = Math.max(0.1, effBaseRate - prefSum); // 연 %, 최저 0.1%
-  const finalSpread = BASE_SPREAD - prefSum; // COFIX + 가산(표시용)
   const amountNum = Number(amount) || 0;
   const termMonths = TERM_MONTHS[term] ?? 12;
   const firstRepay = computeFirstRepay(amountNum, finalRate, method, termMonths);
+
+  // 상품별 상환방법 목록(미로드 시 폴백)
+  const methodOptions = repayments.length
+    ? repayments.map((r) => r.method)
+    : REPAY_METHODS;
+  // 선택한 상환방법에서 가능한 대출기간만 노출
+  const availableTerms = useMemo(
+    () => termsForMethod(repayments, method, termOpts),
+    [repayments, method, termOpts],
+  );
+  // 상환방법 변경으로 현재 기간이 불가해지면 초기화
+  useEffect(() => {
+    if (term && !availableTerms.includes(term)) setTerm('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [availableTerms]);
 
   const togglePref = (id: number) =>
     setPrefs((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
@@ -281,9 +322,7 @@ export function LoanApplyFormPage() {
       </div>
       <div className="lf-summary__row lf-summary__row--sub">
         <span />
-        <span className="lf-summary__sub">
-          ({COFIX_LABEL}+{finalSpread.toFixed(2)}%)
-        </span>
+        <span className="lf-summary__sub">({rateType || '기준금리'} 기준)</span>
       </div>
       {withMethod && (
         <div className="lf-summary__row">
@@ -328,9 +367,7 @@ export function LoanApplyFormPage() {
               <dt>대출금리</dt>
               <dd className="agree__strong">
                 {agrRate.toFixed(2)}%
-                <span className="agree__sub">
-                  ({COFIX_LABEL.replace('기준', '')} COFIX+{finalSpread.toFixed(2)})
-                </span>
+                <span className="agree__sub">({rateType || '기준금리'} 기준)</span>
               </dd>
             </div>
             <div className="agree__row">
@@ -408,7 +445,7 @@ export function LoanApplyFormPage() {
             <span className="lf-chip">상환방식 ?</span>
           </div>
           <ul className="lf-radio">
-            {REPAY_METHODS.map((m) => (
+            {methodOptions.map((m) => (
               <li key={m}>
                 <button
                   type="button"
@@ -464,6 +501,9 @@ export function LoanApplyFormPage() {
             대출 신청 후 대출&gt;대출관리&gt;우대금리 현황에서 확인할 수 있어요
           </p>
 
+          {prefRates.length === 0 && (
+            <p className="lf-help">선택 가능한 우대금리가 없는 상품입니다.</p>
+          )}
           <ul className="lf-check">
             {prefRates.map((p) => (
               <li key={p.preferentialId}>
@@ -591,9 +631,7 @@ export function LoanApplyFormPage() {
                 <dt>대출금리</dt>
                 <dd>
                   {finalRate.toFixed(2)}%
-                  <span className="lf-deposit__sub">
-                    ({COFIX_LABEL.replace('기준', '')} COFIX+{finalSpread.toFixed(2)}%)
-                  </span>
+                  <span className="lf-deposit__sub">({rateType || '기준금리'} 기준)</span>
                 </dd>
               </div>
               <div>
@@ -664,7 +702,7 @@ export function LoanApplyFormPage() {
       <BottomSheet
         title="대출기간 선택"
         open={sheet === 'term'}
-        options={termOpts.map((v) => ({ value: v }))}
+        options={availableTerms.map((v) => ({ value: v }))}
         onSelect={setTerm}
         onClose={() => setSheet(null)}
       />

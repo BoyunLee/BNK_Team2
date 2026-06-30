@@ -2,5 +2,6 @@
 <project version="4">
   <component name="DataSourcePerFileMappings">
     <file url="file://$PROJECT_DIR$/BackEnd/data.sql" value="640faf6e-8510-46bd-8181-dc9bf069ce5d" />
+    <file url="file://$PROJECT_DIR$/BackEnd/schema.sql" value="640faf6e-8510-46bd-8181-dc9bf069ce5d" />
   </component>
 </project>

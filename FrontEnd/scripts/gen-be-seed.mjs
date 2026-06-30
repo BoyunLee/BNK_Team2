@@ -16,6 +16,14 @@ const OUT = path.resolve(ROOT, '..', 'BackEnd', 'data.sql');
 const TERMS_OUT = path.join(ROOT, 'public', 'terms');
 fs.rmSync(TERMS_OUT, { recursive: true, force: true });
 
+// 상품별 상환방법(+기간범위)·우대금리 큐레이션 (상품명으로 매칭)
+const OVERRIDES = JSON.parse(
+  fs.readFileSync(
+    path.resolve(ROOT, '..', 'BackEnd', 'scripts', 'product-rate-overrides.json'),
+    'utf8',
+  ),
+);
+
 /** MySQL 문자열 리터럴 이스케이프 */
 const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/'/g, "''");
 /** 문자열 → SQL ('...' 또는 NULL) */
@@ -34,16 +42,6 @@ const TERMS_TYPES = [
   'PRODUCT_TERMS',
   'PRODUCT_DESCRIPTION',
   'BOND_CONTRACT',
-];
-
-// 우대금리 표준 세트 — ONE스피드론 "거래실적 연동옵션 우대금리"(고객 선택 항목) 기준
-const PREF_SET = [
-  { code: 'SALARY_TRANSFER', name: '급여(연금) 자동이체', rate: 0.3, desc: '매 3개월간 2회 이상 건당 50만원 이상 급여(연금) 입금 시' },
-  { code: 'AUTO_TRANSFER', name: '자동이체(아파트관리비·공과금·통신요금)', rate: 0.1, desc: '매 3개월간 8건 이상 자동이체 시' },
-  { code: 'DEPOSIT_BALANCE', name: '예금 평균잔액', rate: 0.2, desc: '매 3개월간 예금평잔 150만원(요구불 100만원) 이상 시' },
-  { code: 'CARD_USE_100', name: '신용카드 100만원 이상 사용', rate: 0.1, desc: '매 3개월간 신용카드 사용금액 100만원 이상 시' },
-  { code: 'CARD_USE_200', name: '신용카드 200만원 이상 사용', rate: 0.2, desc: '매 3개월간 신용카드 사용금액 200만원 이상 시' },
-  { code: 'HOUSING_SUBSCRIPTION', name: '주택청약종합저축 자동이체', rate: 0.1, desc: '매 3개월간 2회 이상 건당 10만원 이상 주택청약종합저축 자동이체 시' },
 ];
 
 /** HTML → 평문 */
@@ -170,6 +168,8 @@ for (const item of index) {
   add('OPT_RATE_TYPE', parseRateType(p), 9);
   add('OPT_RATE_CYCLES', parseCycles(p).join(','), 10);
   add('OPT_TERMS', parseTerms(sum.term).join(','), 11);
+  // 상환방법별 가능한 대출기간 범위(상품별 큐레이션) — FE 조건폼이 상환방식 선택에 따라 기간 옵션 산출
+  add('OPT_REPAYMENTS', JSON.stringify(OVERRIDES[item.name]?.repayments ?? []), 12);
 
   (p.infoSections ?? []).forEach((s, i) =>
     add(`INFO:${s.title}`.slice(0, 100), s.html, 100 + i),
@@ -203,16 +203,24 @@ for (const item of index) {
       .join(',\n') + ';',
   );
 
-  // 우대금리 — FE 데이터가 비구조화(HTML)라 상품 공통 표준 세트를 적재
-  out.push(
-    'INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES',
-  );
-  out.push(
-    PREF_SET.map(
-      (pr) =>
-        `(${id}, ${q(pr.code)}, ${q(pr.name)}, ${pr.rate}, ${q(pr.desc)}, NOW(), NOW())`,
-    ).join(',\n') + ';',
-  );
+  // 우대금리 — 상품별 큐레이션(scripts/product-rate-overrides.json). 고객 직접 충족 항목만(등급성 제외).
+  const prefs = OVERRIDES[item.name]?.preferentials;
+  if (prefs == null) {
+    console.warn(`! override 없음(우대금리 생략): ${item.name}`);
+  }
+  if (prefs && prefs.length) {
+    out.push(
+      'INSERT INTO product_preferential_rate (product_id, condition_code, condition_name, rate_value, description, created_at, updated_at) VALUES',
+    );
+    out.push(
+      prefs
+        .map(
+          (pr, i) =>
+            `(${id}, ${q(`PREF_${id}_${i + 1}`)}, ${q(pr.conditionName)}, ${pr.rateValue}, ${q(pr.description)}, NOW(), NOW())`,
+        )
+        .join(',\n') + ';',
+    );
+  }
   out.push('');
 }
 
