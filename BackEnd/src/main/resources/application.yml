@@ -60,7 +60,8 @@ server:
       timeout: 30m
       cookie:
         http-only: true
-        secure: false   # 운영 환경에서는 true
+        # 운영(HTTPS)에서는 SESSION_COOKIE_SECURE=true 로 주입 → Secure 쿠키(HTTPS 전용 전송)
+        secure: ${SESSION_COOKIE_SECURE:false}
 
 springdoc:
   swagger-ui:

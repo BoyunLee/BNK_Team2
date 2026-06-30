@@ -9,6 +9,19 @@ CREATE DATABASE IF NOT EXISTS bnk3
 
 USE bnk3;
 
+-- 재실행 시 깨끗하게 초기화 — 접속 중인 DB는 드롭하지 않고 테이블만 비운다.
+-- (DataGrip 콘솔에서 DROP DATABASE bnk3 를 하면 현재 세션의 DB가 사라져
+--  이후 CREATE TABLE 이 "No database selected" 로 실패하므로 이 방식 사용)
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS
+    PRODUCT_CHANGE_REQUEST, ADMIN_USER, CHAT_MESSAGE, LOAN_CONTRACT,
+    LOAN_PREFERENTIAL_APPLIED, LOAN_SCREENING, INCOME_INFO, SIGNATURE,
+    APPLICATION_DOCUMENT_LOG, MYDATA_CONSENT, CUSTOMER_VERIFICATION,
+    SUITABILITY_RESPONSE, LOAN_APPLICATION, PRODUCT_TERMS_HISTORY,
+    PRODUCT_TERMS_BASE, PRODUCT_PREFERENTIAL_RATE, PRODUCT_DESCRIPTION,
+    ACCOUNT, LOAN_PRODUCT, CUSTOMER;
+SET FOREIGN_KEY_CHECKS = 1;
+
 -- ────────────────────────────────────────────────────────────
 -- 1. CUSTOMER
 --    개인정보(name, phone_no, address, email): AES-256-CBC 암호화 저장
@@ -43,7 +56,8 @@ CREATE TABLE IF NOT EXISTS ACCOUNT (
     status           VARCHAR(20)     NOT NULL DEFAULT 'ACTIVE',
     created_at       DATETIME        NOT NULL,
     PRIMARY KEY (account_no),
-    INDEX idx_account_customer (customer_id)
+    INDEX idx_account_customer (customer_id),
+    CONSTRAINT fk_account_customer FOREIGN KEY (customer_id) REFERENCES CUSTOMER (customer_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
@@ -78,7 +92,8 @@ CREATE TABLE IF NOT EXISTS PRODUCT_DESCRIPTION (
     updated_at     DATETIME     NOT NULL,
     PRIMARY KEY (description_id),
     INDEX idx_desc_product (product_id),
-    INDEX idx_desc_product_key (product_id, attr_key)
+    INDEX idx_desc_product_key (product_id, attr_key),
+    CONSTRAINT fk_desc_product FOREIGN KEY (product_id) REFERENCES LOAN_PRODUCT (product_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
@@ -94,7 +109,8 @@ CREATE TABLE IF NOT EXISTS PRODUCT_PREFERENTIAL_RATE (
     created_at      DATETIME      NOT NULL,
     updated_at      DATETIME      NOT NULL,
     PRIMARY KEY (preferential_id),
-    INDEX idx_pref_product (product_id)
+    INDEX idx_pref_product (product_id),
+    CONSTRAINT fk_pref_product FOREIGN KEY (product_id) REFERENCES LOAN_PRODUCT (product_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
@@ -110,7 +126,8 @@ CREATE TABLE IF NOT EXISTS PRODUCT_TERMS_BASE (
     updated_at DATETIME     NOT NULL,
     PRIMARY KEY (terms_id),
     INDEX idx_terms_product (product_id),
-    UNIQUE KEY uq_terms_product_type (product_id, terms_type)
+    UNIQUE KEY uq_terms_product_type (product_id, terms_type),
+    CONSTRAINT fk_terms_product FOREIGN KEY (product_id) REFERENCES LOAN_PRODUCT (product_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
@@ -123,7 +140,8 @@ CREATE TABLE IF NOT EXISTS PRODUCT_TERMS_HISTORY (
     terms_path VARCHAR(500) NOT NULL COMMENT '약관 파일 경로 (버전별)',
     created_at DATETIME     NOT NULL,
     PRIMARY KEY (history_id),
-    INDEX idx_terms_history (terms_id, terms_seq)
+    INDEX idx_terms_history (terms_id, terms_seq),
+    CONSTRAINT fk_terms_history_base FOREIGN KEY (terms_id) REFERENCES PRODUCT_TERMS_BASE (terms_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
@@ -140,7 +158,9 @@ CREATE TABLE IF NOT EXISTS LOAN_APPLICATION (
     updated_at      DATETIME     NOT NULL,
     PRIMARY KEY (loan_account_no),
     INDEX idx_loan_customer (customer_id),
-    INDEX idx_loan_status (customer_id, status_code)
+    INDEX idx_loan_status (customer_id, status_code),
+    CONSTRAINT fk_loan_customer FOREIGN KEY (customer_id) REFERENCES CUSTOMER (customer_id),
+    CONSTRAINT fk_loan_product FOREIGN KEY (product_id) REFERENCES LOAN_PRODUCT (product_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
@@ -155,7 +175,8 @@ CREATE TABLE IF NOT EXISTS SUITABILITY_RESPONSE (
     answer          VARCHAR(500) NOT NULL COMMENT '응답 내용',
     created_at      DATETIME     NOT NULL,
     PRIMARY KEY (response_id),
-    INDEX idx_suitability_loan (loan_account_no)
+    INDEX idx_suitability_loan (loan_account_no),
+    CONSTRAINT fk_suitability_loan FOREIGN KEY (loan_account_no) REFERENCES LOAN_APPLICATION (loan_account_no)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
@@ -172,7 +193,9 @@ CREATE TABLE IF NOT EXISTS CUSTOMER_VERIFICATION (
     verified_at     DATETIME     COMMENT '인증 완료일시',
     created_at      DATETIME     NOT NULL,
     PRIMARY KEY (verification_id),
-    INDEX idx_verify_loan (loan_account_no)
+    INDEX idx_verify_loan (loan_account_no),
+    CONSTRAINT fk_verify_loan FOREIGN KEY (loan_account_no) REFERENCES LOAN_APPLICATION (loan_account_no),
+    CONSTRAINT fk_verify_customer FOREIGN KEY (customer_id) REFERENCES CUSTOMER (customer_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
@@ -188,7 +211,8 @@ CREATE TABLE IF NOT EXISTS MYDATA_CONSENT (
     consent_at      DATETIME     NOT NULL COMMENT '동의일시',
     created_at      DATETIME     NOT NULL,
     PRIMARY KEY (consent_id),
-    INDEX idx_consent_loan (loan_account_no)
+    INDEX idx_consent_loan (loan_account_no),
+    CONSTRAINT fk_consent_loan FOREIGN KEY (loan_account_no) REFERENCES LOAN_APPLICATION (loan_account_no)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
@@ -208,7 +232,9 @@ CREATE TABLE IF NOT EXISTS APPLICATION_DOCUMENT_LOG (
     created_at      DATETIME     NOT NULL,
     PRIMARY KEY (log_id),
     INDEX idx_doclog_loan (loan_account_no),
-    UNIQUE KEY uq_doclog_loan_type (loan_account_no, document_type)
+    UNIQUE KEY uq_doclog_loan_type (loan_account_no, document_type),
+    CONSTRAINT fk_doclog_loan FOREIGN KEY (loan_account_no) REFERENCES LOAN_APPLICATION (loan_account_no),
+    CONSTRAINT fk_doclog_terms FOREIGN KEY (terms_id) REFERENCES PRODUCT_TERMS_BASE (terms_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
@@ -228,7 +254,9 @@ CREATE TABLE IF NOT EXISTS SIGNATURE (
     created_at      DATETIME     NOT NULL,
     PRIMARY KEY (signature_id),
     INDEX idx_sign_loan (loan_account_no),
-    INDEX idx_sign_token (token_id)
+    INDEX idx_sign_token (token_id),
+    CONSTRAINT fk_sign_loan FOREIGN KEY (loan_account_no) REFERENCES LOAN_APPLICATION (loan_account_no),
+    CONSTRAINT fk_sign_customer FOREIGN KEY (customer_id) REFERENCES CUSTOMER (customer_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
@@ -245,7 +273,9 @@ CREATE TABLE IF NOT EXISTS INCOME_INFO (
     annual_income   BIGINT       COMMENT '연간 소득 (원)',
     created_at      DATETIME     NOT NULL,
     PRIMARY KEY (income_id),
-    INDEX idx_income_loan (loan_account_no)
+    INDEX idx_income_loan (loan_account_no),
+    CONSTRAINT fk_income_loan FOREIGN KEY (loan_account_no) REFERENCES LOAN_APPLICATION (loan_account_no),
+    CONSTRAINT fk_income_customer FOREIGN KEY (customer_id) REFERENCES CUSTOMER (customer_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
@@ -260,7 +290,8 @@ CREATE TABLE IF NOT EXISTS LOAN_SCREENING (
     result          VARCHAR(20)   COMMENT 'APPROVED / REJECTED',
     created_at      DATETIME      NOT NULL,
     PRIMARY KEY (screening_id),
-    UNIQUE KEY uq_screening_loan (loan_account_no)
+    UNIQUE KEY uq_screening_loan (loan_account_no),
+    CONSTRAINT fk_screening_loan FOREIGN KEY (loan_account_no) REFERENCES LOAN_APPLICATION (loan_account_no)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
@@ -274,7 +305,9 @@ CREATE TABLE IF NOT EXISTS LOAN_PREFERENTIAL_APPLIED (
     applied_rate_value DECIMAL(5,2) NOT NULL COMMENT '적용 우대금리(%)',
     created_at        DATETIME      NOT NULL,
     PRIMARY KEY (applied_id),
-    INDEX idx_pref_applied_loan (loan_account_no)
+    INDEX idx_pref_applied_loan (loan_account_no),
+    CONSTRAINT fk_pref_applied_loan FOREIGN KEY (loan_account_no) REFERENCES LOAN_APPLICATION (loan_account_no),
+    CONSTRAINT fk_pref_applied_rate FOREIGN KEY (preferential_id) REFERENCES PRODUCT_PREFERENTIAL_RATE (preferential_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
@@ -299,9 +332,62 @@ CREATE TABLE IF NOT EXISTS LOAN_CONTRACT (
     created_at       DATETIME      NOT NULL,
     PRIMARY KEY (contract_id),
     UNIQUE KEY uq_contract_loan (loan_account_no),
-    INDEX idx_contract_customer (customer_id)
+    INDEX idx_contract_customer (customer_id),
+    CONSTRAINT fk_contract_loan FOREIGN KEY (loan_account_no) REFERENCES LOAN_APPLICATION (loan_account_no),
+    CONSTRAINT fk_contract_customer FOREIGN KEY (customer_id) REFERENCES CUSTOMER (customer_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+-- ────────────────────────────────────────────────────────────
+-- 18. ADMIN_USER
+--     관리자 계정 — 고객(CUSTOMER)과 분리. 상품 결재의 담당자/책임자.
+--     password: BCrypt 해시
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS ADMIN_USER (
+    admin_id   BIGINT       NOT NULL AUTO_INCREMENT,
+    login_id   VARCHAR(50)  NOT NULL COMMENT '로그인 ID',
+    password   VARCHAR(255) NOT NULL COMMENT '비밀번호 (BCrypt)',
+    name       VARCHAR(50)  NOT NULL COMMENT '관리자명',
+    role       VARCHAR(20)  NOT NULL COMMENT 'DRAFTER / APPROVER 등 (AdminRole)',
+    department VARCHAR(50)  COMMENT '부서',
+    created_at DATETIME     COMMENT '생성일시',
+    updated_at DATETIME     COMMENT '수정일시',
+    PRIMARY KEY (admin_id),
+    UNIQUE KEY uq_admin_login (login_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ────────────────────────────────────────────────────────────
+-- 19. PRODUCT_CHANGE_REQUEST
+--     상품 변경 신청서 = 결재문서. TO-BE 를 들고 다니며 라이브(AS-IS)와 분리.
+--     DRAFT → PENDING → APPROVED/REJECTED → DEPLOYED (스케줄러 형상이행)
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS PRODUCT_CHANGE_REQUEST (
+    request_id          BIGINT       NOT NULL AUTO_INCREMENT,
+    change_type         VARCHAR(20)  NOT NULL COMMENT 'CREATE / UPDATE / DISCONTINUE (ChangeType)',
+    product_id          BIGINT       COMMENT 'LOAN_PRODUCT.product_id (CREATE 면 배포 전까지 null)',
+    title               VARCHAR(200) NOT NULL COMMENT '신청서 제목',
+    asis_snapshot       LONGTEXT     COMMENT '상신 시점 AS-IS 캡처(비교/감사용)',
+    tobe_snapshot       LONGTEXT     NOT NULL COMMENT '변경안 TO-BE',
+    status              VARCHAR(20)  NOT NULL COMMENT 'DRAFT / PENDING / APPROVED / REJECTED / CANCELLED / DEPLOYED (ChangeStatus)',
+    drafter_id          BIGINT       NOT NULL COMMENT 'ADMIN_USER.admin_id (담당자)',
+    drafter_name        VARCHAR(50)  NOT NULL COMMENT '담당자명',
+    approver_id         BIGINT       COMMENT 'ADMIN_USER.admin_id (책임자)',
+    approver_name       VARCHAR(50)  COMMENT '책임자명',
+    decision_comment    TEXT         COMMENT '결재 의견',
+    scheduled_deploy_at DATETIME     COMMENT '배포 예약일시',
+    submitted_at        DATETIME     COMMENT '상신일시',
+    decided_at          DATETIME     COMMENT '결재일시',
+    deployed_at         DATETIME     COMMENT '형상이행 완료일시',
+    created_at          DATETIME     COMMENT '생성일시',
+    updated_at          DATETIME     COMMENT '수정일시',
+    PRIMARY KEY (request_id),
+    INDEX idx_pcr_product (product_id),
+    INDEX idx_pcr_drafter (drafter_id),
+    INDEX idx_pcr_approver (approver_id),
+    CONSTRAINT fk_pcr_product FOREIGN KEY (product_id) REFERENCES LOAN_PRODUCT (product_id),
+    CONSTRAINT fk_pcr_drafter FOREIGN KEY (drafter_id) REFERENCES ADMIN_USER (admin_id),
+    CONSTRAINT fk_pcr_approver FOREIGN KEY (approver_id) REFERENCES ADMIN_USER (admin_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
 -- 21. CHAT_MESSAGE
@@ -316,5 +402,6 @@ CREATE TABLE IF NOT EXISTS CHAT_MESSAGE (
     referenced_products VARCHAR(500) COMMENT '답변 근거 상품코드(쉼표 구분). USER 메시지는 null',
     created_at          DATETIME     NOT NULL,
     PRIMARY KEY (chat_message_id),
-    INDEX idx_chat_session (session_id, created_at)
+    INDEX idx_chat_session (session_id, created_at),
+    CONSTRAINT fk_chat_customer FOREIGN KEY (customer_id) REFERENCES CUSTOMER (customer_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

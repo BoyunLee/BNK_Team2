@@ -1,0 +1,21 @@
+# 운영 오버레이 — Cloudflare 프록시 + Origin Certificate(HTTPS/Full strict).
+#
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# 사전 준비:
+#   1) Cloudflare Origin Certificate 발급 후 프로젝트 루트에 ./certs/ 생성
+#        ./certs/origin.pem  (인증서)
+#        ./certs/origin.key  (개인키)
+#   2) GCP 방화벽에서 tcp:443 허용 (가능하면 Cloudflare IP 대역으로 제한)
+#   3) Cloudflare SSL/TLS 모드: Full (strict)
+services:
+  backend:
+    environment:
+      SESSION_COOKIE_SECURE: "true"   # HTTPS 전용 Secure 세션 쿠키
+
+  frontend:
+    ports:
+      - "443:443"                     # 80 은 베이스 compose 에서 이미 노출(→443 리다이렉트용)
+    volumes:
+      - ./FrontEnd/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certs:/etc/nginx/ssl:ro
