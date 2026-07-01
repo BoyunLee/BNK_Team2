@@ -1,8 +1,9 @@
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ComponentProps, type ReactNode, useEffect, useState } from 'react';
 import bnkLogo from '../assets/bnk-logo.png';
 import loanHero from '../assets/img-loan-hero.png';
 import homeMainImage from '../assets/home_main_image.png';
 import { Link, useNavigate } from 'react-router-dom';
+import { AuthBadge } from '../components/AuthBadge';
 import { useAuth } from '../auth/AuthContext';
 import {
   fetchMyAccount,
@@ -15,7 +16,7 @@ import './HomePage.css';
 
 const won = (n: number) => Math.round(n).toLocaleString('ko-KR');
 
-function Icon({ name }: { name: 'search' | 'bell' | 'menu' | 'eye' | 'send' | 'atm' | 'card' | 'bag' | 'home' | 'finance' | 'gift' | 'chat' | 'chevron' | 'loan' }) {
+function Icon({ name }: { name: 'search' | 'bell' | 'menu' | 'eye' | 'send' | 'atm' | 'card' | 'bag' | 'home' | 'finance' | 'gift' | 'chat' | 'chevron' | 'loan' | 'user' }) {
   const common = {
     width: 28,
     height: 28,
@@ -121,6 +122,12 @@ function Icon({ name }: { name: 'search' | 'bell' | 'menu' | 'eye' | 'send' | 'a
         <path d="M4 19h16" />
       </>
     ),
+    user: (
+      <>
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-3.6 3.6-6 8-6s8 2.4 8 6" />
+      </>
+    ),
   };
 
   return <svg {...common}>{paths[name]}</svg>;
@@ -156,24 +163,11 @@ export function HomePage() {
   return (
     <main className="app-shell home-page">
       <section className="home-hero" aria-label="BNK 부산은행 홈">
+        <AuthBadge />
         <header className="home-top">
           <Link to="/" aria-label="홈으로">
             <img className="home-top__logo" src={bnkLogo} alt="BNK 부산은행" />
           </Link>
-          <div className="home-top__actions" aria-label="상단 메뉴">
-            <button type="button" className="home-icon-btn">
-              <Icon name="search" />
-              <span>검색</span>
-            </button>
-            <button type="button" className="home-icon-btn home-icon-btn--badge">
-              <Icon name="bell" />
-              <span>알림</span>
-            </button>
-            <button type="button" className="home-icon-btn">
-              <Icon name="menu" />
-              <span>전체메뉴</span>
-            </button>
-          </div>
         </header>
 
         <div className="home-greeting">
@@ -245,18 +239,20 @@ export function HomePage() {
 
         {activeLoans.map((loan) => (
         <article className="account-card account-card--loan" key={loan.loanAccountNo}>
-          <div className="account-card__head">
+          <Link
+            to="/my-loans/detail"
+            state={{ loanAccountNo: loan.loanAccountNo }}
+            className="account-card__head"
+            aria-label="대출 상세 보기"
+          >
             <span>대출계좌정보</span>
             <Icon name="chevron" />
-          </div>
+          </Link>
           <div className="account-card__row">
             <div>
               <strong>{loan.productName}</strong>
               <span className="pill pill--blue">{loan.statusName}</span>
             </div>
-            <button type="button" className="account-card__more" aria-label="대출 더보기">
-              ⋮
-            </button>
           </div>
           <div className="loan-summary">
             <div>
@@ -280,36 +276,43 @@ export function HomePage() {
       </section>
 
       <section className="quick-card" aria-label="빠른 메뉴">
-        {[
-          ['조회', 'search'],
-          ['이체', 'send'],
-          ['상품몰', 'bag'],
-          ['카드', 'card'],
-          ['모바일ATM', 'atm'],
-        ].map(([label, icon]) => {
-          if (label === '상품몰') {
-            return (
-              <Link to="/products" className="quick-item" key={label}>
-                <Icon name={icon as 'search'} />
-                <span>{label}</span>
-              </Link>
-            );
-          }
-          return (
-            <button type="button" className="quick-item" key={label}>
-              <Icon name={icon as 'search'} />
-              <span>{label}</span>
+        {(
+          [
+            { label: '상품몰', icon: 'bag', to: '/products' },
+            { label: '대출계산기', icon: 'finance', to: '/calculator' },
+            { label: '내 대출', icon: 'loan', to: '/my-loans' },
+            {
+              label: '상담',
+              icon: 'chat',
+              action: () => window.dispatchEvent(new Event('bnk:open-chat')),
+            },
+          ] as Array<{
+            label: string;
+            icon: ComponentProps<typeof Icon>['name'];
+            to?: string;
+            action?: () => void;
+          }>
+        ).map((item) =>
+          item.to ? (
+            <Link to={item.to} className="quick-item" key={item.label}>
+              <Icon name={item.icon} />
+              <span>{item.label}</span>
+            </Link>
+          ) : (
+            <button
+              type="button"
+              className="quick-item"
+              key={item.label}
+              onClick={item.action}
+            >
+              <Icon name={item.icon} />
+              <span>{item.label}</span>
             </button>
-          );
-        })}
-        <div className="home-dots" aria-hidden="true">
-          <span className="is-active" />
-          <span />
-          <span />
-        </div>
+          ),
+        )}
       </section>
 
-      <section className="loan-banner">
+      <Link to="/products" className="loan-banner" aria-label="상품몰로 이동">
         <div>
           <p>부산은행 여신상품몰</p>
           <h2>
@@ -320,19 +323,19 @@ export function HomePage() {
           <span>한도와 금리 정보를 한눈에</span>
         </div>
         <img src={loanHero} alt="" aria-hidden="true" />
-      </section>
+      </Link>
 
       <section className="home-tiles" aria-label="추천 서비스">
-        <article className="home-tile home-tile--blue">
+        <Link to="/products" className="home-tile home-tile--blue">
           <span>나에게 맞는</span>
           <strong>상품찾기</strong>
           <div className="home-tile__gift" aria-hidden="true" />
-        </article>
-        <article className="home-tile home-tile--green">
+        </Link>
+        <Link to="/my-loans" className="home-tile home-tile--green">
           <span>이번달</span>
           <strong>상환관리</strong>
           <div className="home-tile__chart" aria-hidden="true" />
-        </article>
+        </Link>
       </section>
 
       {/* <nav className="bottom-nav" aria-label="하단 탭">

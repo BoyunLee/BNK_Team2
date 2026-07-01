@@ -1,6 +1,9 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { RootLayout } from '../layouts/RootLayout';
 import { HomePage } from '../pages/HomePage';
+import { MyLoansPage } from '../pages/MyLoansPage';
+import { MyLoanDetailPage } from '../pages/MyLoanDetailPage';
+import { LoanCalculatorPage } from '../pages/LoanCalculatorPage';
 import { ProductListPage } from '../pages/ProductListPage';
 import { ProductDetailRoute } from '../pages/ProductDetailRoute';
 import { EligibilityPage } from '../pages/apply/EligibilityPage';
@@ -37,6 +40,9 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { path: '/', element: <HomePage /> },
+      { path: '/my-loans', element: <MyLoansPage /> },
+      { path: '/my-loans/detail', element: <MyLoanDetailPage /> },
+      { path: '/calculator', element: <LoanCalculatorPage /> },
       { path: '/products', element: <ProductListPage /> },
       { path: '/login', element: <LoginPage /> },
       { path: '/signup', element: <SignupPage /> },

@@ -4,8 +4,10 @@ import type { ProductCategory } from '../types/product';
 import { fetchProducts, type BeProductListItem } from '../lib/products';
 import { formatRateRange } from '../lib/rate';
 import bnkLogo from '../assets/bnk-logo.png';
+import homeMainImage from '../assets/home_main_image.png';
 import { AuthBadge } from '../components/AuthBadge';
 import '../styles/shell.css';
+import './HomePage.css';
 import './ProductListPage.css';
 import './auth/auth.css';
 
@@ -57,7 +59,7 @@ export function ProductListPage() {
 
   if (error) {
     return (
-      <div className="app-shell">
+      <div className="app-shell list-page">
         <div className="list-error">
           <h2>목록을 불러오지 못했습니다</h2>
           <p>{error}</p>
@@ -67,15 +69,26 @@ export function ProductListPage() {
   }
 
   return (
-    <div className="app-shell">
-      <header className="list-head">
+    <div className="app-shell list-page">
+      <section className="home-hero" aria-label="여신상품몰">
         <AuthBadge />
-        <Link to="/" aria-label="홈으로">
-          <img className="list-head__logo" src={bnkLogo} alt="BNK 부산은행" />
-        </Link>
-        <h1 className="list-head__title">여신상품몰</h1>
-        <p className="list-head__sub">부산은행 대출상품을 한눈에</p>
-      </header>
+        <div className="home-top">
+          <Link to="/" aria-label="홈으로">
+            <img className="home-top__logo" src={bnkLogo} alt="BNK 부산은행" />
+          </Link>
+        </div>
+        <div className="home-greeting">
+          <p>여신상품몰</p>
+          <h1>
+            부산은행 대출상품을
+            <br />
+            한눈에 찾아보세요
+          </h1>
+        </div>
+        <div className="home-skyline" aria-hidden="true">
+          <img className="home-skyline__image" src={homeMainImage} alt="" />
+        </div>
+      </section>
 
       <div className="search">
         <svg

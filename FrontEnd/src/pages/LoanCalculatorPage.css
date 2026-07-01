@@ -1,0 +1,94 @@
+/* 대출계산기 — 입력 폼(내 대출 톤 재사용: .app-shell/.ml-card/.ml-table) */
+.calc-field {
+  padding: 12px 0;
+}
+.calc-field + .calc-field {
+  border-top: 1px solid #f1f3f5;
+}
+
+.calc-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #7b8494;
+  margin-bottom: 8px;
+}
+
+.calc-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f6f8fb;
+  border: 1px solid #e6e8ec;
+  border-radius: 12px;
+  padding: 0 14px;
+  transition: border-color 0.12s ease;
+}
+.calc-input:focus-within {
+  border-color: #246ac7;
+  background: #fff;
+}
+.calc-input input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 13px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #101828;
+  text-align: right;
+}
+.calc-input input::placeholder {
+  color: #c3c9d2;
+  font-weight: 600;
+}
+.calc-unit {
+  flex: 0 0 auto;
+  font-size: 14px;
+  font-weight: 700;
+  color: #8a93a3;
+}
+
+.calc-methods {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.calc-method {
+  padding: 12px 4px;
+  border: 1px solid #e6e8ec;
+  border-radius: 12px;
+  background: #fff;
+  color: #66707f;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease,
+    color 0.12s ease;
+}
+.calc-method.is-active {
+  border-color: #246ac7;
+  background: #e8f2ff;
+  color: #1d5bb0;
+}
+
+.calc-toggle {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px;
+  border: 1px solid #e6e8ec;
+  border-radius: 12px;
+  background: #fff;
+  color: #246ac7;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.calc-toggle:hover {
+  background: #f6f8fb;
+}

@@ -71,6 +71,13 @@ export function ChatWidget() {
     if (open) endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading, open]);
 
+  // 외부(홈 퀵메뉴 '상담' 등)에서 챗봇 열기
+  useEffect(() => {
+    const openChat = () => setOpen(true);
+    window.addEventListener('bnk:open-chat', openChat);
+    return () => window.removeEventListener('bnk:open-chat', openChat);
+  }, []);
+
   async function handleSend() {
     const text = input.trim();
     if (!text || loading) return;
@@ -113,7 +120,8 @@ export function ChatWidget() {
   return (
     <div className="chat-root" aria-live="polite">
       <div className="chat-root__col" ref={colRef}>
-        {!open && (
+        {/* 홈('/')에서는 플로팅 버튼 숨김 — 퀵메뉴 '상담'으로 대체 */}
+        {!open && pathname !== '/' && (
           <button
             className="chat-fab"
             type="button"

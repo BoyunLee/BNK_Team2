@@ -1,0 +1,127 @@
+/* 내 대출 현황 — 홈화면과 동일한 톤(하늘색 배경 + 둥근 흰 카드) */
+.my-loans {
+  background:
+    linear-gradient(180deg, #f7fbff 0%, #f2f8fd 60%, #f2f8fd 100%),
+    #f2f8fd;
+}
+
+.ml-main {
+  padding: 8px 20px 32px;
+}
+
+.ml-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.ml-card {
+  display: block;
+  background: #fff;
+  border-radius: 20px;
+  padding: 18px 20px;
+  box-shadow: 0 10px 24px rgba(40, 59, 92, 0.08);
+  color: inherit;
+  text-decoration: none;
+}
+/* 목록 카드(링크) hover */
+a.ml-card {
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
+}
+a.ml-card:hover {
+  box-shadow: 0 14px 30px rgba(40, 59, 92, 0.14);
+  transform: translateY(-1px);
+}
+/* 상세 페이지에서 카드가 세로로 쌓일 때 간격 */
+.ml-card + .ml-card {
+  margin-top: 12px;
+}
+
+.ml-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.ml-card__head strong {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: #101828;
+}
+
+.ml-badge {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 800;
+  color: #8a93a3;
+  background: #eef0f4;
+  border-radius: 999px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+.ml-badge--done {
+  color: #246ac7;
+  background: #e8f2ff;
+}
+
+.ml-card__rows > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 5px 0;
+  font-size: 14px;
+}
+.ml-card__rows dt {
+  color: #7b8494;
+}
+.ml-card__rows dd {
+  margin: 0;
+  font-weight: 700;
+  color: #10203f;
+}
+
+.ml-empty {
+  padding: 56px 24px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+/* 상환 스케줄 표(대출 상세) */
+.ml-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  margin-top: 4px;
+}
+.ml-table th,
+.ml-table td {
+  padding: 9px 6px;
+  text-align: right;
+  border-bottom: 1px solid #f1f3f5;
+}
+.ml-table th:first-child,
+.ml-table td:first-child {
+  text-align: center;
+  color: #7b8494;
+}
+.ml-table thead th {
+  color: #9ca3af;
+  font-weight: 600;
+  border-bottom: 1px solid #e6e8ec;
+}
+.ml-table tbody tr:last-child td {
+  border-bottom: none;
+  font-weight: 700;
+}
+.ml-table__gap td {
+  text-align: center !important;
+  color: #cbd0d6;
+  font-weight: 400 !important;
+}
