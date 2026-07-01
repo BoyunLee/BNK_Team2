@@ -138,6 +138,57 @@
   border-bottom-left-radius: 4px;
 }
 
+/* 마크다운 렌더링(assistant 응답) */
+.msg__bubble .md-p,
+.msg__bubble .md-h,
+.msg__bubble .md-ul,
+.msg__bubble .md-ol {
+  white-space: normal;
+}
+.msg__bubble .md-p {
+  margin: 0;
+}
+.msg__bubble .md-p + .md-p,
+.msg__bubble .md-p + .md-ul,
+.msg__bubble .md-p + .md-ol,
+.msg__bubble .md-ul + .md-p,
+.msg__bubble .md-ol + .md-p,
+.msg__bubble .md-h {
+  margin-top: 7px;
+}
+.msg__bubble > :first-child {
+  margin-top: 0;
+}
+.msg__bubble .md-h {
+  font-weight: 800;
+  font-size: 14.5px;
+}
+.msg__bubble .md-ul,
+.msg__bubble .md-ol {
+  margin: 6px 0;
+  padding-left: 18px;
+}
+.msg__bubble .md-ul {
+  list-style: disc;
+}
+.msg__bubble .md-ol {
+  list-style: decimal;
+}
+.msg__bubble li {
+  margin: 2px 0;
+}
+.msg__bubble code {
+  background: rgba(0, 0, 0, 0.06);
+  padding: 1px 5px;
+  border-radius: 5px;
+  font-size: 0.9em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.msg__bubble a {
+  color: var(--bnk-red-deep);
+  text-decoration: underline;
+}
+
 /* 출처 칩 */
 .msg__sources {
   display: flex;

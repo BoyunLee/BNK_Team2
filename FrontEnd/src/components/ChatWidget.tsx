@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { sendChat, type ChatMessage } from '../lib/chat';
+import { Markdown } from '../lib/markdown';
 import '../styles/shell.css';
 import './ChatWidget.css';
 
@@ -164,7 +165,13 @@ export function ChatWidget() {
             <div className="chat-body">
               {messages.map((m, i) => (
                 <div key={i} className={`msg msg--${m.role}`}>
-                  <div className="msg__bubble">{m.content}</div>
+                  <div className="msg__bubble">
+                    {m.role === 'assistant' ? (
+                      <Markdown text={m.content} />
+                    ) : (
+                      m.content
+                    )}
+                  </div>
                   {m.sources && m.sources.length > 0 && (
                     <div className="msg__sources">
                       {m.sources.map((s) =>
