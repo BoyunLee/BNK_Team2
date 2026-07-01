@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\gusrb\\\\bnk2\" -Recurse -File | Select-Object -ExpandProperty FullName | ForEach-Object { $_.Replace\\(\"C:\\\\Users\\\\gusrb\\\\bnk2\\\\\", \"\"\\) } | Sort-Object)"
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\gusrb\\\\bnk2\" -Recurse -File | Select-Object -ExpandProperty FullName | ForEach-Object { $_.Replace\\(\"C:\\\\Users\\\\gusrb\\\\bnk2\\\\\", \"\"\\) } | Sort-Object)",
+      "Read(//Users/gogeunho/Documents/GitHub/BNK_Team2/**)",
+      "Bash(find . -name \"*.md\" -not -path \"*/node_modules/*\" -not -path \"*/.git/*\")"
     ]
   }
 }
