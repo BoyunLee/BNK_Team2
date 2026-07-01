@@ -170,44 +170,6 @@ export function LoanSimulator({ detail }: { detail: BeProductDetail }) {
         </ul>
       </div>
 
-      {/* 대출기간 — 1개월 단위 슬라이더 */}
-      <div className="field">
-        <div className="field__label">대출기간</div>
-        <div className="sim-slider">
-          <div className="sim-slider__head">
-            <input
-              className="sim-slider__input"
-              inputMode="numeric"
-              value={months}
-              onChange={(e) =>
-                setMonths(
-                  Math.min(range.max, Number(e.target.value.replace(/[^\d]/g, '')) || 0),
-                )
-              }
-              onBlur={() => clampMonths(months)}
-              aria-label="대출기간(개월)"
-            />
-            <span className="sim-slider__unit">개월</span>
-          </div>
-          <input
-            className="sim-slider__range"
-            type="range"
-            min={range.min}
-            max={range.max}
-            step={1}
-            value={months}
-            onChange={(e) => setMonths(Number(e.target.value))}
-            style={{
-              background: `linear-gradient(to right, var(--bnk-red) ${fillPct}%, var(--line-strong) ${fillPct}%)`,
-            }}
-          />
-          <div className="sim-slider__ticks">
-            <span>{range.min}개월</span>
-            <span>{range.max}개월</span>
-          </div>
-        </div>
-      </div>
-
       {/* 기준금리 */}
       {rateTypes.length > 0 && (
         <div className="field">
@@ -271,6 +233,48 @@ export function LoanSimulator({ detail }: { detail: BeProductDetail }) {
             ))}
           </ul>
         )}
+      </div>
+
+      {/* 대출기간 — 1개월 단위 슬라이더 (조작 시 월 상환액 실시간 표시) */}
+      <div className="field">
+        <div className="field__label">대출기간</div>
+        <div className="sim-slider">
+          <div className="sim-slider__head">
+            <input
+              className="sim-slider__input"
+              inputMode="numeric"
+              value={months}
+              onChange={(e) =>
+                setMonths(
+                  Math.min(range.max, Number(e.target.value.replace(/[^\d]/g, '')) || 0),
+                )
+              }
+              onBlur={() => clampMonths(months)}
+              aria-label="대출기간(개월)"
+            />
+            <span className="sim-slider__unit">개월</span>
+          </div>
+          <input
+            className="sim-slider__range"
+            type="range"
+            min={range.min}
+            max={range.max}
+            step={1}
+            value={months}
+            onChange={(e) => setMonths(Number(e.target.value))}
+            style={{
+              background: `linear-gradient(to right, var(--bnk-red) ${fillPct}%, var(--line-strong) ${fillPct}%)`,
+            }}
+          />
+          <div className="sim-slider__ticks">
+            <span>{range.min}개월</span>
+            <span>{range.max}개월</span>
+          </div>
+          <div className="sim-slider__live">
+            <span>월 상환액 (1회차)</span>
+            <b>{won(schedule.firstPayment)}원</b>
+          </div>
+        </div>
       </div>
 
       {/* 예상 적용금리 */}
