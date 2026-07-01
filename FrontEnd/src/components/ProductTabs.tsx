@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import './ProductTabs.css';
 
 export type TabKey = 'info' | 'rate' | 'terms' | 'sim';
@@ -12,9 +13,12 @@ const TABS: { key: TabKey; label: string }[] = [
 export function ProductTabs({
   active,
   onChange,
+  action,
 }: {
   active: TabKey;
   onChange: (k: TabKey) => void;
+  /** 탭 우측(시뮬레이터 옆)에 붙는 액션 버튼 슬롯 */
+  action?: ReactNode;
 }) {
   return (
     <nav className="tabs" role="tablist" aria-label="상품 상세 탭">
@@ -29,6 +33,7 @@ export function ProductTabs({
           {t.label}
         </button>
       ))}
+      {action}
     </nav>
   );
 }

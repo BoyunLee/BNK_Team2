@@ -1,0 +1,109 @@
+/* 상품 비교 — 내 대출 톤 재사용(.app-shell.my-loans). 표는 첫 열 고정 + 가로 스크롤 */
+.cmp-scroll {
+  overflow-x: auto;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(40, 59, 92, 0.08);
+}
+
+.cmp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 320px;
+}
+
+.cmp-table th,
+.cmp-table td {
+  padding: 12px 12px;
+  text-align: center;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f3f5;
+}
+.cmp-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* 열 헤더(상품) */
+.cmp-head {
+  position: relative;
+  background: #f7fbff;
+  border-bottom: 2px solid #e6eef8 !important;
+}
+.cmp-head__name {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  color: #101828;
+  line-height: 1.35;
+  word-break: keep-all;
+  padding: 0 6px;
+}
+.cmp-head__link {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #246ac7;
+  text-decoration: none;
+}
+.cmp-head__remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: #eef0f4;
+  color: #8a93a3;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+.cmp-head__remove:hover {
+  background: #e2e5ea;
+  color: #55606f;
+}
+
+/* 첫 열(항목명) 고정 */
+.cmp-corner,
+.cmp-rowhead {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #fbfcfe;
+  text-align: left !important;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #7b8494;
+  white-space: nowrap;
+}
+.cmp-corner {
+  background: #f7fbff;
+}
+
+.cmp-table td {
+  color: #10203f;
+  font-weight: 600;
+  word-break: keep-all;
+}
+.cmp-table td span {
+  display: block;
+}
+
+/* 우위 강조 */
+.cmp-table td.is-best {
+  background: #eafaf0;
+}
+.cmp-best {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 10.5px;
+  font-weight: 800;
+  font-style: normal;
+  color: #1a8a4f;
+  background: #d6f5e2;
+  border-radius: 999px;
+  padding: 2px 8px;
+}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import type { ProductCategory } from '../types/product';
 import { fetchProducts, type BeProductListItem } from '../lib/products';
 import { formatRateRange } from '../lib/rate';
@@ -25,6 +25,18 @@ export function ProductListPage() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('전체');
   const [query, setQuery] = useState('');
+
+  // 비교 대상 선택 모드: /products?compareWith=<기준상품id>
+  const [searchParams] = useSearchParams();
+  const compareWithRaw = searchParams.get('compareWith');
+  const compareBaseId =
+    compareWithRaw && Number.isInteger(Number(compareWithRaw))
+      ? Number(compareWithRaw)
+      : null;
+  const selectMode = compareBaseId != null;
+  const baseName = selectMode
+    ? index?.find((p) => p.productId === compareBaseId)?.productName
+    : undefined;
 
   useEffect(() => {
     // 상품 목록은 비로그인도 열람 가능(BE 인증 예외)
@@ -127,6 +139,18 @@ export function ProductListPage() {
         )}
       </div>
 
+      {selectMode && (
+        <div className="select-banner" role="status">
+          <div className="select-banner__text">
+            <strong>{baseName ?? '선택한 상품'}</strong>
+            <span>과(와) 비교할 상품을 선택하세요</span>
+          </div>
+          <Link className="select-banner__cancel" to="/products">
+            취소
+          </Link>
+        </div>
+      )}
+
       <nav className="chips" aria-label="상품 유형 필터">
         {(['전체', ...CATEGORIES] as Filter[]).map((c) => (
           <button
@@ -156,20 +180,29 @@ export function ProductListPage() {
           </div>
         ) : (
           <ul className="cards">
-            {filtered.map((p) => (
-              <li key={p.productId}>
-                <Link className="card" to={`/product/${p.productId}`}>
-                  <span className="card__cat">{p.category}</span>
-                  <span className="card__name">{p.productName}</span>
-                  {p.catchphrase && (
-                    <span className="card__pitch">{p.catchphrase}</span>
-                  )}
-                  <span className="card__rate">
-                    {formatRateRange(p.rateMin, p.rateMax)}
-                  </span>
-                </Link>
-              </li>
-            ))}
+            {filtered
+              .filter((p) => !selectMode || p.productId !== compareBaseId)
+              .map((p) => (
+                <li key={p.productId}>
+                  <Link
+                    className="card"
+                    to={
+                      selectMode
+                        ? `/compare?ids=${compareBaseId},${p.productId}`
+                        : `/product/${p.productId}`
+                    }
+                  >
+                    <span className="card__cat">{p.category}</span>
+                    <span className="card__name">{p.productName}</span>
+                    {p.catchphrase && (
+                      <span className="card__pitch">{p.catchphrase}</span>
+                    )}
+                    <span className="card__rate">
+                      {formatRateRange(p.rateMin, p.rateMax)}
+                    </span>
+                  </Link>
+                </li>
+              ))}
           </ul>
         )}
       </main>

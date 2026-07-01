@@ -35,7 +35,34 @@ export function ProductDetailPage({
       </div>
       <h1 className="page-title">대출상세</h1>
       <ProductHeader meta={product.meta} summary={product.summary} />
-      <ProductTabs active={tab} onChange={setTab} />
+      <ProductTabs
+        active={tab}
+        onChange={setTab}
+        action={
+          <button
+            type="button"
+            className="tabs__compare"
+            onClick={() => navigate(`/products?compareWith=${productId}`)}
+            aria-label="다른 상품과 비교"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M8 3 4 7l4 4" />
+              <path d="M4 7h16" />
+              <path d="m16 21 4-4-4-4" />
+              <path d="M20 17H4" />
+            </svg>
+            상품 비교
+          </button>
+        }
+      />
 
       <main style={{ paddingBottom: 96 }}>
         {tab === 'info' && <SectionList sections={product.infoSections} />}

@@ -5,6 +5,7 @@ import { MyLoansPage } from '../pages/MyLoansPage';
 import { MyLoanDetailPage } from '../pages/MyLoanDetailPage';
 import { LoanCalculatorPage } from '../pages/LoanCalculatorPage';
 import { ProductListPage } from '../pages/ProductListPage';
+import { ComparePage } from '../pages/ComparePage';
 import { ProductDetailRoute } from '../pages/ProductDetailRoute';
 import { EligibilityPage } from '../pages/apply/EligibilityPage';
 import { PinAuthPage } from '../pages/apply/PinAuthPage';
@@ -44,6 +45,7 @@ export const router = createBrowserRouter([
       { path: '/my-loans/detail', element: <MyLoanDetailPage /> },
       { path: '/calculator', element: <LoanCalculatorPage /> },
       { path: '/products', element: <ProductListPage /> },
+      { path: '/compare', element: <ComparePage /> },
       { path: '/login', element: <LoginPage /> },
       { path: '/signup', element: <SignupPage /> },
       { path: '/product/:productId', element: <ProductDetailRoute /> },
