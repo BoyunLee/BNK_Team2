@@ -16,7 +16,7 @@ import java.util.List;
 public class LoanApplication {
 
     @Id
-    @Column(name = "loan_account_no")
+    @Column(name = "loan_account_no", length = 30)
     private String loanAccountNo;
 
     @Column(name = "customer_id", nullable = false)

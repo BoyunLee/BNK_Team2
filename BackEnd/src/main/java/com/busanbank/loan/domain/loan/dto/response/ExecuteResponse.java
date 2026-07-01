@@ -10,5 +10,6 @@ public record ExecuteResponse(
         BigDecimal finalRate,
         LocalDate maturityDate,
         String depositAccountNo,
+        String loanDepositAccountNo,
         LocalDateTime executionDate
 ) {}

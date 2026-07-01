@@ -24,7 +24,7 @@ public class LoanContract {
     @Column(name = "contract_id")
     private Long contractId;
 
-    @Column(name = "loan_account_no", nullable = false)
+    @Column(name = "loan_account_no", nullable = false, length = 30)
     private String loanAccountNo;
 
     @Column(name = "customer_id", nullable = false)
@@ -53,6 +53,10 @@ public class LoanContract {
 
     @Column(name = "deposit_account_no")
     private String depositAccountNo;
+
+    /** 실제 대출계좌번호 (ACCOUNT.account_no, LOAN 타입) — 대출 실행 시 채번 */
+    @Column(name = "loan_deposit_account_no")
+    private String loanDepositAccountNo;
 
     @Column(name = "fund_purpose")
     private String fundPurpose;
@@ -86,8 +90,9 @@ public class LoanContract {
         this.createdAt = LocalDateTime.now();
     }
 
-    public void execute(LocalDateTime executionDate) {
+    public void execute(LocalDateTime executionDate, String loanDepositAccountNo) {
         this.status = "CONTRACTED";
         this.executionDate = executionDate;
+        this.loanDepositAccountNo = loanDepositAccountNo;
     }
 }

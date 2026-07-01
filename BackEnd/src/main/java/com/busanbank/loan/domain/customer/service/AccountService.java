@@ -41,7 +41,8 @@ public class AccountService {
     public MyAccountResponse getMyAccount(Long customerId) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CUSTOMER_NOT_FOUND));
-        Account account = accountRepository.findByCustomerId(customerId)
+        Account account = accountRepository
+                .findByCustomerIdAndAccountType(customerId, "DEPOSIT")
                 .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
 
         return MyAccountResponse.of(account, customer);

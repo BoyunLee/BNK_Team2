@@ -19,7 +19,7 @@ public class IncomeInfo {
     @Column(name = "income_id")
     private Long incomeId;
 
-    @Column(name = "loan_account_no", nullable = false)
+    @Column(name = "loan_account_no", nullable = false, length = 30)
     private String loanAccountNo;
 
     @Column(name = "customer_id", nullable = false)

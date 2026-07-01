@@ -22,7 +22,7 @@ public class ApplicationDocumentLog {
     @Column(name = "log_id")
     private Long logId;
 
-    @Column(name = "loan_account_no", nullable = false)
+    @Column(name = "loan_account_no", nullable = false, length = 30)
     private String loanAccountNo;
 
     @Column(name = "document_type")

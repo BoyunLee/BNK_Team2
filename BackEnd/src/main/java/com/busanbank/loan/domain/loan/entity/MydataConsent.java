@@ -22,7 +22,7 @@ public class MydataConsent {
     @Column(name = "consent_id")
     private Long consentId;
 
-    @Column(name = "loan_account_no", nullable = false)
+    @Column(name = "loan_account_no", nullable = false, length = 30)
     private String loanAccountNo;
 
     @Column(name = "consent_type")

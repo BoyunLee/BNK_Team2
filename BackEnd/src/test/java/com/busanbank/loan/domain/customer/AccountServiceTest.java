@@ -57,7 +57,8 @@ class AccountServiceTest {
         Account account = buildAccount("110000000001", 1L, BigDecimal.valueOf(20_000_000));
 
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
-        when(accountRepository.findByCustomerId(1L)).thenReturn(Optional.of(account));
+        when(accountRepository.findByCustomerIdAndAccountType(1L, "DEPOSIT"))
+                .thenReturn(Optional.of(account));
 
         MyAccountResponse res = accountService.getMyAccount(1L);
 
@@ -195,7 +196,7 @@ class AccountServiceTest {
                 .finalRate(rate).repaymentType("원리금균등").loanPeriod("36개월")
                 .maturityDate(LocalDate.now().plusMonths(36))
                 .depositAccountNo("110000000001").fundPurpose("생활비").build();
-        c.execute(LocalDateTime.now());
+        c.execute(LocalDateTime.now(), "120000000001");
         return c;
     }
 

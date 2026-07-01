@@ -122,7 +122,8 @@ class CustomerServiceTest {
 
         when(customerRepository.findByEmail("user@test.com")).thenReturn(Optional.of(customer));
         when(passwordEncoder.matches("123456", customer.getSimplePassword())).thenReturn(true);
-        when(accountRepository.findByCustomerId(10L)).thenReturn(Optional.of(account));
+        when(accountRepository.findByCustomerIdAndAccountType(10L, "DEPOSIT"))
+                .thenReturn(Optional.of(account));
 
         MockHttpServletRequest httpRequest = new MockHttpServletRequest();
 

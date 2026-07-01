@@ -31,6 +31,10 @@ public class Account {
     @Column(name = "account_password", nullable = false, length = 200)
     private String accountPassword;
 
+    /** DEPOSIT 입출금 / LOAN 대출 */
+    @Column(name = "account_type", length = 20)
+    private String accountType = "DEPOSIT";
+
     @Column(name = "status", length = 20)
     private String status = "ACTIVE";
 
@@ -38,10 +42,11 @@ public class Account {
     private LocalDateTime createdAt;
 
     @Builder
-    public Account(String accountNo, Long customerId, String accountPassword) {
+    public Account(String accountNo, Long customerId, String accountPassword, String accountType) {
         this.accountNo = accountNo;
         this.customerId = customerId;
         this.accountPassword = accountPassword;
+        this.accountType = accountType != null ? accountType : "DEPOSIT";
         this.balance = BigDecimal.ZERO;
         this.status = "ACTIVE";
         this.createdAt = LocalDateTime.now();

@@ -30,6 +30,7 @@ public record LoanDetailResponse(
             String loanPeriod,
             LocalDate maturityDate,
             String depositAccountNo,
+            String loanDepositAccountNo,
             String fundPurpose,
             LocalDateTime executionDate,
             List<PreferentialRateInfo> preferentialRates
@@ -81,6 +82,7 @@ public record LoanDetailResponse(
                     contract.getLoanPeriod(),
                     contract.getMaturityDate(),
                     MaskingUtil.maskAccount(contract.getDepositAccountNo()),
+                    MaskingUtil.maskAccount(contract.getLoanDepositAccountNo()),
                     contract.getFundPurpose(),
                     contract.getExecutionDate(),
                     prefRates

@@ -9,5 +9,8 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 
     Optional<Account> findByCustomerId(Long customerId);
 
+    /** 계좌 종류로 단건 조회 (고객당 입출금 계좌는 1개) */
+    Optional<Account> findByCustomerIdAndAccountType(Long customerId, String accountType);
+
     Optional<Account> findByAccountNo(String accountNo);
 }

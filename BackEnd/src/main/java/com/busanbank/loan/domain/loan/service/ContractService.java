@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -230,12 +231,24 @@ public class ContractService {
                 .build());
 
         LocalDateTime executionDate = LocalDateTime.now();
-        contract.execute(executionDate);
 
         Account account = accountRepository.findByAccountNo(contract.getDepositAccountNo())
                 .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
-
         account.deposit(BigDecimal.valueOf(contract.getLoanAmount()));
+
+        // 대출 실행 시 대출계좌(여신) 자동 생성 — 대출 잔액(원금)을 보유한 별도 통장
+        String loanAccountDepositNo = "120" + String.format("%09d", new Random().nextLong(1_000_000_000L));
+        Account loanAccount = Account.builder()
+                .accountNo(loanAccountDepositNo)
+                .customerId(customerId)
+                .accountPassword(account.getAccountPassword()) // 고객 계좌비밀번호 해시 재사용
+                .accountType("LOAN")
+                .build();
+        loanAccount.deposit(BigDecimal.valueOf(contract.getLoanAmount()));
+        accountRepository.save(loanAccount);
+
+        // 약정에 실제 대출계좌번호 기록
+        contract.execute(executionDate, loanAccountDepositNo);
         application.updateStatus("9");
 
         return new ExecuteResponse(
@@ -244,6 +257,7 @@ public class ContractService {
                 contract.getFinalRate(),
                 contract.getMaturityDate(),
                 contract.getDepositAccountNo(),
+                loanAccountDepositNo,
                 executionDate
         );
     }

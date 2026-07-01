@@ -19,7 +19,7 @@ public class SuitabilityResponse {
     @Column(name = "response_id")
     private Long responseId;
 
-    @Column(name = "loan_account_no", nullable = false)
+    @Column(name = "loan_account_no", nullable = false, length = 30)
     private String loanAccountNo;
 
     @Column(name = "question_code")

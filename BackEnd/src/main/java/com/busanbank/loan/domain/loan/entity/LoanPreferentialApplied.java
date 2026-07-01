@@ -20,7 +20,7 @@ public class LoanPreferentialApplied {
     @Column(name = "applied_id")
     private Long appliedId;
 
-    @Column(name = "loan_account_no", nullable = false)
+    @Column(name = "loan_account_no", nullable = false, length = 30)
     private String loanAccountNo;
 
     @Column(name = "preferential_id", nullable = false)

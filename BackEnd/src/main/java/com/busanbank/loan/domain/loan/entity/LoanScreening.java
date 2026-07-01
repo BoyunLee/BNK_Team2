@@ -20,7 +20,7 @@ public class LoanScreening {
     @Column(name = "screening_id")
     private Long screeningId;
 
-    @Column(name = "loan_account_no", nullable = false)
+    @Column(name = "loan_account_no", nullable = false, length = 30)
     private String loanAccountNo;
 
     @Column(name = "max_limit_amt")

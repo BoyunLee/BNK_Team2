@@ -68,6 +68,7 @@ public class CustomerService {
                 .accountNo(accountNo)
                 .customerId(saved.getCustomerId())
                 .accountPassword(passwordEncoder.encode(req.getAccountPassword()))
+                .accountType("DEPOSIT")
                 .build();
         accountRepository.save(account);
 
@@ -91,7 +92,8 @@ public class CustomerService {
 
         SessionUtil.setCurrentCustomerId(request, customer.getCustomerId());
 
-        Account account = accountRepository.findByCustomerId(customer.getCustomerId())
+        Account account = accountRepository
+                .findByCustomerIdAndAccountType(customer.getCustomerId(), "DEPOSIT")
                 .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
 
         return LoginResponse.builder()
