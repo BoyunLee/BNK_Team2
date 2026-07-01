@@ -92,7 +92,7 @@ qdrant:
 
 chat:
   top-k: 3
-  similarity-threshold: 0.70        # 운영 중 0.65~0.80 범위에서 튜닝
+  similarity-threshold: 0.60        # gemini-embedding-001 한국어 상품 매칭 점수대(0.65~0.82) 기준. 0.70이면 정답도 컷됨
   history-limit: 5                  # 프롬프트에 포함할 직전 대화 턴 수
 
 logging:
