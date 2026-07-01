@@ -44,7 +44,7 @@ export function ProductDetailRoute() {
     return (
       <div className="app-shell">
         <div className="topbar">
-          <Link className="topbar__back" to="/" aria-label="목록으로">
+          <Link className="topbar__back" to="/products" aria-label="목록으로">
             ‹ 목록
           </Link>
         </div>
@@ -60,7 +60,7 @@ export function ProductDetailRoute() {
     return (
       <div className="app-shell">
         <div className="topbar">
-          <Link className="topbar__back" to="/" aria-label="목록으로">
+          <Link className="topbar__back" to="/products" aria-label="목록으로">
             ‹ 목록
           </Link>
         </div>

@@ -29,7 +29,7 @@ export function ProductDetailPage({
   return (
     <div className="app-shell">
       <div className="topbar topbar--detail">
-        <Link className="topbar__back topbar__back--red" to="/" aria-label="목록으로">
+        <Link className="topbar__back topbar__back--red" to="/products" aria-label="목록으로">
           ‹ 뒤로가기
         </Link>
       </div>

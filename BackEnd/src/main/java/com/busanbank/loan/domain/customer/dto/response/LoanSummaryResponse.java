@@ -3,6 +3,7 @@ package com.busanbank.loan.domain.customer.dto.response;
 import com.busanbank.loan.domain.loan.entity.LoanApplication;
 import com.busanbank.loan.domain.loan.entity.LoanContract;
 import com.busanbank.loan.domain.product.entity.LoanProduct;
+import com.busanbank.loan.global.util.MaskingUtil;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,6 +19,7 @@ public record LoanSummaryResponse(
         Long loanAmount,
         BigDecimal finalRate,
         LocalDate maturityDate,
+        String loanDepositAccountNo,
         LocalDateTime appliedAt
 ) {
     private static final Map<String, String> STATUS_NAMES = Map.ofEntries(
@@ -44,6 +46,7 @@ public record LoanSummaryResponse(
                 contract != null ? contract.getLoanAmount() : null,
                 contract != null ? contract.getFinalRate() : null,
                 contract != null ? contract.getMaturityDate() : null,
+                contract != null ? MaskingUtil.maskAccount(contract.getLoanDepositAccountNo()) : null,
                 app.getAppliedAt()
         );
     }

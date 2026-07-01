@@ -70,7 +70,9 @@ export function ProductListPage() {
     <div className="app-shell">
       <header className="list-head">
         <AuthBadge />
-        <img className="list-head__logo" src={bnkLogo} alt="BNK 부산은행" />
+        <Link to="/" aria-label="홈으로">
+          <img className="list-head__logo" src={bnkLogo} alt="BNK 부산은행" />
+        </Link>
         <h1 className="list-head__title">여신상품몰</h1>
         <p className="list-head__sub">부산은행 대출상품을 한눈에</p>
       </header>

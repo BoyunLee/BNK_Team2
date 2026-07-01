@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { RootLayout } from '../layouts/RootLayout';
+import { HomePage } from '../pages/HomePage';
 import { ProductListPage } from '../pages/ProductListPage';
 import { ProductDetailRoute } from '../pages/ProductDetailRoute';
 import { EligibilityPage } from '../pages/apply/EligibilityPage';
@@ -35,7 +36,8 @@ export const router = createBrowserRouter([
   {
     element: <RootLayout />,
     children: [
-      { path: '/', element: <ProductListPage /> },
+      { path: '/', element: <HomePage /> },
+      { path: '/products', element: <ProductListPage /> },
       { path: '/login', element: <LoginPage /> },
       { path: '/signup', element: <SignupPage /> },
       { path: '/product/:productId', element: <ProductDetailRoute /> },
