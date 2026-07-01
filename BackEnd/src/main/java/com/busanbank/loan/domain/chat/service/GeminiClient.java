@@ -73,6 +73,15 @@ public class GeminiClient {
      * @param userMessage  현재 질문
      */
     public String generate(String systemPrompt, List<ChatMessage> history, String userMessage) {
+        return generate(systemPrompt, history, userMessage, props.getMaxOutputTokens());
+    }
+
+    /**
+     * maxOutputTokens 를 명시적으로 지정해 답변을 생성한다.
+     * 간결 답변(일반 상담·상세 요청 없음) 시 낮은 상한으로 분량을 하드 캡한다.
+     */
+    public String generate(String systemPrompt, List<ChatMessage> history, String userMessage,
+                           int maxOutputTokens) {
         List<Map<String, Object>> contents = new ArrayList<>();
         for (ChatMessage m : history) {
             String role = m.isUser() ? "user" : "model";
@@ -85,7 +94,7 @@ public class GeminiClient {
                 "contents", contents,
                 "generationConfig", Map.of(
                         "temperature", props.getTemperature(),
-                        "maxOutputTokens", props.getMaxOutputTokens(),
+                        "maxOutputTokens", maxOutputTokens,
                         // gemini-2.5-flash 는 thinking 모델 — 기본값이면 추론 토큰이 maxOutputTokens 를
                         // 소진해 답변이 잘린다. 상담 답변엔 추론이 불필요하므로 thinking 을 끈다.
                         "thinkingConfig", Map.of("thinkingBudget", 0)
