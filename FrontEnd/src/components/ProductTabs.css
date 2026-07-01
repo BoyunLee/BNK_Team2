@@ -4,18 +4,27 @@
   z-index: 20;
   background: var(--bg);
   display: flex;
-  gap: 9px;
-  padding: 16px 20px;
+  gap: 8px;
+  padding: 14px 20px;
   border-bottom: 1px solid var(--line);
+  /* 탭이 4개라 좁은 화면에서 넘칠 수 있어 가로 스크롤 허용(스크롤바 숨김) */
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.tabs::-webkit-scrollbar {
+  display: none;
 }
 .tabs__btn {
   flex: 0 0 auto;
+  white-space: nowrap;
   border: 1px solid var(--line-strong);
   background: var(--bg);
   color: var(--ink-soft);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
-  padding: 9px 20px;
+  padding: 9px 16px;
   border-radius: 999px;
   cursor: pointer;
   font-family: inherit;

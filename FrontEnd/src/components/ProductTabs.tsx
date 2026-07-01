@@ -1,11 +1,12 @@
 import './ProductTabs.css';
 
-export type TabKey = 'info' | 'rate' | 'terms';
+export type TabKey = 'info' | 'rate' | 'terms' | 'sim';
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'info', label: '상품안내' },
   { key: 'rate', label: '금리안내' },
   { key: 'terms', label: '상품약관' },
+  { key: 'sim', label: '시뮬레이터' },
 ];
 
 export function ProductTabs({

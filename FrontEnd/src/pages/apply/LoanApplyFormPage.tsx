@@ -14,6 +14,12 @@ import {
   fetchProductDetail,
   type BePreferentialRate,
 } from '../../lib/products';
+import {
+  COFIX_VALUES,
+  rangeForMethod,
+  parseLimitWon,
+  type RepaymentOpt,
+} from '../../lib/loanCalc';
 import { ApiError } from '../../lib/api';
 import '../../styles/shell.css';
 import './apply.css';
@@ -31,9 +37,6 @@ const REPAY_METHODS = [
   '원리금균등상환',
   '종합통장대출(마이너스통장)',
 ];
-
-/** 상품별 상환방법 + 가능 기간범위(개월). DB OPT_REPAYMENTS(JSON) 매핑 */
-type RepaymentOpt = { method: string; minM: number; maxM: number; minIncl: boolean };
 
 const BASE_RATE_OPTIONS = [
   '신규취급액기준 COFIX',
@@ -61,23 +64,6 @@ const PURPOSE_OPTIONS = [
 ];
 
 const won = (n: number) => n.toLocaleString('ko-KR');
-
-/** COFIX 기준금리 값(연 %, 2026-06-23 고시). 기준금리 선택에 따라 적용금리가 변동된다. */
-const COFIX_VALUES: Record<string, number> = {
-  '신잔액기준 COFIX': 2.5,
-  '신규취급액기준 COFIX': 2.9,
-};
-
-/** 선택한 상환방법의 가능 대출기간(개월) 범위. minIncl=false → 하한 '초과'(min+1) */
-function rangeForMethod(
-  reps: RepaymentOpt[],
-  method: string,
-  fb: { min: number; max: number },
-): { min: number; max: number } {
-  const r = reps.find((x) => x.method === method);
-  if (!r) return fb;
-  return { min: r.minIncl ? r.minM : r.minM + 1, max: r.maxM };
-}
 
 /** 상환방식별 1회차(최초) 상환금액 */
 function computeFirstRepay(
@@ -132,8 +118,12 @@ export function LoanApplyFormPage() {
   const { requestExit: requestCancel, exitModal: cancelModal } =
     useApplyExit(productCd);
 
-  // screening 결과(없으면 폴백)
-  const effLimit = screening?.maxLimitAmt ?? MY_LIMIT;
+  // screening 결과(없으면 폴백). 신청 한도 = min(나의 한도, 상품 한도)
+  const [productLimit, setProductLimit] = useState<number | null>(null);
+  const effLimit = Math.min(
+    screening?.maxLimitAmt ?? MY_LIMIT,
+    productLimit ?? Infinity,
+  );
   const effBaseRate = screening?.appliedBaseRate ?? BASE_RATE;
   // 입금계좌 = 가입 시 만든 고객 계좌(실행 시 검증됨)
   const depositAccountNo = accountNo ?? '';
@@ -178,6 +168,7 @@ export function LoanApplyFormPage() {
         setCycleOpts(cycles);
         if (rts.length) setBaseRate(rts[0]); // 첫 기준금리를 기본 선택(복수 시 변경 가능)
         setCycle(cycles[0] ?? '해당없음');
+        setProductLimit(parseLimitWon(byKey('LOAN_LIMIT'))); // 상품 한도(신청 상한에 반영)
       })
       .catch(() => setPrefRates([]));
   }, [productCd]);

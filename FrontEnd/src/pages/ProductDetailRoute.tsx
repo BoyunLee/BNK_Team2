@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import type { Product } from '../types/product';
-import { fetchProductDetail, toProduct } from '../lib/products';
+import {
+  fetchProductDetail,
+  toProduct,
+  type BeProductDetail,
+} from '../lib/products';
 import { ProductDetailPage } from './ProductDetailPage';
 import '../styles/shell.css';
 
@@ -12,16 +16,21 @@ import '../styles/shell.css';
 export function ProductDetailRoute() {
   const { productId } = useParams<{ productId: string }>();
   const [product, setProduct] = useState<Product | null>(null);
+  const [detail, setDetail] = useState<BeProductDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
     setProduct(null);
+    setDetail(null);
     setError(null);
     (async () => {
       try {
-        const detail = await fetchProductDetail(productId ?? '');
-        if (alive) setProduct(toProduct(detail));
+        const d = await fetchProductDetail(productId ?? '');
+        if (alive) {
+          setDetail(d);
+          setProduct(toProduct(d));
+        }
       } catch (e) {
         if (alive) setError(e instanceof Error ? e.message : String(e));
       }
@@ -62,5 +71,5 @@ export function ProductDetailRoute() {
     );
   }
 
-  return <ProductDetailPage product={product} />;
+  return <ProductDetailPage product={product} detail={detail} />;
 }

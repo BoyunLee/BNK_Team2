@@ -1,0 +1,189 @@
+/* 시뮬레이터 — 대출신청 폼(lf-*)과 동일 톤. 여기선 기본 클래스에 없는 요소만 정의. */
+.sim {
+  padding: 8px 20px 16px;
+}
+.sim * {
+  box-sizing: border-box;
+}
+
+/* 금액 프리셋 칩 */
+.sim-chips {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.sim-chip {
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  color: var(--ink-soft);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.sim-chip.is-on {
+  border-color: var(--bnk-red);
+  color: var(--bnk-red);
+  font-weight: 700;
+}
+.sim-caphint {
+  margin: 10px 2px 0;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+}
+
+/* 기준금리 delta 배지 */
+.sim-delta {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--bnk-red);
+}
+
+/* ── 대출기간 슬라이더 ── */
+.sim-slider {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+}
+.sim-slider__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 16px;
+}
+.sim-slider__input {
+  width: 96px;
+  border: none;
+  border-bottom: 2px solid var(--line-strong);
+  background: transparent;
+  text-align: center;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.5px;
+  font-family: inherit;
+  padding: 2px 0;
+}
+.sim-slider__input:focus {
+  outline: none;
+  border-bottom-color: var(--bnk-red);
+}
+.sim-slider__unit {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.sim-slider__range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+}
+.sim-slider__range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--bnk-red);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  margin-top: -8px;
+}
+.sim-slider__range::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--bnk-red);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+.sim-slider__ticks {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+/* 원금:이자 비율 막대 */
+.sim-bar {
+  display: flex;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 16px 0 8px;
+  background: var(--line);
+}
+.sim-bar__p {
+  background: var(--info-color, #2f6df6);
+}
+.sim-bar__i {
+  background: var(--bnk-red);
+}
+.sim-bar__legend {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+.sim-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+.sim-dot--p {
+  background: var(--info-color, #2f6df6);
+}
+.sim-dot--i {
+  background: var(--bnk-red);
+}
+
+/* 상환 스케줄 표 */
+.sim-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.sim-table th,
+.sim-table td {
+  padding: 9px 6px;
+  text-align: right;
+  border-bottom: 1px solid var(--line);
+}
+.sim-table th:first-child,
+.sim-table td:first-child {
+  text-align: center;
+  color: var(--ink-soft);
+}
+.sim-table thead th {
+  color: var(--ink-faint);
+  font-weight: 600;
+  border-bottom: 1px solid var(--line-strong);
+}
+.sim-table tbody tr:last-child td {
+  font-weight: 700;
+}
+.sim-table__gap td {
+  text-align: center !important;
+  color: var(--ink-faint);
+  font-weight: 400 !important;
+}
+
+.sim-note {
+  margin-top: 18px;
+}

@@ -88,7 +88,16 @@ public class ContractService {
             throw new BusinessException(ErrorCode.SCREENING_REJECTED);
         }
 
-        if (data.loanAmount() > screening.getMaxLimitAmt()) {
+        // 신청 한도 = min(심사 한도, 상품 한도(LOAN_LIMIT))
+        Long productLimit = parseLimitWon(
+                productDescriptionRepository
+                        .findByProductIdAndAttrKey(application.getProductId(), "LOAN_LIMIT")
+                        .map(d -> d.getAttrValue())
+                        .orElse(null));
+        long applyMax = productLimit != null
+                ? Math.min(screening.getMaxLimitAmt(), productLimit)
+                : screening.getMaxLimitAmt();
+        if (data.loanAmount() > applyMax) {
             throw new BusinessException(ErrorCode.LOAN_AMOUNT_EXCEEDED);
         }
 
@@ -237,6 +246,28 @@ public class ContractService {
                 contract.getDepositAccountNo(),
                 executionDate
         );
+    }
+
+    /** LOAN_LIMIT 텍스트에서 한도 금액(원) 파싱. 조건/최소 괄호는 제외하고 최대 금액. 없으면 null. */
+    private static Long parseLimitWon(String raw) {
+        if (raw == null || raw.isBlank()) return null;
+        String s = raw.split("\\(")[0]; // "35백만원(최소 1백만원)" → "35백만원"
+        long max = 0;
+        max = Math.max(max, scanUnit(s, "억", 100_000_000L));
+        max = Math.max(max, scanUnit(s, "천만", 10_000_000L));
+        max = Math.max(max, scanUnit(s, "백만", 1_000_000L));
+        if (max == 0) max = scanUnit(s, "만", 10_000L);
+        return max > 0 ? max : null;
+    }
+
+    private static long scanUnit(String s, String unit, long mult) {
+        java.util.regex.Matcher m =
+                java.util.regex.Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*" + unit).matcher(s);
+        long max = 0;
+        while (m.find()) {
+            max = Math.max(max, (long) (Double.parseDouble(m.group(1)) * mult));
+        }
+        return max;
     }
 
     private LocalDate parseLoanPeriodToMaturityDate(String loanPeriod) {
