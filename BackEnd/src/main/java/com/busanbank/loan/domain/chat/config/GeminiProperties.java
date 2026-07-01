@@ -34,6 +34,12 @@ public class GeminiProperties {
     /** 최대 출력 토큰. */
     private int maxOutputTokens = 1024;
 
+    /** 간결 답변(일반 금융 상담, 상세 요청 없음) 시 최대 출력 토큰. 300자 내외 유도용 하드 캡. */
+    private int briefMaxOutputTokens = 512;
+
+    /** 상세 답변(일반 금융 상담, 상세 요청 있음) 시 최대 출력 토큰. 500~600자 유도용 하드 캡. */
+    private int detailMaxOutputTokens = 640;
+
     public boolean isEnabled() {
         return apiKey != null && !apiKey.isBlank();
     }

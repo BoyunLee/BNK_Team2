@@ -84,6 +84,8 @@ gemini:
   embedding-dimension: 768          # Qdrant 컬렉션 vector size와 반드시 일치(outputDimensionality)
   temperature: 0.2
   max-output-tokens: 1024
+  brief-max-output-tokens: 512      # 일반 상담·상세요청 없을 때 상한(300자 내외 유도)
+  detail-max-output-tokens: 640     # 일반 상담·상세요청 있을 때 상한(500~600자 유도)
 
 qdrant:
   base-url: ${QDRANT_URL:http://localhost:6333}

@@ -1,6 +1,7 @@
 package com.busanbank.loan.domain.chat.service;
 
 import com.busanbank.loan.domain.chat.config.ChatProperties;
+import com.busanbank.loan.domain.chat.config.GeminiProperties;
 import com.busanbank.loan.domain.chat.dto.request.ChatRequest;
 import com.busanbank.loan.domain.chat.dto.response.ChatResponse;
 import com.busanbank.loan.domain.chat.entity.ChatMessage;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * 챗봇 오케스트레이션: 이력 로딩 → 질문 임베딩 → 벡터 검색 → 프롬프트 조립 → 답변 생성 → 저장.
@@ -73,12 +75,29 @@ public class ChatService {
             - 확실하지 않은 내용은 단정하지 말고, 일반적인 정보임을 밝히세요.
             - 구체적인 상품 가입·조건 확인은 부산은행 고객센터(1588-6200) 또는 상담사 연결을 권유하세요.
             - 개인정보(주민번호, 계좌번호 등)는 요구하지 마세요.
+
+            [답변 분량]
+            - 기본적으로 핵심만 담아 300자 내외로 간결하게 답변하세요. 불필요한 서론·반복·장황한 설명은 피합니다.
+            - 다만 고객이 "자세히", "상세하게", "더 설명해줘" 등 자세한 설명을 명시적으로 요청한 경우에는
+              500~600자 정도로 핵심 위주로 설명하세요. 지나치게 길게 나열하지 말고 요점만 짚어 설명합니다.
+
+            [답변 형식]
+            - 인사말·서두를 붙이지 말고 곧바로 본문(답변 내용)만 작성하세요.
+              (예: "고객님, ~문의 주셨군요", "친절하게 설명해 드리겠습니다" 등의 도입 문구 금지)
+            - 맺음말·상투적 마무리도 붙이지 마세요.
+              (예: "더 궁금하신 점이 있으시면 다시 문의해 주세요" 등의 마무리 문구 금지)
+            - 질문에 대한 실질적인 답변만 출력합니다.
             """;
+
+    /** 고객이 상세한 답변을 명시적으로 요청했는지 판별하는 키워드 패턴. */
+    private static final Pattern DETAIL_REQUEST = Pattern.compile(
+            "자세(히|하게|한)|상세(히|하게|한)?|구체적|자세한\\s*설명|더\\s*(자세|설명|알려)|풀어서|낱낱이|디테일");
 
     private final ChatMessageRepository chatMessageRepository;
     private final GeminiClient geminiClient;
     private final VectorSearchService vectorSearchService;
     private final ChatProperties chatProperties;
+    private final GeminiProperties geminiProperties;
 
     @Transactional
     public ChatResponse chat(ChatRequest request, Long customerId) {
@@ -115,7 +134,18 @@ public class ChatService {
                     .toList();
         }
 
-        String answer = generateAnswer(systemPrompt, history, request.message());
+        // 답변 분량 제어(일반 상담 noMatch 에만 적용): 상세 요청 없으면 300자 내외, 있으면 500~600자로 하드 캡.
+        // 상품 상세 상담은 정보량이 필요하므로 기본 상한(maxOutputTokens)을 그대로 사용한다.
+        int maxOutputTokens;
+        if (noMatch) {
+            maxOutputTokens = wantsDetail(request.message())
+                    ? geminiProperties.getDetailMaxOutputTokens()
+                    : geminiProperties.getBriefMaxOutputTokens();
+        } else {
+            maxOutputTokens = geminiProperties.getMaxOutputTokens();
+        }
+
+        String answer = generateAnswer(systemPrompt, history, request.message(), maxOutputTokens);
 
         // ⑥ 저장 (일반 상담이면 참조 상품 없음 → null)
         String referenced = referencedProducts.isEmpty() ? null : String.join(",", referencedProducts);
@@ -143,13 +173,19 @@ public class ChatService {
         }
     }
 
-    private String generateAnswer(String systemPrompt, List<ChatMessage> history, String message) {
+    private String generateAnswer(String systemPrompt, List<ChatMessage> history, String message,
+                                  int maxOutputTokens) {
         try {
-            return geminiClient.generate(systemPrompt, history, message);
+            return geminiClient.generate(systemPrompt, history, message, maxOutputTokens);
         } catch (Exception e) {
             log.error("답변 생성 실패", e);
             throw new BusinessException(ErrorCode.CHAT_LLM_UNAVAILABLE);
         }
+    }
+
+    /** 고객이 "자세히/상세하게/더 설명" 등 상세 답변을 명시적으로 요청했는지 여부. */
+    private boolean wantsDetail(String message) {
+        return message != null && DETAIL_REQUEST.matcher(message).find();
     }
 
     /** 세션의 최근 대화를 시간순(오래된→최신)으로 반환. */
