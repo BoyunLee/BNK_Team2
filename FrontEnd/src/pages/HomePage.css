@@ -2,8 +2,8 @@
   min-height: 100vh;
   overflow: hidden auto;
   background:
-    linear-gradient(180deg, rgba(231, 246, 255, 0.92) 0%, rgba(244, 250, 255, 0.7) 34%, #f5f7fb 62%),
-    #f5f7fb;
+    linear-gradient(180deg, #f7fbff 0%, #f2f8fd 60%, #f2f8fd 100%),
+    #f2f8fd;
   color: #101828;
   padding-bottom: 104px;
 }
@@ -98,40 +98,28 @@
 
 .home-skyline {
   position: absolute;
-  right: 0;
-  bottom: 25px;
-  width: 260px;
-  height: 128px;
-  opacity: 0.82;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
+  overflow: hidden;
+  background: #e3f0fa;
+  z-index: 1;
 }
 
-.home-skyline::before {
-  content: '';
+.home-skyline__image {
   position: absolute;
-  inset: auto -20px 0 8px;
-  height: 54px;
-  border-radius: 50% 0 0 0;
-  background: linear-gradient(180deg, rgba(105, 169, 219, 0.24), rgba(255, 255, 255, 0));
-}
-
-.home-skyline__tower {
-  position: absolute;
-  bottom: 24px;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
   display: block;
-  width: 28px;
-  border-radius: 8px 8px 0 0;
-  background: linear-gradient(180deg, rgba(79, 145, 212, 0.55), rgba(103, 169, 222, 0.22));
-}
-
-.home-skyline__tower--one {
-  right: 58px;
-  height: 94px;
-}
-
-.home-skyline__tower--two {
-  right: 22px;
-  height: 72px;
+  opacity: 1;
+  pointer-events: none;
+  margin: auto;
+  background: transparent;
+  transform: translateY(14px);
 }
 
 .account-carousel {
@@ -142,6 +130,7 @@
   padding: 0 18px 16px;
   margin-top: -10px;
   position: relative;
+  background: #e3f0fa;
 }
 
 
@@ -464,11 +453,11 @@
 }
 
 .home-tile--blue {
-  background: linear-gradient(135deg, #eef5ff, #dceeff);
+  background: linear-gradient(135deg, #fff4e7 0%, #ffe0b3 100%);
 }
 
 .home-tile--green {
-  background: linear-gradient(135deg, #effaf6, #dbf3eb);
+  background: linear-gradient(135deg, #e9f9f2 0%, #cfeee0 100%);
 }
 
 .home-tile strong {
@@ -481,7 +470,7 @@
 }
 
 .home-tile--blue strong {
-  color: #1769d1;
+  color: #b85b00;
 }
 
 .home-tile--green strong {
@@ -495,9 +484,9 @@
   width: 44px;
   height: 38px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #77a9ff, #2768e8);
+  background: linear-gradient(135deg, #ffb347, #f28c00);
   transform: rotate(-8deg);
-  box-shadow: 0 10px 18px rgba(35, 103, 218, 0.18);
+  box-shadow: 0 10px 18px rgba(242, 140, 0, 0.2);
 }
 
 .home-tile__gift::before {

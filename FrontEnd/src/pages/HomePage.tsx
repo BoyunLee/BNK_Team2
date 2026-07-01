@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import bnkLogo from '../assets/bnk-logo.png';
 import loanHero from '../assets/img-loan-hero.png';
+import homeMainImage from '../assets/home_main_image.png';
 import { Link } from 'react-router-dom';
 import '../styles/shell.css';
 import './HomePage.css';
@@ -148,8 +149,7 @@ export function HomePage() {
         </div>
 
         <div className="home-skyline" aria-hidden="true">
-          <span className="home-skyline__tower home-skyline__tower--one" />
-          <span className="home-skyline__tower home-skyline__tower--two" />
+          <img className="home-skyline__image" src={homeMainImage} alt="" />
         </div>
       </section>
 
