@@ -91,6 +91,8 @@ a.ml-card:hover {
   padding: 56px 24px;
   text-align: center;
   color: #9ca3af;
+  word-break: keep-all; /* 한국어 어절 단위 줄바꿈(단어 중간 끊김 방지) */
+  line-height: 1.5;
 }
 
 /* 상환 스케줄 표(대출 상세) */

@@ -188,7 +188,9 @@ export function LoanCalculatorPage() {
             )}
           </div>
         ) : (
-          <p className="ml-empty">대출금액·기간·금리를 입력하면 결과가 표시됩니다.</p>
+          <p className="ml-empty">
+            대출금액과 기간, 금리를 입력하면 상환 결과가 표시됩니다.
+          </p>
         )}
       </main>
     </div>
